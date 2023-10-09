@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ownerships",
+  "info": {
+    "singularName": "ownership",
+    "pluralName": "ownerships",
+    "displayName": "Ownership",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "bike": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::bike.bike",
+      "inversedBy": "ownerships"
+    },
+    "card": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::card.card",
+      "inversedBy": "ownerships"
+    },
+    "Status": {
+      "type": "string"
+    },
+    "family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::family.family",
+      "inversedBy": "ownerships"
+    },
+    "citizen": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::citizen.citizen",
+      "inversedBy": "ownerships"
+    }
+  }
+}

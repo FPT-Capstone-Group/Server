@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "parking_sessions",
+  "info": {
+    "singularName": "parking-session",
+    "pluralName": "parking-sessions",
+    "displayName": "ParkingSession"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "CheckinTime": {
+      "type": "datetime"
+    },
+    "CheckoutTime": {
+      "type": "datetime"
+    },
+    "bike": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::bike.bike",
+      "inversedBy": "parking_sessions"
+    },
+    "card": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::card.card",
+      "inversedBy": "parking_sessions"
+    },
+    "CheckinFaceImage": {
+      "type": "string"
+    },
+    "CheckinPlateNumberImage": {
+      "type": "string"
+    },
+    "CheckoutFaceImage": {
+      "type": "string"
+    },
+    "CheckoutPlateNumberImage": {
+      "type": "string"
+    }
+  }
+}

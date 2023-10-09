@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "families",
+  "info": {
+    "singularName": "family",
+    "pluralName": "families",
+    "displayName": "Family",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "ownerships": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ownership.ownership",
+      "mappedBy": "family"
+    },
+    "citizens": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::citizen.citizen",
+      "mappedBy": "family"
+    },
+    "applications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::application.application",
+      "mappedBy": "family"
+    },
+    "FamilyName": {
+      "type": "string"
+    }
+  }
+}

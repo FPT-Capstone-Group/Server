@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "payments",
+  "info": {
+    "singularName": "payment",
+    "pluralName": "payments",
+    "displayName": "Payment",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "card": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::card.card",
+      "inversedBy": "payments"
+    },
+    "AmountPayment": {
+      "type": "float"
+    },
+    "PaymentDate": {
+      "type": "datetime"
+    },
+    "Status": {
+      "type": "string"
+    },
+    "payment_histories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::payment-history.payment-history",
+      "mappedBy": "payment"
+    }
+  }
+}

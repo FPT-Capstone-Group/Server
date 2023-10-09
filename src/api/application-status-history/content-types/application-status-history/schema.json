@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "application_status_histories",
+  "info": {
+    "singularName": "application-status-history",
+    "pluralName": "application-status-histories",
+    "displayName": "ApplicationStatusHistory",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "application": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::application.application",
+      "inversedBy": "application_status_histories"
+    },
+    "Status": {
+      "type": "string"
+    },
+    "ChangeTime": {
+      "type": "datetime"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "citizen_histories",
+  "info": {
+    "singularName": "citizen-history",
+    "pluralName": "citizen-histories",
+    "displayName": "CitizenHistory"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "citizen": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::citizen.citizen",
+      "inversedBy": "citizen_histories"
+    },
+    "MoveinDate": {
+      "type": "datetime"
+    },
+    "MoveoutDate": {
+      "type": "datetime"
+    },
+    "ApartmentNumber": {
+      "type": "string"
+    },
+    "Status": {
+      "type": "string"
+    }
+  }
+}

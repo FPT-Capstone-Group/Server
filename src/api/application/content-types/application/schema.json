@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "applications",
+  "info": {
+    "singularName": "application",
+    "pluralName": "applications",
+    "displayName": "Application",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Status": {
+      "type": "string"
+    },
+    "AmoutPayment": {
+      "type": "string"
+    },
+    "bike": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::bike.bike",
+      "inversedBy": "applications"
+    },
+    "application_status_histories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::application-status-history.application-status-history",
+      "mappedBy": "application"
+    },
+    "family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::family.family",
+      "inversedBy": "applications"
+    },
+    "citizen": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::citizen.citizen",
+      "inversedBy": "applications"
+    },
+    "admin_user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "admin::user"
+    },
+    "card": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::card.card",
+      "inversedBy": "applications"
+    }
+  }
+}

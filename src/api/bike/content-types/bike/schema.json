@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bikes",
+  "info": {
+    "singularName": "bike",
+    "pluralName": "bikes",
+    "displayName": "Bike",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "PlateNumber": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "Manufacturer": {
+      "type": "string"
+    },
+    "Model": {
+      "type": "string"
+    },
+    "RegistrationNumber": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "applications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::application.application",
+      "mappedBy": "bike"
+    },
+    "parking_sessions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::parking-session.parking-session",
+      "mappedBy": "bike"
+    },
+    "ownerships": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ownership.ownership",
+      "mappedBy": "bike"
+    }
+  }
+}
