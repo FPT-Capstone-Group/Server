@@ -1,6 +1,23 @@
-# 🚀 Getting started with Strapi
+### `setting .evn`
 
-Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
+```
+HOST=0.0.0.0
+PORT=1337
+APP_KEYS=brtI5sv7JuQXmU7lr3p+6g==,w7p8sOaaPmAK79iThiKhpA==,uInbv4cy9LYkkXp3FyY0xg==,w5nk58qwagRMHqH528RvSA==
+API_TOKEN_SALT=umebxTdE/6D5IFnUyUF2ow==
+ADMIN_JWT_SECRET=3Q5mP5H93Fg2d1PBjeN79g==
+TRANSFER_TOKEN_SALT=7278WZNY6c07bKG4zUXUcw==
+
+DATABASE_CLIENT=postgres
+DATABASE_HOST=127.0.0.1
+DATABASE_PORT=5432
+DATABASE_NAME=manageApplication
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=1234
+DATABASE_SSL=false
+JWT_SECRET=CjQw06BcaH/gBOtm+wP4Rw==
+
+```
 
 ### `develop`
 
@@ -32,26 +49,4 @@ npm run build
 yarn build
 ```
 
-## ⚙️ Deployment
 
-Strapi gives you many possible deployment options for your project including [Strapi Cloud](https://cloud.strapi.io). Browse the [deployment section of the documentation](https://docs.strapi.io/dev-docs/deployment) to find the best solution for your use case.
-
-## 📚 Learn more
-
-- [Resource center](https://strapi.io/resource-center) - Strapi resource center.
-- [Strapi documentation](https://docs.strapi.io) - Official Strapi documentation.
-- [Strapi tutorials](https://strapi.io/tutorials) - List of tutorials made by the core team and the community.
-- [Strapi blog](https://strapi.io/blog) - Official Strapi blog containing articles made by the Strapi team and the community.
-- [Changelog](https://strapi.io/changelog) - Find out about the Strapi product updates, new features and general improvements.
-
-Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/strapi). Your feedback and contributions are welcome!
-
-## ✨ Community
-
-- [Discord](https://discord.strapi.io) - Come chat with the Strapi community including the core team.
-- [Forum](https://forum.strapi.io/) - Place to discuss, ask questions and find answers, show your Strapi project and get feedback or just talk with other Community members.
-- [Awesome Strapi](https://github.com/strapi/awesome-strapi) - A curated list of awesome things related to Strapi.
-
----
-
-<sub>🤫 Psst! [Strapi is hiring](https://strapi.io/careers).</sub>
