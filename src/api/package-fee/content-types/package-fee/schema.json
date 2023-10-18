@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "package_fees",
+  "info": {
+    "singularName": "package-fee",
+    "pluralName": "package-fees",
+    "displayName": "PackageFee"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "PackageName": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "string"
+    },
+    "MonthlyFee": {
+      "type": "float"
+    },
+    "payment": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::payment.payment",
+      "inversedBy": "package_fees"
+    }
+  }
+}

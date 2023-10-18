@@ -24,10 +24,10 @@
     "EventTime": {
       "type": "datetime"
     },
-    "users_permissions_users": {
+    "admin_users": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "plugin::users-permissions.user"
+      "target": "admin::user"
     }
   }
 }

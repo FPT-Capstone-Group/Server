@@ -4,7 +4,8 @@
   "info": {
     "singularName": "parking-session",
     "pluralName": "parking-sessions",
-    "displayName": "ParkingSession"
+    "displayName": "ParkingSession",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -40,6 +41,12 @@
     },
     "CheckoutPlateNumberImage": {
       "type": "string"
+    },
+    "ownership": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ownership.ownership",
+      "inversedBy": "parking_sessions"
     }
   }
 }

@@ -15,9 +15,6 @@
     "Status": {
       "type": "string"
     },
-    "AmoutPayment": {
-      "type": "string"
-    },
     "bike": {
       "type": "relation",
       "relation": "manyToOne",
@@ -36,12 +33,6 @@
       "target": "api::family.family",
       "inversedBy": "applications"
     },
-    "citizen": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::citizen.citizen",
-      "inversedBy": "applications"
-    },
     "admin_user": {
       "type": "relation",
       "relation": "oneToOne",
@@ -52,6 +43,18 @@
       "relation": "manyToOne",
       "target": "api::card.card",
       "inversedBy": "applications"
+    },
+    "CreatedAt": {
+      "type": "datetime"
+    },
+    "ApprovedBy": {
+      "type": "string"
+    },
+    "configurations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::configuration.configuration",
+      "mappedBy": "application"
     }
   }
 }

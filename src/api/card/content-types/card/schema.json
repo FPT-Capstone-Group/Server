@@ -4,7 +4,8 @@
   "info": {
     "singularName": "card",
     "pluralName": "cards",
-    "displayName": "Card"
+    "displayName": "Card",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -55,6 +56,11 @@
       "relation": "oneToMany",
       "target": "api::application.application",
       "mappedBy": "card"
+    },
+    "bike": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::bike.bike"
     }
   }
 }

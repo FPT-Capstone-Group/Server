@@ -18,12 +18,6 @@
       "target": "api::ownership.ownership",
       "mappedBy": "family"
     },
-    "citizens": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::citizen.citizen",
-      "mappedBy": "family"
-    },
     "applications": {
       "type": "relation",
       "relation": "oneToMany",
@@ -32,6 +26,12 @@
     },
     "FamilyName": {
       "type": "string"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "family"
     }
   }
 }

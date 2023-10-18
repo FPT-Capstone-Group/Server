@@ -33,11 +33,23 @@
       "target": "api::family.family",
       "inversedBy": "ownerships"
     },
-    "citizen": {
+    "users_permissions_users": {
       "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::citizen.citizen",
-      "inversedBy": "ownerships"
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "ownership"
+    },
+    "CreatedAt": {
+      "type": "datetime"
+    },
+    "UpdatedAt": {
+      "type": "datetime"
+    },
+    "parking_sessions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::parking-session.parking-session",
+      "mappedBy": "ownership"
     }
   }
 }

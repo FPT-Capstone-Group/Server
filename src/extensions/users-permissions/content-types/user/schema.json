@@ -79,6 +79,33 @@
     },
     "PhoneNumber": {
       "type": "string"
+    },
+    "family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::family.family",
+      "inversedBy": "users"
+    },
+    "RegistrationDate": {
+      "type": "string"
+    },
+    "CMND": {
+      "type": "string"
+    },
+    "FaceEncoding": {
+      "type": "string"
+    },
+    "ownership": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ownership.ownership",
+      "inversedBy": "users_permissions_users"
+    },
+    "user_histories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::citizen-history.citizen-history",
+      "mappedBy": "users_permissions_user"
     }
   }
 }

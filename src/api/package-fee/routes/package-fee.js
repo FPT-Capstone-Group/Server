@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * citizen router
+ * package-fee router
  */
 
 const { createCoreRouter } = require('@strapi/strapi').factories;
 
-module.exports = createCoreRouter('api::citizen.citizen');
+module.exports = createCoreRouter('api::package-fee.package-fee');

@@ -669,6 +669,24 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'api::payment-history.payment-history'
     >;
     PhoneNumber: Attribute.String;
+    family: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToOne',
+      'api::family.family'
+    >;
+    RegistrationDate: Attribute.String;
+    CMND: Attribute.String;
+    FaceEncoding: Attribute.String;
+    ownership: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToOne',
+      'api::ownership.ownership'
+    >;
+    user_histories: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::citizen-history.citizen-history'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -699,7 +717,6 @@ export interface ApiApplicationApplication extends Schema.CollectionType {
   };
   attributes: {
     Status: Attribute.String;
-    AmoutPayment: Attribute.String;
     bike: Attribute.Relation<
       'api::application.application',
       'manyToOne',
@@ -715,11 +732,6 @@ export interface ApiApplicationApplication extends Schema.CollectionType {
       'manyToOne',
       'api::family.family'
     >;
-    citizen: Attribute.Relation<
-      'api::application.application',
-      'manyToOne',
-      'api::citizen.citizen'
-    >;
     admin_user: Attribute.Relation<
       'api::application.application',
       'oneToOne',
@@ -729,6 +741,13 @@ export interface ApiApplicationApplication extends Schema.CollectionType {
       'api::application.application',
       'manyToOne',
       'api::card.card'
+    >;
+    CreatedAt: Attribute.DateTime;
+    ApprovedBy: Attribute.String;
+    configurations: Attribute.Relation<
+      'api::application.application',
+      'oneToMany',
+      'api::configuration.configuration'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -798,7 +817,6 @@ export interface ApiBikeBike extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    PlateNumber: Attribute.String & Attribute.Required & Attribute.Unique;
     Manufacturer: Attribute.String;
     Model: Attribute.String;
     RegistrationNumber: Attribute.String &
@@ -819,6 +837,7 @@ export interface ApiBikeBike extends Schema.CollectionType {
       'oneToMany',
       'api::ownership.ownership'
     >;
+    PlateNumber: Attribute.String & Attribute.Unique;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -835,6 +854,7 @@ export interface ApiCardCard extends Schema.CollectionType {
     singularName: 'card';
     pluralName: 'cards';
     displayName: 'Card';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -870,6 +890,7 @@ export interface ApiCardCard extends Schema.CollectionType {
       'oneToMany',
       'api::application.application'
     >;
+    bike: Attribute.Relation<'api::card.card', 'oneToOne', 'api::bike.bike'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -899,10 +920,10 @@ export interface ApiCardHistoryCardHistory extends Schema.CollectionType {
     >;
     EventType: Attribute.String;
     EventTime: Attribute.DateTime;
-    users_permissions_users: Attribute.Relation<
+    admin_users: Attribute.Relation<
       'api::card-history.card-history',
       'oneToMany',
-      'plugin::users-permissions.user'
+      'admin::user'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -915,61 +936,6 @@ export interface ApiCardHistoryCardHistory extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::card-history.card-history',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiCitizenCitizen extends Schema.CollectionType {
-  collectionName: 'citizens';
-  info: {
-    singularName: 'citizen';
-    pluralName: 'citizens';
-    displayName: 'Citizen';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    CitizenIdentificationNumber: Attribute.String;
-    PhoneNumber: Attribute.String;
-    Name: Attribute.String;
-    Age: Attribute.Integer;
-    Gender: Attribute.String;
-    FaceEncoding: Attribute.String;
-    citizen_histories: Attribute.Relation<
-      'api::citizen.citizen',
-      'oneToMany',
-      'api::citizen-history.citizen-history'
-    >;
-    family: Attribute.Relation<
-      'api::citizen.citizen',
-      'manyToOne',
-      'api::family.family'
-    >;
-    applications: Attribute.Relation<
-      'api::citizen.citizen',
-      'oneToMany',
-      'api::application.application'
-    >;
-    ownerships: Attribute.Relation<
-      'api::citizen.citizen',
-      'oneToMany',
-      'api::ownership.ownership'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::citizen.citizen',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::citizen.citizen',
       'oneToOne',
       'admin::user'
     > &
@@ -982,21 +948,22 @@ export interface ApiCitizenHistoryCitizenHistory extends Schema.CollectionType {
   info: {
     singularName: 'citizen-history';
     pluralName: 'citizen-histories';
-    displayName: 'CitizenHistory';
+    displayName: 'UserHistory';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    citizen: Attribute.Relation<
-      'api::citizen-history.citizen-history',
-      'manyToOne',
-      'api::citizen.citizen'
-    >;
     MoveinDate: Attribute.DateTime;
     MoveoutDate: Attribute.DateTime;
     ApartmentNumber: Attribute.String;
     Status: Attribute.String;
+    users_permissions_user: Attribute.Relation<
+      'api::citizen-history.citizen-history',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1008,6 +975,43 @@ export interface ApiCitizenHistoryCitizenHistory extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::citizen-history.citizen-history',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiConfigurationConfiguration extends Schema.CollectionType {
+  collectionName: 'configurations';
+  info: {
+    singularName: 'configuration';
+    pluralName: 'configurations';
+    displayName: 'Configuration';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    SettingName: Attribute.String;
+    SettingValue: Attribute.String;
+    application: Attribute.Relation<
+      'api::configuration.configuration',
+      'manyToOne',
+      'api::application.application'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::configuration.configuration',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::configuration.configuration',
       'oneToOne',
       'admin::user'
     > &
@@ -1032,17 +1036,17 @@ export interface ApiFamilyFamily extends Schema.CollectionType {
       'oneToMany',
       'api::ownership.ownership'
     >;
-    citizens: Attribute.Relation<
-      'api::family.family',
-      'oneToMany',
-      'api::citizen.citizen'
-    >;
     applications: Attribute.Relation<
       'api::family.family',
       'oneToMany',
       'api::application.application'
     >;
     FamilyName: Attribute.String;
+    users: Attribute.Relation<
+      'api::family.family',
+      'oneToMany',
+      'plugin::users-permissions.user'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1126,10 +1130,17 @@ export interface ApiOwnershipOwnership extends Schema.CollectionType {
       'manyToOne',
       'api::family.family'
     >;
-    citizen: Attribute.Relation<
+    users_permissions_users: Attribute.Relation<
       'api::ownership.ownership',
-      'manyToOne',
-      'api::citizen.citizen'
+      'oneToMany',
+      'plugin::users-permissions.user'
+    >;
+    CreatedAt: Attribute.DateTime;
+    UpdatedAt: Attribute.DateTime;
+    parking_sessions: Attribute.Relation<
+      'api::ownership.ownership',
+      'oneToMany',
+      'api::parking-session.parking-session'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1149,12 +1160,50 @@ export interface ApiOwnershipOwnership extends Schema.CollectionType {
   };
 }
 
+export interface ApiPackageFeePackageFee extends Schema.CollectionType {
+  collectionName: 'package_fees';
+  info: {
+    singularName: 'package-fee';
+    pluralName: 'package-fees';
+    displayName: 'PackageFee';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    PackageName: Attribute.String;
+    Description: Attribute.String;
+    MonthlyFee: Attribute.Float;
+    payment: Attribute.Relation<
+      'api::package-fee.package-fee',
+      'manyToOne',
+      'api::payment.payment'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::package-fee.package-fee',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::package-fee.package-fee',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiParkingSessionParkingSession extends Schema.CollectionType {
   collectionName: 'parking_sessions';
   info: {
     singularName: 'parking-session';
     pluralName: 'parking-sessions';
     displayName: 'ParkingSession';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -1176,6 +1225,11 @@ export interface ApiParkingSessionParkingSession extends Schema.CollectionType {
     CheckinPlateNumberImage: Attribute.String;
     CheckoutFaceImage: Attribute.String;
     CheckoutPlateNumberImage: Attribute.String;
+    ownership: Attribute.Relation<
+      'api::parking-session.parking-session',
+      'manyToOne',
+      'api::ownership.ownership'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1218,6 +1272,11 @@ export interface ApiPaymentPayment extends Schema.CollectionType {
       'api::payment.payment',
       'oneToMany',
       'api::payment-history.payment-history'
+    >;
+    package_fees: Attribute.Relation<
+      'api::payment.payment',
+      'oneToMany',
+      'api::package-fee.package-fee'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1301,11 +1360,12 @@ declare module '@strapi/strapi' {
       'api::bike.bike': ApiBikeBike;
       'api::card.card': ApiCardCard;
       'api::card-history.card-history': ApiCardHistoryCardHistory;
-      'api::citizen.citizen': ApiCitizenCitizen;
       'api::citizen-history.citizen-history': ApiCitizenHistoryCitizenHistory;
+      'api::configuration.configuration': ApiConfigurationConfiguration;
       'api::family.family': ApiFamilyFamily;
       'api::notification.notification': ApiNotificationNotification;
       'api::ownership.ownership': ApiOwnershipOwnership;
+      'api::package-fee.package-fee': ApiPackageFeePackageFee;
       'api::parking-session.parking-session': ApiParkingSessionParkingSession;
       'api::payment.payment': ApiPaymentPayment;
       'api::payment-history.payment-history': ApiPaymentHistoryPaymentHistory;
