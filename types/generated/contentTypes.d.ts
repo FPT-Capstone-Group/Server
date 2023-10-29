@@ -732,11 +732,6 @@ export interface ApiApplicationApplication extends Schema.CollectionType {
       'manyToOne',
       'api::family.family'
     >;
-    admin_user: Attribute.Relation<
-      'api::application.application',
-      'oneToOne',
-      'admin::user'
-    >;
     card: Attribute.Relation<
       'api::application.application',
       'manyToOne',
@@ -748,6 +743,11 @@ export interface ApiApplicationApplication extends Schema.CollectionType {
       'api::application.application',
       'oneToMany',
       'api::configuration.configuration'
+    >;
+    ownerships: Attribute.Relation<
+      'api::application.application',
+      'manyToMany',
+      'api::ownership.ownership'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -1141,6 +1141,11 @@ export interface ApiOwnershipOwnership extends Schema.CollectionType {
       'api::ownership.ownership',
       'oneToMany',
       'api::parking-session.parking-session'
+    >;
+    applications: Attribute.Relation<
+      'api::ownership.ownership',
+      'manyToMany',
+      'api::application.application'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

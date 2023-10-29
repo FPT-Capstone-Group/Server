@@ -33,11 +33,6 @@
       "target": "api::family.family",
       "inversedBy": "applications"
     },
-    "admin_user": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "admin::user"
-    },
     "card": {
       "type": "relation",
       "relation": "manyToOne",
@@ -55,6 +50,12 @@
       "relation": "oneToMany",
       "target": "api::configuration.configuration",
       "mappedBy": "application"
+    },
+    "ownerships": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::ownership.ownership",
+      "inversedBy": "applications"
     }
   }
 }

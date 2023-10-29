@@ -50,6 +50,12 @@
       "relation": "oneToMany",
       "target": "api::parking-session.parking-session",
       "mappedBy": "ownership"
+    },
+    "applications": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::application.application",
+      "mappedBy": "ownerships"
     }
   }
 }
