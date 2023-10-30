@@ -20,9 +20,6 @@
     },
     "Status": {
       "type": "string"
-    },
-    "ChangeTime": {
-      "type": "datetime"
     }
   }
 }

@@ -737,7 +737,6 @@ export interface ApiApplicationApplication extends Schema.CollectionType {
       'manyToOne',
       'api::card.card'
     >;
-    CreatedAt: Attribute.DateTime;
     ApprovedBy: Attribute.String;
     configurations: Attribute.Relation<
       'api::application.application',
@@ -786,7 +785,6 @@ export interface ApiApplicationStatusHistoryApplicationStatusHistory
       'api::application.application'
     >;
     Status: Attribute.String;
-    ChangeTime: Attribute.DateTime;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1083,7 +1081,6 @@ export interface ApiNotificationNotification extends Schema.CollectionType {
       'plugin::users-permissions.user'
     >;
     Message: Attribute.String;
-    Date: Attribute.DateTime;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1135,8 +1132,6 @@ export interface ApiOwnershipOwnership extends Schema.CollectionType {
       'oneToMany',
       'plugin::users-permissions.user'
     >;
-    CreatedAt: Attribute.DateTime;
-    UpdatedAt: Attribute.DateTime;
     parking_sessions: Attribute.Relation<
       'api::ownership.ownership',
       'oneToMany',

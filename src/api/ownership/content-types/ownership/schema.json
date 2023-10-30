@@ -39,12 +39,6 @@
       "target": "plugin::users-permissions.user",
       "mappedBy": "ownership"
     },
-    "CreatedAt": {
-      "type": "datetime"
-    },
-    "UpdatedAt": {
-      "type": "datetime"
-    },
     "parking_sessions": {
       "type": "relation",
       "relation": "oneToMany",

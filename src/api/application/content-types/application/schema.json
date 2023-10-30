@@ -39,9 +39,6 @@
       "target": "api::card.card",
       "inversedBy": "applications"
     },
-    "CreatedAt": {
-      "type": "datetime"
-    },
     "ApprovedBy": {
       "type": "string"
     },

@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2023-10-27T18:36:43.850Z"
+    "x-generation-date": "2023-10-30T14:52:25.804Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -144,10 +144,6 @@
                   }
                 ],
                 "example": "string or id"
-              },
-              "CreatedAt": {
-                "type": "string",
-                "format": "date-time"
               },
               "ApprovedBy": {
                 "type": "string"
@@ -324,10 +320,6 @@
                                                   },
                                                   "Status": {
                                                     "type": "string"
-                                                  },
-                                                  "ChangeTime": {
-                                                    "type": "string",
-                                                    "format": "date-time"
                                                   },
                                                   "createdAt": {
                                                     "type": "string",
@@ -1257,10 +1249,6 @@
                                                                                                                                 "Message": {
                                                                                                                                   "type": "string"
                                                                                                                                 },
-                                                                                                                                "Date": {
-                                                                                                                                  "type": "string",
-                                                                                                                                  "format": "date-time"
-                                                                                                                                },
                                                                                                                                 "createdAt": {
                                                                                                                                   "type": "string",
                                                                                                                                   "format": "date-time"
@@ -1898,14 +1886,6 @@
                                                                   }
                                                                 }
                                                               },
-                                                              "CreatedAt": {
-                                                                "type": "string",
-                                                                "format": "date-time"
-                                                              },
-                                                              "UpdatedAt": {
-                                                                "type": "string",
-                                                                "format": "date-time"
-                                                              },
                                                               "parking_sessions": {
                                                                 "type": "object",
                                                                 "properties": {
@@ -2110,10 +2090,6 @@
                                           }
                                         }
                                       }
-                                    },
-                                    "CreatedAt": {
-                                      "type": "string",
-                                      "format": "date-time"
                                     },
                                     "ApprovedBy": {
                                       "type": "string"
@@ -2430,10 +2406,6 @@
               }
             }
           },
-          "CreatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
           "ApprovedBy": {
             "type": "string"
           },
@@ -2569,10 +2541,6 @@
               },
               "Status": {
                 "type": "string"
-              },
-              "ChangeTime": {
-                "type": "string",
-                "format": "date-time"
               }
             }
           }
@@ -3436,10 +3404,6 @@
                                                                                                                   "Message": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "Date": {
-                                                                                                                    "type": "string",
-                                                                                                                    "format": "date-time"
-                                                                                                                  },
                                                                                                                   "createdAt": {
                                                                                                                     "type": "string",
                                                                                                                     "format": "date-time"
@@ -3615,14 +3579,6 @@
                                                                                                                                     }
                                                                                                                                   }
                                                                                                                                 }
-                                                                                                                              },
-                                                                                                                              "CreatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
-                                                                                                                              },
-                                                                                                                              "UpdatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
                                                                                                                               },
                                                                                                                               "parking_sessions": {
                                                                                                                                 "type": "object",
@@ -4507,10 +4463,6 @@
                                     "Status": {
                                       "type": "string"
                                     },
-                                    "ChangeTime": {
-                                      "type": "string",
-                                      "format": "date-time"
-                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -4597,10 +4549,6 @@
                             }
                           }
                         }
-                      },
-                      "CreatedAt": {
-                        "type": "string",
-                        "format": "date-time"
                       },
                       "ApprovedBy": {
                         "type": "string"
@@ -4769,10 +4717,6 @@
           },
           "Status": {
             "type": "string"
-          },
-          "ChangeTime": {
-            "type": "string",
-            "format": "date-time"
           },
           "createdAt": {
             "type": "string",
@@ -5786,10 +5730,6 @@
                                                                                                                     "Message": {
                                                                                                                       "type": "string"
                                                                                                                     },
-                                                                                                                    "Date": {
-                                                                                                                      "type": "string",
-                                                                                                                      "format": "date-time"
-                                                                                                                    },
                                                                                                                     "createdAt": {
                                                                                                                       "type": "string",
                                                                                                                       "format": "date-time"
@@ -5965,14 +5905,6 @@
                                                                                                                                       }
                                                                                                                                     }
                                                                                                                                   }
-                                                                                                                                },
-                                                                                                                                "CreatedAt": {
-                                                                                                                                  "type": "string",
-                                                                                                                                  "format": "date-time"
-                                                                                                                                },
-                                                                                                                                "UpdatedAt": {
-                                                                                                                                  "type": "string",
-                                                                                                                                  "format": "date-time"
                                                                                                                                 },
                                                                                                                                 "parking_sessions": {
                                                                                                                                   "type": "object",
@@ -6857,10 +6789,6 @@
                                       "Status": {
                                         "type": "string"
                                       },
-                                      "ChangeTime": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                      },
                                       "createdAt": {
                                         "type": "string",
                                         "format": "date-time"
@@ -6947,10 +6875,6 @@
                               }
                             }
                           }
-                        },
-                        "CreatedAt": {
-                          "type": "string",
-                          "format": "date-time"
                         },
                         "ApprovedBy": {
                           "type": "string"
@@ -7518,10 +7442,6 @@
                                                                 },
                                                                 "Status": {
                                                                   "type": "string"
-                                                                },
-                                                                "ChangeTime": {
-                                                                  "type": "string",
-                                                                  "format": "date-time"
                                                                 },
                                                                 "createdAt": {
                                                                   "type": "string",
@@ -8333,10 +8253,6 @@
                                                                                                                                               "Message": {
                                                                                                                                                 "type": "string"
                                                                                                                                               },
-                                                                                                                                              "Date": {
-                                                                                                                                                "type": "string",
-                                                                                                                                                "format": "date-time"
-                                                                                                                                              },
                                                                                                                                               "createdAt": {
                                                                                                                                                 "type": "string",
                                                                                                                                                 "format": "date-time"
@@ -8974,14 +8890,6 @@
                                                                                 }
                                                                               }
                                                                             },
-                                                                            "CreatedAt": {
-                                                                              "type": "string",
-                                                                              "format": "date-time"
-                                                                            },
-                                                                            "UpdatedAt": {
-                                                                              "type": "string",
-                                                                              "format": "date-time"
-                                                                            },
                                                                             "parking_sessions": {
                                                                               "type": "object",
                                                                               "properties": {
@@ -9186,10 +9094,6 @@
                                                         }
                                                       }
                                                     }
-                                                  },
-                                                  "CreatedAt": {
-                                                    "type": "string",
-                                                    "format": "date-time"
                                                   },
                                                   "ApprovedBy": {
                                                     "type": "string"
@@ -9952,10 +9856,6 @@
                                                                             "Status": {
                                                                               "type": "string"
                                                                             },
-                                                                            "ChangeTime": {
-                                                                              "type": "string",
-                                                                              "format": "date-time"
-                                                                            },
                                                                             "createdAt": {
                                                                               "type": "string",
                                                                               "format": "date-time"
@@ -10582,10 +10482,6 @@
                                                                                                                     "Message": {
                                                                                                                       "type": "string"
                                                                                                                     },
-                                                                                                                    "Date": {
-                                                                                                                      "type": "string",
-                                                                                                                      "format": "date-time"
-                                                                                                                    },
                                                                                                                     "createdAt": {
                                                                                                                       "type": "string",
                                                                                                                       "format": "date-time"
@@ -11135,14 +11031,6 @@
                                                                                             }
                                                                                           }
                                                                                         },
-                                                                                        "CreatedAt": {
-                                                                                          "type": "string",
-                                                                                          "format": "date-time"
-                                                                                        },
-                                                                                        "UpdatedAt": {
-                                                                                          "type": "string",
-                                                                                          "format": "date-time"
-                                                                                        },
                                                                                         "parking_sessions": {
                                                                                           "type": "object",
                                                                                           "properties": {
@@ -11347,10 +11235,6 @@
                                                                     }
                                                                   }
                                                                 }
-                                                              },
-                                                              "CreatedAt": {
-                                                                "type": "string",
-                                                                "format": "date-time"
                                                               },
                                                               "ApprovedBy": {
                                                                 "type": "string"
@@ -12641,10 +12525,6 @@
                                     "Message": {
                                       "type": "string"
                                     },
-                                    "Date": {
-                                      "type": "string",
-                                      "format": "date-time"
-                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -12894,10 +12774,6 @@
                                                                                                                   "Status": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "ChangeTime": {
-                                                                                                                    "type": "string",
-                                                                                                                    "format": "date-time"
-                                                                                                                  },
                                                                                                                   "createdAt": {
                                                                                                                     "type": "string",
                                                                                                                     "format": "date-time"
@@ -13050,14 +12926,6 @@
                                                                                                                                     }
                                                                                                                                   }
                                                                                                                                 }
-                                                                                                                              },
-                                                                                                                              "CreatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
-                                                                                                                              },
-                                                                                                                              "UpdatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
                                                                                                                               },
                                                                                                                               "parking_sessions": {
                                                                                                                                 "type": "object",
@@ -13263,10 +13131,6 @@
                                                                                                           }
                                                                                                         }
                                                                                                       }
-                                                                                                    },
-                                                                                                    "CreatedAt": {
-                                                                                                      "type": "string",
-                                                                                                      "format": "date-time"
                                                                                                     },
                                                                                                     "ApprovedBy": {
                                                                                                       "type": "string"
@@ -15254,10 +15118,6 @@
                                                                                                                   "Message": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "Date": {
-                                                                                                                    "type": "string",
-                                                                                                                    "format": "date-time"
-                                                                                                                  },
                                                                                                                   "createdAt": {
                                                                                                                     "type": "string",
                                                                                                                     "format": "date-time"
@@ -15433,14 +15293,6 @@
                                                                                                                                     }
                                                                                                                                   }
                                                                                                                                 }
-                                                                                                                              },
-                                                                                                                              "CreatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
-                                                                                                                              },
-                                                                                                                              "UpdatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
                                                                                                                               },
                                                                                                                               "parking_sessions": {
                                                                                                                                 "type": "object",
@@ -16325,10 +16177,6 @@
                                     "Status": {
                                       "type": "string"
                                     },
-                                    "ChangeTime": {
-                                      "type": "string",
-                                      "format": "date-time"
-                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -16415,10 +16263,6 @@
                             }
                           }
                         }
-                      },
-                      "CreatedAt": {
-                        "type": "string",
-                        "format": "date-time"
                       },
                       "ApprovedBy": {
                         "type": "string"
@@ -16864,10 +16708,6 @@
                                                                 },
                                                                 "Status": {
                                                                   "type": "string"
-                                                                },
-                                                                "ChangeTime": {
-                                                                  "type": "string",
-                                                                  "format": "date-time"
                                                                 },
                                                                 "createdAt": {
                                                                   "type": "string",
@@ -17469,10 +17309,6 @@
                                                                                           },
                                                                                           "Message": {
                                                                                             "type": "string"
-                                                                                          },
-                                                                                          "Date": {
-                                                                                            "type": "string",
-                                                                                            "format": "date-time"
                                                                                           },
                                                                                           "createdAt": {
                                                                                             "type": "string",
@@ -18482,10 +18318,6 @@
                                                       }
                                                     }
                                                   },
-                                                  "CreatedAt": {
-                                                    "type": "string",
-                                                    "format": "date-time"
-                                                  },
                                                   "ApprovedBy": {
                                                     "type": "string"
                                                   },
@@ -18804,14 +18636,6 @@
                             }
                           }
                         },
-                        "CreatedAt": {
-                          "type": "string",
-                          "format": "date-time"
-                        },
-                        "UpdatedAt": {
-                          "type": "string",
-                          "format": "date-time"
-                        },
                         "parking_sessions": {
                           "type": "object",
                           "properties": {
@@ -19040,10 +18864,6 @@
               },
               "Message": {
                 "type": "string"
-              },
-              "Date": {
-                "type": "string",
-                "format": "date-time"
               }
             }
           }
@@ -19589,10 +19409,6 @@
                                     "Message": {
                                       "type": "string"
                                     },
-                                    "Date": {
-                                      "type": "string",
-                                      "format": "date-time"
-                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -19842,10 +19658,6 @@
                                                                                                                   "Status": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "ChangeTime": {
-                                                                                                                    "type": "string",
-                                                                                                                    "format": "date-time"
-                                                                                                                  },
                                                                                                                   "createdAt": {
                                                                                                                     "type": "string",
                                                                                                                     "format": "date-time"
@@ -19998,14 +19810,6 @@
                                                                                                                                     }
                                                                                                                                   }
                                                                                                                                 }
-                                                                                                                              },
-                                                                                                                              "CreatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
-                                                                                                                              },
-                                                                                                                              "UpdatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
                                                                                                                               },
                                                                                                                               "parking_sessions": {
                                                                                                                                 "type": "object",
@@ -20211,10 +20015,6 @@
                                                                                                           }
                                                                                                         }
                                                                                                       }
-                                                                                                    },
-                                                                                                    "CreatedAt": {
-                                                                                                      "type": "string",
-                                                                                                      "format": "date-time"
                                                                                                     },
                                                                                                     "ApprovedBy": {
                                                                                                       "type": "string"
@@ -21241,10 +21041,6 @@
           "Message": {
             "type": "string"
           },
-          "Date": {
-            "type": "string",
-            "format": "date-time"
-          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -21373,14 +21169,6 @@
                   ],
                   "example": "string or id"
                 }
-              },
-              "CreatedAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "UpdatedAt": {
-                "type": "string",
-                "format": "date-time"
               },
               "parking_sessions": {
                 "type": "array",
@@ -21551,10 +21339,6 @@
                                                   },
                                                   "Status": {
                                                     "type": "string"
-                                                  },
-                                                  "ChangeTime": {
-                                                    "type": "string",
-                                                    "format": "date-time"
                                                   },
                                                   "createdAt": {
                                                     "type": "string",
@@ -22484,10 +22268,6 @@
                                                                                                                                 "Message": {
                                                                                                                                   "type": "string"
                                                                                                                                 },
-                                                                                                                                "Date": {
-                                                                                                                                  "type": "string",
-                                                                                                                                  "format": "date-time"
-                                                                                                                                },
                                                                                                                                 "createdAt": {
                                                                                                                                   "type": "string",
                                                                                                                                   "format": "date-time"
@@ -23125,14 +22905,6 @@
                                                                   }
                                                                 }
                                                               },
-                                                              "CreatedAt": {
-                                                                "type": "string",
-                                                                "format": "date-time"
-                                                              },
-                                                              "UpdatedAt": {
-                                                                "type": "string",
-                                                                "format": "date-time"
-                                                              },
                                                               "parking_sessions": {
                                                                 "type": "object",
                                                                 "properties": {
@@ -23337,10 +23109,6 @@
                                           }
                                         }
                                       }
-                                    },
-                                    "CreatedAt": {
-                                      "type": "string",
-                                      "format": "date-time"
                                     },
                                     "ApprovedBy": {
                                       "type": "string"
@@ -23659,14 +23427,6 @@
                 }
               }
             }
-          },
-          "CreatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "UpdatedAt": {
-            "type": "string",
-            "format": "date-time"
           },
           "parking_sessions": {
             "type": "object",
@@ -24022,10 +23782,6 @@
                                                                                         },
                                                                                         "Status": {
                                                                                           "type": "string"
-                                                                                        },
-                                                                                        "ChangeTime": {
-                                                                                          "type": "string",
-                                                                                          "format": "date-time"
                                                                                         },
                                                                                         "createdAt": {
                                                                                           "type": "string",
@@ -24653,10 +24409,6 @@
                                                                                                                                 "Message": {
                                                                                                                                   "type": "string"
                                                                                                                                 },
-                                                                                                                                "Date": {
-                                                                                                                                  "type": "string",
-                                                                                                                                  "format": "date-time"
-                                                                                                                                },
                                                                                                                                 "createdAt": {
                                                                                                                                   "type": "string",
                                                                                                                                   "format": "date-time"
@@ -25017,14 +24769,6 @@
                                                                                                         }
                                                                                                       }
                                                                                                     },
-                                                                                                    "CreatedAt": {
-                                                                                                      "type": "string",
-                                                                                                      "format": "date-time"
-                                                                                                    },
-                                                                                                    "UpdatedAt": {
-                                                                                                      "type": "string",
-                                                                                                      "format": "date-time"
-                                                                                                    },
                                                                                                     "parking_sessions": {
                                                                                                       "type": "object",
                                                                                                       "properties": {
@@ -25229,10 +24973,6 @@
                                                                                 }
                                                                               }
                                                                             }
-                                                                          },
-                                                                          "CreatedAt": {
-                                                                            "type": "string",
-                                                                            "format": "date-time"
                                                                           },
                                                                           "ApprovedBy": {
                                                                             "type": "string"
@@ -26293,10 +26033,6 @@
                                                   "Status": {
                                                     "type": "string"
                                                   },
-                                                  "ChangeTime": {
-                                                    "type": "string",
-                                                    "format": "date-time"
-                                                  },
                                                   "createdAt": {
                                                     "type": "string",
                                                     "format": "date-time"
@@ -27225,10 +26961,6 @@
                                                                                                                                 "Message": {
                                                                                                                                   "type": "string"
                                                                                                                                 },
-                                                                                                                                "Date": {
-                                                                                                                                  "type": "string",
-                                                                                                                                  "format": "date-time"
-                                                                                                                                },
                                                                                                                                 "createdAt": {
                                                                                                                                   "type": "string",
                                                                                                                                   "format": "date-time"
@@ -27866,14 +27598,6 @@
                                                                   }
                                                                 }
                                                               },
-                                                              "CreatedAt": {
-                                                                "type": "string",
-                                                                "format": "date-time"
-                                                              },
-                                                              "UpdatedAt": {
-                                                                "type": "string",
-                                                                "format": "date-time"
-                                                              },
                                                               "parking_sessions": {
                                                                 "type": "object",
                                                                 "properties": {
@@ -28078,10 +27802,6 @@
                                           }
                                         }
                                       }
-                                    },
-                                    "CreatedAt": {
-                                      "type": "string",
-                                      "format": "date-time"
                                     },
                                     "ApprovedBy": {
                                       "type": "string"
@@ -28712,10 +28432,6 @@
                                                                             "Status": {
                                                                               "type": "string"
                                                                             },
-                                                                            "ChangeTime": {
-                                                                              "type": "string",
-                                                                              "format": "date-time"
-                                                                            },
                                                                             "createdAt": {
                                                                               "type": "string",
                                                                               "format": "date-time"
@@ -29342,10 +29058,6 @@
                                                                                                                     "Message": {
                                                                                                                       "type": "string"
                                                                                                                     },
-                                                                                                                    "Date": {
-                                                                                                                      "type": "string",
-                                                                                                                      "format": "date-time"
-                                                                                                                    },
                                                                                                                     "createdAt": {
                                                                                                                       "type": "string",
                                                                                                                       "format": "date-time"
@@ -29895,14 +29607,6 @@
                                                                                             }
                                                                                           }
                                                                                         },
-                                                                                        "CreatedAt": {
-                                                                                          "type": "string",
-                                                                                          "format": "date-time"
-                                                                                        },
-                                                                                        "UpdatedAt": {
-                                                                                          "type": "string",
-                                                                                          "format": "date-time"
-                                                                                        },
                                                                                         "parking_sessions": {
                                                                                           "type": "object",
                                                                                           "properties": {
@@ -30107,10 +29811,6 @@
                                                                     }
                                                                   }
                                                                 }
-                                                              },
-                                                              "CreatedAt": {
-                                                                "type": "string",
-                                                                "format": "date-time"
                                                               },
                                                               "ApprovedBy": {
                                                                 "type": "string"
@@ -31428,10 +31128,6 @@
                                     "Message": {
                                       "type": "string"
                                     },
-                                    "Date": {
-                                      "type": "string",
-                                      "format": "date-time"
-                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -31681,10 +31377,6 @@
                                                                                                                   "Status": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "ChangeTime": {
-                                                                                                                    "type": "string",
-                                                                                                                    "format": "date-time"
-                                                                                                                  },
                                                                                                                   "createdAt": {
                                                                                                                     "type": "string",
                                                                                                                     "format": "date-time"
@@ -31837,14 +31529,6 @@
                                                                                                                                     }
                                                                                                                                   }
                                                                                                                                 }
-                                                                                                                              },
-                                                                                                                              "CreatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
-                                                                                                                              },
-                                                                                                                              "UpdatedAt": {
-                                                                                                                                "type": "string",
-                                                                                                                                "format": "date-time"
                                                                                                                               },
                                                                                                                               "parking_sessions": {
                                                                                                                                 "type": "object",
@@ -32050,10 +31734,6 @@
                                                                                                           }
                                                                                                         }
                                                                                                       }
-                                                                                                    },
-                                                                                                    "CreatedAt": {
-                                                                                                      "type": "string",
-                                                                                                      "format": "date-time"
                                                                                                     },
                                                                                                     "ApprovedBy": {
                                                                                                       "type": "string"
