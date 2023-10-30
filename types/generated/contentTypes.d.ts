@@ -639,7 +639,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
         minLength: 3;
       }>;
     email: Attribute.Email &
-      Attribute.Required &
       Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
@@ -674,8 +673,8 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'api::family.family'
     >;
-    RegistrationDate: Attribute.String;
-    CMND: Attribute.String;
+    CCCDRegistrationDate: Attribute.String;
+    CCCD: Attribute.String;
     FaceEncoding: Attribute.String;
     ownership: Attribute.Relation<
       'plugin::users-permissions.user',
@@ -737,7 +736,6 @@ export interface ApiApplicationApplication extends Schema.CollectionType {
       'manyToOne',
       'api::card.card'
     >;
-    ApprovedBy: Attribute.String;
     configurations: Attribute.Relation<
       'api::application.application',
       'oneToMany',

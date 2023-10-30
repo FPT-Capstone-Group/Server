@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2023-10-30T14:52:25.804Z"
+    "x-generation-date": "2023-10-30T15:32:43.621Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -144,9 +144,6 @@
                   }
                 ],
                 "example": "string or id"
-              },
-              "ApprovedBy": {
-                "type": "string"
               },
               "configurations": {
                 "type": "array",
@@ -1342,10 +1339,10 @@
                                                                                                                       }
                                                                                                                     }
                                                                                                                   },
-                                                                                                                  "RegistrationDate": {
+                                                                                                                  "CCCDRegistrationDate": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "CMND": {
+                                                                                                                  "CCCD": {
                                                                                                                     "type": "string"
                                                                                                                   },
                                                                                                                   "FaceEncoding": {
@@ -2091,9 +2088,6 @@
                                         }
                                       }
                                     },
-                                    "ApprovedBy": {
-                                      "type": "string"
-                                    },
                                     "configurations": {
                                       "type": "object",
                                       "properties": {
@@ -2405,9 +2399,6 @@
                 }
               }
             }
-          },
-          "ApprovedBy": {
-            "type": "string"
           },
           "configurations": {
             "type": "object",
@@ -3768,10 +3759,10 @@
                                                                                                         }
                                                                                                       }
                                                                                                     },
-                                                                                                    "RegistrationDate": {
+                                                                                                    "CCCDRegistrationDate": {
                                                                                                       "type": "string"
                                                                                                     },
-                                                                                                    "CMND": {
+                                                                                                    "CCCD": {
                                                                                                       "type": "string"
                                                                                                     },
                                                                                                     "FaceEncoding": {
@@ -4549,9 +4540,6 @@
                             }
                           }
                         }
-                      },
-                      "ApprovedBy": {
-                        "type": "string"
                       },
                       "configurations": {
                         "type": "object",
@@ -6094,10 +6082,10 @@
                                                                                                           }
                                                                                                         }
                                                                                                       },
-                                                                                                      "RegistrationDate": {
+                                                                                                      "CCCDRegistrationDate": {
                                                                                                         "type": "string"
                                                                                                       },
-                                                                                                      "CMND": {
+                                                                                                      "CCCD": {
                                                                                                         "type": "string"
                                                                                                       },
                                                                                                       "FaceEncoding": {
@@ -6875,9 +6863,6 @@
                               }
                             }
                           }
-                        },
-                        "ApprovedBy": {
-                          "type": "string"
                         },
                         "configurations": {
                           "type": "object",
@@ -8346,10 +8331,10 @@
                                                                                                                                     }
                                                                                                                                   }
                                                                                                                                 },
-                                                                                                                                "RegistrationDate": {
+                                                                                                                                "CCCDRegistrationDate": {
                                                                                                                                   "type": "string"
                                                                                                                                 },
-                                                                                                                                "CMND": {
+                                                                                                                                "CCCD": {
                                                                                                                                   "type": "string"
                                                                                                                                 },
                                                                                                                                 "FaceEncoding": {
@@ -9094,9 +9079,6 @@
                                                         }
                                                       }
                                                     }
-                                                  },
-                                                  "ApprovedBy": {
-                                                    "type": "string"
                                                   },
                                                   "configurations": {
                                                     "type": "object",
@@ -10858,10 +10840,10 @@
                                                                                                           }
                                                                                                         }
                                                                                                       },
-                                                                                                      "RegistrationDate": {
+                                                                                                      "CCCDRegistrationDate": {
                                                                                                         "type": "string"
                                                                                                       },
-                                                                                                      "CMND": {
+                                                                                                      "CCCD": {
                                                                                                         "type": "string"
                                                                                                       },
                                                                                                       "FaceEncoding": {
@@ -11235,9 +11217,6 @@
                                                                     }
                                                                   }
                                                                 }
-                                                              },
-                                                              "ApprovedBy": {
-                                                                "type": "string"
                                                               },
                                                               "configurations": {
                                                                 "type": "object",
@@ -13132,9 +13111,6 @@
                                                                                                         }
                                                                                                       }
                                                                                                     },
-                                                                                                    "ApprovedBy": {
-                                                                                                      "type": "string"
-                                                                                                    },
                                                                                                     "configurations": {
                                                                                                       "type": "object",
                                                                                                       "properties": {
@@ -13982,10 +13958,10 @@
                           }
                         }
                       },
-                      "RegistrationDate": {
+                      "CCCDRegistrationDate": {
                         "type": "string"
                       },
-                      "CMND": {
+                      "CCCD": {
                         "type": "string"
                       },
                       "FaceEncoding": {
@@ -15482,10 +15458,10 @@
                                                                                                         }
                                                                                                       }
                                                                                                     },
-                                                                                                    "RegistrationDate": {
+                                                                                                    "CCCDRegistrationDate": {
                                                                                                       "type": "string"
                                                                                                     },
-                                                                                                    "CMND": {
+                                                                                                    "CCCD": {
                                                                                                       "type": "string"
                                                                                                     },
                                                                                                     "FaceEncoding": {
@@ -16263,9 +16239,6 @@
                             }
                           }
                         }
-                      },
-                      "ApprovedBy": {
-                        "type": "string"
                       },
                       "configurations": {
                         "type": "object",
@@ -18076,10 +18049,10 @@
                                                                                 }
                                                                               }
                                                                             },
-                                                                            "RegistrationDate": {
+                                                                            "CCCDRegistrationDate": {
                                                                               "type": "string"
                                                                             },
-                                                                            "CMND": {
+                                                                            "CCCD": {
                                                                               "type": "string"
                                                                             },
                                                                             "FaceEncoding": {
@@ -18317,9 +18290,6 @@
                                                         }
                                                       }
                                                     }
-                                                  },
-                                                  "ApprovedBy": {
-                                                    "type": "string"
                                                   },
                                                   "configurations": {
                                                     "type": "object",
@@ -20016,9 +19986,6 @@
                                                                                                         }
                                                                                                       }
                                                                                                     },
-                                                                                                    "ApprovedBy": {
-                                                                                                      "type": "string"
-                                                                                                    },
                                                                                                     "configurations": {
                                                                                                       "type": "object",
                                                                                                       "properties": {
@@ -20866,10 +20833,10 @@
                           }
                         }
                       },
-                      "RegistrationDate": {
+                      "CCCDRegistrationDate": {
                         "type": "string"
                       },
-                      "CMND": {
+                      "CCCD": {
                         "type": "string"
                       },
                       "FaceEncoding": {
@@ -22361,10 +22328,10 @@
                                                                                                                       }
                                                                                                                     }
                                                                                                                   },
-                                                                                                                  "RegistrationDate": {
+                                                                                                                  "CCCDRegistrationDate": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "CMND": {
+                                                                                                                  "CCCD": {
                                                                                                                     "type": "string"
                                                                                                                   },
                                                                                                                   "FaceEncoding": {
@@ -23109,9 +23076,6 @@
                                           }
                                         }
                                       }
-                                    },
-                                    "ApprovedBy": {
-                                      "type": "string"
                                     },
                                     "configurations": {
                                       "type": "object",
@@ -24596,10 +24560,10 @@
                                                                                                                       }
                                                                                                                     }
                                                                                                                   },
-                                                                                                                  "RegistrationDate": {
+                                                                                                                  "CCCDRegistrationDate": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "CMND": {
+                                                                                                                  "CCCD": {
                                                                                                                     "type": "string"
                                                                                                                   },
                                                                                                                   "FaceEncoding": {
@@ -24973,9 +24937,6 @@
                                                                                 }
                                                                               }
                                                                             }
-                                                                          },
-                                                                          "ApprovedBy": {
-                                                                            "type": "string"
                                                                           },
                                                                           "configurations": {
                                                                             "type": "object",
@@ -27054,10 +27015,10 @@
                                                                                                                       }
                                                                                                                     }
                                                                                                                   },
-                                                                                                                  "RegistrationDate": {
+                                                                                                                  "CCCDRegistrationDate": {
                                                                                                                     "type": "string"
                                                                                                                   },
-                                                                                                                  "CMND": {
+                                                                                                                  "CCCD": {
                                                                                                                     "type": "string"
                                                                                                                   },
                                                                                                                   "FaceEncoding": {
@@ -27802,9 +27763,6 @@
                                           }
                                         }
                                       }
-                                    },
-                                    "ApprovedBy": {
-                                      "type": "string"
                                     },
                                     "configurations": {
                                       "type": "object",
@@ -29434,10 +29392,10 @@
                                                                                                           }
                                                                                                         }
                                                                                                       },
-                                                                                                      "RegistrationDate": {
+                                                                                                      "CCCDRegistrationDate": {
                                                                                                         "type": "string"
                                                                                                       },
-                                                                                                      "CMND": {
+                                                                                                      "CCCD": {
                                                                                                         "type": "string"
                                                                                                       },
                                                                                                       "FaceEncoding": {
@@ -29811,9 +29769,6 @@
                                                                     }
                                                                   }
                                                                 }
-                                                              },
-                                                              "ApprovedBy": {
-                                                                "type": "string"
                                                               },
                                                               "configurations": {
                                                                 "type": "object",
@@ -31735,9 +31690,6 @@
                                                                                                         }
                                                                                                       }
                                                                                                     },
-                                                                                                    "ApprovedBy": {
-                                                                                                      "type": "string"
-                                                                                                    },
                                                                                                     "configurations": {
                                                                                                       "type": "object",
                                                                                                       "properties": {
@@ -32585,10 +32537,10 @@
                           }
                         }
                       },
-                      "RegistrationDate": {
+                      "CCCDRegistrationDate": {
                         "type": "string"
                       },
-                      "CMND": {
+                      "CCCD": {
                         "type": "string"
                       },
                       "FaceEncoding": {

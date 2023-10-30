@@ -39,9 +39,6 @@
       "target": "api::card.card",
       "inversedBy": "applications"
     },
-    "ApprovedBy": {
-      "type": "string"
-    },
     "configurations": {
       "type": "relation",
       "relation": "oneToMany",
