@@ -38,3 +38,11 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+    
+    - task: AzureWebAppContainer@1
+      displayName: Deploy Azure Web App Container
+      inputs:
+        azureSubscription: 'Azure for Students(0463a376-6f65-4fd1-bbdb-3a56abb43ae8)'
+        appName: 'smart-parking-server'
+        resourceGroupName: 'capstone-project'
+        containers: 'smartparking.azurecr.io/prod/smartparkingserver:latest'
