@@ -2,10 +2,16 @@
 # Build and push an image to Azure Container Registry
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
+
 trigger:
+  tags:
+    include:
+    - v*
+pr:
   branches:
     include:
     - main
+    - releases/*
 
 resources:
 - repo: self
@@ -39,7 +45,7 @@ stages:
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          $(tag)
+          latest
     
     - task: AzureWebAppContainer@1
       displayName: Deploy Azure Web App Container From Container Registry
