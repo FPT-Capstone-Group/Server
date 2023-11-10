@@ -53,4 +53,4 @@ stages:
         azureSubscription: 'Azure for Students(0463a376-6f65-4fd1-bbdb-3a56abb43ae8)'
         appName: 'smart-parking-server'
         resourceGroupName: 'capstone-project'
-        containers: $(containerRegistry)/$(imageRepository):$(tag)
+        containers: $(containerRegistry)/$(imageRepository):latest
