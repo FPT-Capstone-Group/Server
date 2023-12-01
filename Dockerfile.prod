@@ -1,29 +1,20 @@
-# Creating multi-stage build for production
-FROM node:18.17-alpine as build
-RUN apk update && apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev > /dev/null 2>&1
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+# Fetching the minified node image on apline linux
+FROM node:slim
 
-WORKDIR /opt/
-COPY package.json yarn.lock ./
-RUN yarn config set network-timeout 600000 -g && yarn install --production
-ENV PATH /opt/node_modules/.bin:$PATH
-WORKDIR /opt/app
+# Declaring env
+ENV NODE_ENV development
+
+# Setting up the work directory
+WORKDIR /server
+
+# Copying all the files in our project
 COPY . .
-RUN yarn build
 
-# Creating final production image
-FROM node:18.17-alpine
-RUN apk add --no-cache vips-dev
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-WORKDIR /opt/
-COPY --from=build /opt/node_modules ./node_modules
-WORKDIR /opt/app
-COPY --from=build /opt/app ./
-ENV PATH /opt/node_modules/.bin:$PATH
+# Installing dependencies
+RUN npm install
 
-RUN chown -R node:node /opt/app
-USER node
-EXPOSE 1337
-CMD ["yarn", "start"]
+# Starting our application
+CMD [ "npm", "start" ]
+
+# Exposing server port
+EXPOSE 5000

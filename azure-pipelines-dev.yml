@@ -4,14 +4,9 @@
 
 
 trigger:
-  tags:
-    include:
-      - v*
-pr:
   branches:
     include:
-      - main
-      - releases/*
+      - dev
 
 resources:
   - repo: self
@@ -19,9 +14,9 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: 'd1549153-540a-4182-91a7-14a5455ece5c'
-  imageRepository: 'prod/smartparkingserver'
+  imageRepository: 'dev/smartparkingserver'
   containerRegistry: 'smartparking.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile.prod'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile.dev'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
@@ -50,6 +45,6 @@ stages:
             displayName: Deploy Azure Web App Container From Container Registry
             inputs:
               azureSubscription: 'Azure for Students(0463a376-6f65-4fd1-bbdb-3a56abb43ae8)'
-              appName: 'smart-parking-server'
+              appName: 'smart-parking-server-dev'
               resourceGroupName: 'capstone-project'
               containers: $(containerRegistry)/$(imageRepository):latest
