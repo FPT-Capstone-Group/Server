@@ -1,21 +1,30 @@
 // owner.controller.js
-const { Owner, Bike} = require("../../models");
-const { successResponse, errorResponse } = require("../../helpers");
-
+const { Owner, Bike } = require("../../models");
+const {
+  successResponse,
+  errorResponse,
+  formatToMoment,
+} = require("../../helpers");
+// Sub function
+const formatOwner = (owner) => {
+  const formattedOwner = {
+    ...owner.toJSON(),
+    createdAt: formatToMoment(owner.createdAt),
+    updatedAt: formatToMoment(owner.updatedAt),
+  };
+  return formattedOwner;
+};
 const createOwner = async (req, res) => {
   const { fullName, plateNumber, ownerFaceImage, relationship, gender } =
     req.body;
-
   try {
     if (!plateNumber) {
       return errorResponse(req, res, "Plate number is required", 400);
     }
-
     // Check if the plateNumber already exists in the Bike model
     const existingBike = await Bike.findOne({
       where: { plateNumber },
     });
-
     if (!existingBike || existingBike.status !== "Active") {
       return errorResponse(
         req,
@@ -24,12 +33,10 @@ const createOwner = async (req, res) => {
         400
       );
     }
-
     // Check if the plateNumber is already associated with an owner
     let existingOwner = await Owner.findOne({
       where: { bikeId: existingBike.bikeId },
     });
-
     if (existingOwner) {
       // If an existing owner is found and check if req.body.relationship is "Owner"
       // Otherwise, the relationship can be anything you want
@@ -54,34 +61,37 @@ const createOwner = async (req, res) => {
       gender,
       bikeId: existingBike.bikeId,
     });
-    return successResponse(req, res, newOwner, 201);
+
+    const formattedOwner = formatOwner(newOwner);
+
+    return successResponse(req, res, formattedOwner, 201);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-const getOwnersByCardId = async (req, res) => {
+const getOwnersByPlateNumber = async (req, res) => {
   try {
-    const { cardId } = req.query
+    const { plateNumber } = req.query;
     const bike = await Bike.findOne({
-      where: { cardId },
+      where: { plateNumber },
     });
     if (!bike) {
       return errorResponse(req, res, "No Bike Found", 404);
     }
     const owners = await Owner.findAll({
-      where: { bikeId: bike.bikeId }
-        }
-    )
+      where: { bikeId: bike.bikeId },
+    });
     if (!owners || owners.length === 0) {
       return errorResponse(req, res, "No Owners found", 404);
     }
-
-    return successResponse(req, res, owners, 200);
+    // Format dates in each owner before sending the response
+    const formattedOwner = owners.map((owner) => formatOwner(owner));
+    return successResponse(req, res, formattedOwner, 200);
   } catch (error) {
     console.error("Internal Server Error:", error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
 
-module.exports = { createOwner, getOwnersByCardId };
+module.exports = { createOwner, getOwnersByPlateNumber };

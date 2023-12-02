@@ -1,53 +1,60 @@
 // controllers/cardController.js
 
 const { Card, CardHistory } = require("../../models");
-const { successResponse, errorResponse } = require("../../helpers");
+const {
+  successResponse,
+  errorResponse,
+  formatToMoment,
+} = require("../../helpers");
 const sequelize = require("../../config/sequelize");
 
+// Sub func
+const formatCard = (card) => {
+  const formattedCard = {
+    ...card.toJSON(),
+    createdAt: formatToMoment(card.createdAt),
+    updatedAt: formatToMoment(card.updatedAt),
+  };
+  return formattedCard;
+};
 // Create a new card
 const createCard = async (req, res) => {
   const t = await sequelize.transaction();
-  const newCards = []
+  const newCards = [];
   try {
-    for ( const { cardId } of req.body) {
+    for (const { cardId } of req.body) {
       const currentDate = new Date();
       const expiredDate = new Date(currentDate);
       expiredDate.setFullYear(currentDate.getFullYear() + 1);
       const newCard = await Card.create(
-          {
-            cardId: cardId,
-            startDate: currentDate,
-            expiredDate: expiredDate,
-            cCurrentStatus: "Active",
-            isActive: false,
-            cardType: "Guest",
-            userId: req.user.userId,
-          },
-          { transaction: t, ignoreDuplicates: true } // Use for ignore duplicate card
+        {
+          cardId: cardId,
+          startDate: currentDate,
+          expiredDate: expiredDate,
+          cCurrentStatus: "Active",
+          isActive: false,
+          cardType: "Guest",
+          userId: req.user.userId,
+        },
+        { transaction: t, ignoreDuplicates: true } // Use for ignore duplicate card
       );
-      newCards.push(newCard)
+      newCards.push(newCard);
       if (newCard) {
         await CardHistory.create(
-            {
-              eventType: "Card Created",
-              eventTime: currentDate,
-              details: "Card created successfully",
-              cardId: newCard.cardId,
-              status: "Active",
-            },
-            { transaction: t }
+          {
+            eventType: "Card Created",
+            eventTime: currentDate,
+            details: "Card created successfully",
+            cardId: newCard.cardId,
+            status: "Active",
+          },
+          { transaction: t }
         );
       }
     }
 
     await t.commit();
-
-    return successResponse(
-      req,
-      res,
-      newCards.cardId,
-      201
-    );
+    return successResponse(req, res, newCards.cardId, 201);
   } catch (error) {
     console.error(error);
     await t.rollback();
@@ -63,8 +70,8 @@ const getAllCards = async (req, res) => {
     if (!allCards || allCards.length === 0) {
       return errorResponse(req, res, "No Cards", 404);
     }
-
-    return successResponse(req, res, allCards, 200);
+    const formattedCards = allCards.map((card) => formatCard(card));
+    return successResponse(req, res, formattedCards, 200);
   } catch (error) {
     console.error("Internal Server Error:", error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -83,8 +90,8 @@ const getAllUserCards = async (req, res) => {
     if (!userCards) {
       return errorResponse(req, res, "Cards not found", 404);
     }
-
-    return successResponse(req, res, userCards, 200);
+    const formattedCards = userCards.map((card) => formatCard(card));
+    return successResponse(req, res, formattedCards, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -101,8 +108,8 @@ const getCardDetails = async (req, res) => {
     if (!card) {
       return errorResponse(req, res, "Card not found", 404);
     }
-
-    return successResponse(req, res, card, 200);
+    const formattedCard = formatCard(card);
+    return successResponse(req, res, formattedCard, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -139,8 +146,8 @@ const updateCard = async (req, res) => {
     );
 
     await t.commit();
-
-    return successResponse(req, res, card, 200);
+    const formattedCard = formatCard(card);
+    return successResponse(req, res, formattedCard, 200);
   } catch (error) {
     console.error(error);
     await t.rollback();

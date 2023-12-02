@@ -7,10 +7,15 @@ const {
   Fee,
   User,
 } = require("../../models");
-const { successResponse, errorResponse } = require("../../helpers");
+const {
+  successResponse,
+  errorResponse,
+  formatToMoment,
+} = require("../../helpers");
 const fs = require("fs");
 const sequelize = require("../../config/sequelize");
 
+//sub func
 const createRegistrationHistory = async (
   status,
   approvedBy,
@@ -28,6 +33,17 @@ const createRegistrationHistory = async (
     { transaction: t }
   );
 };
+const formatRegistration = (registration) => {
+  const formattedRegistration = {
+    ...registration.toJSON(),
+    createdAt: formatToMoment(registration.createdAt),
+    updatedAt: formatToMoment(registration.updatedAt),
+  };
+
+  return formattedRegistration;
+};
+
+//main func
 const createRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -92,11 +108,12 @@ const createRegistration = async (req, res) => {
     );
 
     await t.commit();
+    const formattedRegistration = formatRegistration(newRegistration);
     return successResponse(
       req,
       res,
       {
-        registration: newRegistration,
+        registration: formattedRegistration,
         fee,
       },
       201
@@ -140,7 +157,13 @@ const approveRegistration = async (req, res) => {
     );
 
     await t.commit();
-    return successResponse(req, res, { registration }, 200);
+    const formattedRegistration = formatRegistration(registration);
+    return successResponse(
+      req,
+      res,
+      { registration: formattedRegistration },
+      200
+    );
   } catch (error) {
     console.error(error);
     await t.rollback();
@@ -161,8 +184,10 @@ const getAllUserRegistration = async (req, res) => {
     if (!userRegistration) {
       return errorResponse(req, res, "Registration not found", 404);
     }
-
-    return successResponse(req, res, userRegistration, 200);
+    const formattedRegistrations = userRegistration.map((registration) =>
+      formatRegistration(registration)
+    );
+    return successResponse(req, res, formattedRegistrations, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -221,12 +246,13 @@ const updateRegistration = async (req, res) => {
       );
 
       await t.commit();
+      const formattedRegistration = formatRegistration(registration);
       return successResponse(
         req,
         res,
 
         {
-          registration: registration.toJSON(),
+          registration: formattedRegistration,
           bike: newBike.toJSON(),
           owner: newOwner.toJSON(),
         },
@@ -257,7 +283,8 @@ const disableRegistration = async (req, res) => {
       req.user.fullName,
       registration.registrationId
     );
-    return successResponse(req, res, registration);
+    const formattedRegistration = formatRegistration(registration);
+    return successResponse(req, res, formattedRegistration);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -273,8 +300,8 @@ const getUserRegistration = async (req, res) => {
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
     }
-
-    return successResponse(req, res, registration);
+    const formattedRegistration = formatRegistration(registration);
+    return successResponse(req, res, formattedRegistration);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -292,8 +319,10 @@ const allRegistration = async (req, res) => {
     if (registrations.length === 0) {
       return successResponse(req, res, "No active registrations found");
     }
-
-    return successResponse(req, res, registrations);
+    const formattedRegistrations = registrations.map((registration) =>
+      formatRegistration(registration)
+    );
+    return successResponse(req, res, formattedRegistrations);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);

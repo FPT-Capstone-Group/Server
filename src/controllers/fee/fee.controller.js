@@ -1,11 +1,25 @@
 // controllers/feeController.js
 const { Fee } = require("../../models");
-const { successResponse, errorResponse } = require("../../helpers");
+const {
+  successResponse,
+  errorResponse,
+  formatToMoment,
+} = require("../../helpers");
 
+// Sub function
+const formatFee = (fee) => {
+  const formattedFee = {
+    ...fee.toJSON(),
+    createdAt: formatToMoment(fee.createdAt),
+    updatedAt: formatToMoment(fee.updatedAt),
+  };
+  return formattedFee;
+};
+// Main function
 // Create a new fee
 const createFee = async (req, res) => {
   try {
-    const { feeName, amount, description, feeDate, feeMethod } = req.body;
+    const { feeName, amount, description, feeMethod } = req.body;
 
     const newFee = await Fee.create({
       feeName,
@@ -14,8 +28,8 @@ const createFee = async (req, res) => {
       feeDate: new Date().toISOString(),
       feeMethod,
     });
-
-    return successResponse(req, res, newFee, 201);
+    const formattedFee = formatFee(newFee);
+    return successResponse(req, res, formattedFee, 201);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -26,7 +40,8 @@ const createFee = async (req, res) => {
 const getAllFees = async (req, res) => {
   try {
     const fees = await Fee.findAll();
-    return successResponse(req, res, fees, 200);
+    const formattedFees = fees.map((fee) => formatFee(fee));
+    return successResponse(req, res, formattedFees, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -42,8 +57,8 @@ const getFeeById = async (req, res) => {
     if (!fee) {
       return errorResponse(req, res, "Fee not found", 404);
     }
-
-    return successResponse(req, res, fee, 200);
+    const formattedFee = formatFee(fee);
+    return successResponse(req, res, formattedFee, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -70,8 +85,8 @@ const updateFeeById = async (req, res) => {
     fee.feeMethod = feeMethod;
 
     await fee.save();
-
-    return successResponse(req, res, fee, 200);
+    const formattedFee = formatFee(fee);
+    return successResponse(req, res, formattedFee, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -83,13 +98,10 @@ const deleteFeeById = async (req, res) => {
   try {
     const { feeId } = req.params;
     const fee = await Fee.findByPk(feeId);
-
     if (!fee) {
       return errorResponse(req, res, "Fee not found", 404);
     }
-
     await fee.destroy();
-
     return successResponse(req, res, "Fee deleted successfully", 200);
   } catch (error) {
     console.error(error);

@@ -1,24 +1,39 @@
 // bike.controller.js
 const { Bike } = require("../../models");
-const { successResponse, errorResponse } = require("../../helpers");
+const {
+  successResponse,
+  errorResponse,
+  formatToMoment,
+} = require("../../helpers");
 
+// Sub func
+const formatBike = (bike) => {
+  const formattedBike = {
+    ...bike.toJSON(),
+    createdAt: formatToMoment(bike.createdAt),
+    updatedAt: formatToMoment(bike.updatedAt),
+  };
+  return formattedBike;
+};
 const createBike = async (req, res) => {
   try {
     const { plateNumber } = req.body;
     const newBike = await Bike.create({ plateNumber });
-    return successResponse(req, res, newBike, 201);
+    const formattedBike = formatBike(newBike);
+    return successResponse(req, res, formattedBike, 201);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
 
+// Delete func
 const getPlateNumberByCardId = async (req, res) => {
   try {
     const { cardId } = req.query;
     const bike = await Bike.findOne({
-      where : { cardId: cardId },
-      attributes: ['plateNumber']
+      where: { cardId: cardId },
+      attributes: ["plateNumber"],
     });
     return successResponse(req, res, bike.plateNumber, 201);
   } catch (error) {
@@ -35,8 +50,8 @@ const getAllBikesForUser = async (req, res) => {
     const userBikes = await Bike.findAll({
       where: { userId },
     });
-
-    return successResponse(req, res, userBikes, 200);
+    const formattedBikes = userBikes.map((bike) => formatBike(bike));
+    return successResponse(req, res, formattedBikes, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);

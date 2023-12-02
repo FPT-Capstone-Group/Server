@@ -3,7 +3,12 @@ import jwt from "jsonwebtoken";
 import { User } from "../../models";
 import { Role } from "../../models";
 import { UserRole } from "../../models";
-import { successResponse, errorResponse, uniqueId } from "../../helpers";
+import {
+  successResponse,
+  errorResponse,
+  uniqueId,
+  formatToMoment,
+} from "../../helpers";
 import crypto from "crypto";
 
 // sub function
@@ -20,21 +25,25 @@ async function getRoleIdByName(roleName) {
     throw error;
   }
 }
-
+const formatUser = (user) => {
+  const formattedUser = {
+    ...user.toJSON(),
+    createdAt: formatToMoment(user.createdAt),
+    updatedAt: formatToMoment(user.updatedAt),
+  };
+  return formattedUser;
+};
 // main function
 const allUsers = async (req, res) => {
   try {
-    const page = req.params.page || 1;
-    const limit = 2;
-    const users = await User.findAndCountAll({
+    const users = await User.findAll({
       order: [
         ["createdAt", "DESC"],
         ["fullName", "ASC"],
       ],
-      offset: (page - 1) * limit,
-      limit,
     });
-    return successResponse(req, res, { users });
+    const formattedUsers = users.map((user) => formatUser(user));
+    return successResponse(req, res, formattedUsers);
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -63,9 +72,11 @@ const register = async (req, res) => {
     };
 
     const newUser = await User.create(payload);
+    delete newUser.dataValues.password;
+    const formattedUser = formatUser(newUser);
     const roleId = await getRoleIdByName("User");
     await UserRole.create({ userId: newUser.userId, roleId });
-    return successResponse(req, res, {});
+    return successResponse(req, res, { newUser: formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -95,8 +106,9 @@ const login = async (req, res) => {
       },
       process.env.SECRET
     );
+    const formattedUser = formatUser(user);
     delete user.dataValues.password;
-    return successResponse(req, res, { user, token });
+    return successResponse(req, res, { formattedUser, token });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -106,7 +118,8 @@ const profile = async (req, res) => {
   try {
     const { userId } = req.user;
     const user = await User.findOne({ where: { userId: userId } });
-    return successResponse(req, res, { user });
+    const formattedUser = formatUser(user);
+    return successResponse(req, res, { formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -130,7 +143,7 @@ const changePassword = async (req, res) => {
       .update(req.body.newPassword)
       .digest("hex");
     await User.update({ password: newPass }, { where: { id: user.userId } });
-    return successResponse(req, res, {});
+    return successResponse(req, res, "Change Password Succesful");
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -167,7 +180,7 @@ const verifyUser = async (req, res) => {
 
     // Update user information
     await userToUpdate.update({
-      fullName: fullName,
+      // fullName: fullName,
       isVerified: true,
     });
 
@@ -190,8 +203,8 @@ const getUserInfo = async (req, res) => {
       username: user.username,
       fullName: user.fullName,
     };
-
-    return successResponse(req, res, userInfo);
+    const formattedUser = formatUser(userInfo);
+    return successResponse(req, res, formattedUser);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -223,7 +236,7 @@ const activateUser = async (req, res) => {
   }
 };
 
-// Update current user's fullName and username
+// Update current user's fullName
 const updateUser = async (req, res) => {
   const userId = req.user.userId; // Assuming you have middleware that extracts the user ID from the request
 
@@ -238,15 +251,10 @@ const updateUser = async (req, res) => {
     if (req.body.fullName) {
       user.fullName = req.body.fullName;
     }
-
-    if (req.body.username) {
-      user.username = req.body.username;
-    }
-
     // Save the changes
     await user.save();
-
-    return successResponse(req, res, user);
+    const formattedUser = formatUser(user);
+    return successResponse(req, res, formattedUser);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
