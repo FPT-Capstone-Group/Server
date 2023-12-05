@@ -21,8 +21,9 @@ async function getRoleIdByName(roleName) {
   }
 }
 const formatUser = (user) => {
+  const { password, ...userWithoutPassword } = user.toJSON();
   const formattedUser = {
-    ...user.toJSON(),
+    ...userWithoutPassword,
     createdAt: formatToMoment(user.createdAt),
     updatedAt: formatToMoment(user.updatedAt),
   };
@@ -48,7 +49,7 @@ const register = async (req, res) => {
   try {
     const { username, password, fullName, firebaseToken } = req.body;
 
-    const user = await User.scope("withSecretColumns").findOne({
+    const user = await User.findOne({
       where: { username },
     });
     if (user) {
@@ -66,7 +67,6 @@ const register = async (req, res) => {
     };
 
     const newUser = await User.create(payload);
-    delete newUser.dataValues.password;
     const formattedUser = formatUser(newUser);
     const roleId = await getRoleIdByName("User");
     await UserRole.create({ userId: newUser.userId, roleId });
@@ -77,7 +77,7 @@ const register = async (req, res) => {
 };
 const login = async (req, res) => {
   try {
-    const user = await User.scope("withSecretColumns").findOne({
+    const user = await User.findOne({
       where: { username: req.body.username },
     });
     if (!user) {
@@ -90,9 +90,12 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Incorrect username Id/Password");
     }
-    // Update the user's firebaseToken
-    user.firebaseToken = firebaseToken;
-    await user.save();
+    // Check if the user has a firebaseToken field, if user don't have, skip it
+    if (user.hasOwnProperty("firebaseToken")) {
+      // Update the user's firebaseToken
+      user.firebaseToken = firebaseToken;
+      await user.save();
+    }
     const token = jwt.sign(
       {
         user: {
@@ -105,7 +108,6 @@ const login = async (req, res) => {
       process.env.SECRET
     );
     const formattedUser = formatUser(user);
-    delete user.dataValues.password;
     return successResponse(req, res, { formattedUser, token });
   } catch (error) {
     return errorResponse(req, res, error.message);
@@ -125,7 +127,7 @@ const profile = async (req, res) => {
 const changePassword = async (req, res) => {
   try {
     const { userId } = req.user;
-    const user = await User.scope("withSecretColumns").findOne({
+    const user = await User.findOne({
       where: { userId: userId },
     });
 
