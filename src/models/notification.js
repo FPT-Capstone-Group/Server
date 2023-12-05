@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    createdAt: {
-      type: DataTypes.DATE,
+    notificationType: {
+      type: DataTypes.STRING,
     },
   });
   Notification.associate = function (models) {

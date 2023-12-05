@@ -11,9 +11,6 @@ module.exports = (sequelize, DataTypes) => {
     registrationStatus: {
       type: DataTypes.STRING,
     },
-    amount: {
-      type: DataTypes.FLOAT,
-    },
     approvedBy: {
       type: DataTypes.STRING,
     },

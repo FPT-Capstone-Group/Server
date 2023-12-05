@@ -27,21 +27,6 @@ const createBike = async (req, res) => {
   }
 };
 
-// Delete func
-const getPlateNumberByCardId = async (req, res) => {
-  try {
-    const { cardId } = req.query;
-    const bike = await Bike.findOne({
-      where: { cardId: cardId },
-      attributes: ["plateNumber"],
-    });
-    return successResponse(req, res, bike.plateNumber, 201);
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
-};
-
 const getAllBikesForUser = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -58,4 +43,4 @@ const getAllBikesForUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllBikesForUser, createBike, getPlateNumberByCardId };
+module.exports = { getAllBikesForUser, createBike };

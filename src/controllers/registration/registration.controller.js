@@ -42,7 +42,31 @@ const formatRegistration = (registration) => {
 
   return formattedRegistration;
 };
-
+const createBikeFromRegistration = async (registration, transaction) => {
+  return await Bike.create(
+    {
+      plateNumber: registration.plateNumber,
+      model: registration.model,
+      manufacture: registration.manufacture,
+      registrationNumber: registration.registrationNumber,
+      userId: registration.userId,
+    },
+    { transaction }
+  );
+};
+const createOwnerFromRegistration = async (registration, bike, transaction) => {
+  const associatedUser = await User.findByPk(registration.userId);
+  return await Owner.create(
+    {
+      fullName: associatedUser.fullName,
+      gender: registration.gender,
+      relationship: "Owner", // Default to owner when created
+      ownerFaceImage: "Update later",
+      bikeId: bike.id,
+    },
+    { transaction }
+  );
+};
 //main func
 const createRegistration = async (req, res) => {
   const t = await sequelize.transaction();
@@ -94,7 +118,6 @@ const createRegistration = async (req, res) => {
         gender,
         faceImage: faceImageBase64,
         userId: req.user.userId,
-        amount: fee.amount,
       },
       { transaction: t }
     );
@@ -107,6 +130,7 @@ const createRegistration = async (req, res) => {
       t
     );
 
+    const amount = fee.amount;
     await t.commit();
     const formattedRegistration = formatRegistration(newRegistration);
     return successResponse(
@@ -114,7 +138,7 @@ const createRegistration = async (req, res) => {
       res,
       {
         registration: formattedRegistration,
-        fee,
+        amount,
       },
       201
     );
@@ -205,62 +229,54 @@ const updateRegistration = async (req, res) => {
     const successfulPayment = await Payment.findOne({
       where: { registrationId, status: "Success" },
     });
-    if (successfulPayment) {
-      // Update the registrationStatus to "Active"
-      registration.registrationStatus = "Active";
-      // Update the approvedBy to the current user's id - Is admin Id since admin is the one who accesses this route
-      registration.approvedBy = `${req.user.fullName}`;
-      registration.hasPayment = true;
-      await registration.save({ transaction: t });
-
-      // Create a registration history
-      await createRegistrationHistory(
-        "Active",
-        req.user.fullName,
-        registration.registrationId,
-        t
-      );
-      //Create owner and bike related to the registration
-      const newBike = await Bike.create(
-        {
-          plateNumber: registration.plateNumber,
-          model: registration.model,
-          manufacture: registration.manufacture,
-          registrationNumber: registration.registrationNumber,
-          userId: registration.userId,
-        },
-        { transaction: t }
-      );
-      const associatedUser = await User.findByPk(registration.userId);
-      const newOwner = await Owner.create(
-        {
-          fullName: associatedUser.fullName,
-          gender: registration.gender,
-          relationship: "Owner", // Default to owner when created
-          // ownerFaceImage: registration.faceImage,
-          ownerFaceImage: "Update later",
-          bikeId: newBike.id,
-        },
-
-        { transaction: t }
-      );
-
-      await t.commit();
-      const formattedRegistration = formatRegistration(registration);
-      return successResponse(
-        req,
-        res,
-
-        {
-          registration: formattedRegistration,
-          bike: newBike.toJSON(),
-          owner: newOwner.toJSON(),
-        },
-        200
-      );
-    } else {
+    if (!successfulPayment) {
       return errorResponse(req, res, "Payment not successful", 400);
     }
+    registration.registrationStatus = "Active";
+    // Update the approvedBy to the current user's id - Is admin Id since admin is the one who accesses this route
+    registration.approvedBy = `${req.user.fullName}`;
+    registration.hasPayment = true;
+    await registration.save({ transaction: t });
+
+    // Create a registration history
+    await createRegistrationHistory(
+      "Active",
+      req.user.fullName,
+      registration.registrationId,
+      t
+    );
+    //Create owner and bike related to the registration
+    const newBike = await createBikeFromRegistration(registration, t);
+    const newOwner = await createOwnerFromRegistration(
+      registration,
+      newBike,
+      t
+    );
+    // Assign Card for bike missing
+    // ...
+    // Send Notification for user
+    const message = {
+      data: {
+        // You can customize the data payload as needed
+        title: "Registration Approved",
+        body: "Your registration has been approved.",
+      },
+      token: associatedUser.firebaseToken,
+    };
+    await admin.messaging().send(message);
+    await t.commit();
+    const formattedRegistration = formatRegistration(registration);
+    return successResponse(
+      req,
+      res,
+
+      {
+        registration: formattedRegistration,
+        bike: newBike.toJSON(),
+        owner: newOwner.toJSON(),
+      },
+      200
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);

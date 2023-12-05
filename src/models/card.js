@@ -18,16 +18,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: "Active",
     },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
     cardType: {
       type: DataTypes.STRING,
+    },
+    bikeId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   });
   Card.associate = function (models) {
     Card.hasMany(models.CardHistory, { foreignKey: "cardId" });
+    Card.belongsTo(models.Bike, { foreignKey: "bikeId" });
   };
   return Card;
 };

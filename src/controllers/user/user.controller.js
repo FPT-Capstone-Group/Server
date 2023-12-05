@@ -3,12 +3,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../../models";
 import { Role } from "../../models";
 import { UserRole } from "../../models";
-import {
-  successResponse,
-  errorResponse,
-  uniqueId,
-  formatToMoment,
-} from "../../helpers";
+import { successResponse, errorResponse, formatToMoment } from "../../helpers";
 import crypto from "crypto";
 
 // sub function
@@ -67,8 +62,6 @@ const register = async (req, res) => {
       username,
       fullName,
       password: hashedPassword,
-      isVerified: false,
-      verifyToken: uniqueId(),
     };
 
     const newUser = await User.create(payload);
@@ -148,48 +141,7 @@ const changePassword = async (req, res) => {
     return errorResponse(req, res, error.message);
   }
 };
-const verifyUser = async (req, res) => {
-  try {
-    const { fullName } = req.body;
 
-    // Check if the user is already verified
-    if (req.user.isVerified) {
-      return errorResponse(req, res, "User is already verified", 400);
-    }
-
-    // Check if fullName is provided
-    if (!fullName) {
-      return errorResponse(
-        req,
-        res,
-        "FullName is required for verification",
-        400
-      );
-    }
-
-    let userToUpdate = req.user;
-
-    // If req.user is not an instance of User, fetch the user from the database
-    if (!(userToUpdate instanceof User)) {
-      userToUpdate = await User.findByPk(req.user.userId);
-
-      if (!userToUpdate) {
-        return errorResponse(req, res, "User not found", 404);
-      }
-    }
-
-    // Update user information
-    await userToUpdate.update({
-      // fullName: fullName,
-      isVerified: true,
-    });
-
-    return successResponse(req, res, { message: "User verified successfully" });
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
-};
 // Only admin can access this route
 const getUserInfo = async (req, res) => {
   try {
@@ -235,10 +187,32 @@ const activateUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+const deActivateUser = async (req, res) => {
+  try {
+    // Check if the logged-in user has admin privileges
+    const { userId } = req.params;
+    const user = await User.findByPk(userId);
 
+    if (!user) {
+      return errorResponse(req, res, "User not found", 404);
+    }
+
+    // Deactivate the user by setting isActive to false
+    await user.update({
+      isActive: false,
+    });
+
+    return successResponse(req, res, {
+      message: "User de-activated successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 // Update current user's fullName
 const updateUser = async (req, res) => {
-  const userId = req.user.userId; // Assuming you have middleware that extracts the user ID from the request
+  const userId = req.user.userId;
 
   try {
     const user = await User.findByPk(userId);
@@ -264,7 +238,7 @@ const updateUser = async (req, res) => {
 module.exports = {
   activateUser,
   getUserInfo,
-  verifyUser,
+  deActivateUser,
   changePassword,
   profile,
   allUsers,
