@@ -20,10 +20,6 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: "Active",
       },
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
       cardType: {
         type: Sequelize.STRING,
       },

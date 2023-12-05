@@ -1,5 +1,6 @@
-require ('./fee_calculate')
-const {calculateParkingFee} = require("./fee_calculate");
+require("./fee_calculate");
+const { calculateParkingFee } = require("./fee_calculate");
+const moment = require("moment");
 const successResponse = (req, res, data, code = 200) =>
   res.send({
     code,
@@ -47,6 +48,7 @@ const uniqueId = (length = 13) => {
   return result;
 };
 
+const formatToMoment = (date) => moment(date).format("YYYY-MM-DD:HH:mm:ss");
 
 module.exports = {
   successResponse,
@@ -54,5 +56,6 @@ module.exports = {
   validateUsername,
   validateFields,
   uniqueId,
-    calculateParkingFee,
+  calculateParkingFee,
+  formatToMoment,
 };

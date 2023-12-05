@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../../models";
 import { Role } from "../../models";
 import { UserRole } from "../../models";
-import { successResponse, errorResponse, uniqueId } from "../../helpers";
+import { successResponse, errorResponse, formatToMoment } from "../../helpers";
 import crypto from "crypto";
 
 // sub function
@@ -20,21 +20,26 @@ async function getRoleIdByName(roleName) {
     throw error;
   }
 }
-
+const formatUser = (user) => {
+  const { password, ...userWithoutPassword } = user.toJSON();
+  const formattedUser = {
+    ...userWithoutPassword,
+    createdAt: formatToMoment(user.createdAt),
+    updatedAt: formatToMoment(user.updatedAt),
+  };
+  return formattedUser;
+};
 // main function
 const allUsers = async (req, res) => {
   try {
-    const page = req.params.page || 1;
-    const limit = 2;
-    const users = await User.findAndCountAll({
+    const users = await User.findAll({
       order: [
         ["createdAt", "DESC"],
         ["fullName", "ASC"],
       ],
-      offset: (page - 1) * limit,
-      limit,
     });
-    return successResponse(req, res, { users });
+    const formattedUsers = users.map((user) => formatUser(user));
+    return successResponse(req, res, formattedUsers);
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -42,9 +47,9 @@ const allUsers = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { username, password, fullName } = req.body;
+    const { username, password, fullName, firebaseToken } = req.body;
 
-    const user = await User.scope("withSecretColumns").findOne({
+    const user = await User.findOne({
       where: { username },
     });
     if (user) {
@@ -58,21 +63,21 @@ const register = async (req, res) => {
       username,
       fullName,
       password: hashedPassword,
-      isVerified: false,
-      verifyToken: uniqueId(),
+      firebaseToken,
     };
 
     const newUser = await User.create(payload);
+    const formattedUser = formatUser(newUser);
     const roleId = await getRoleIdByName("User");
     await UserRole.create({ userId: newUser.userId, roleId });
-    return successResponse(req, res, {});
+    return successResponse(req, res, { newUser: formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
 };
 const login = async (req, res) => {
   try {
-    const user = await User.scope("withSecretColumns").findOne({
+    const user = await User.findOne({
       where: { username: req.body.username },
     });
     if (!user) {
@@ -85,6 +90,12 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Incorrect username Id/Password");
     }
+    // Check if the user has a firebaseToken field, if user don't have, skip it
+    if (user.hasOwnProperty("firebaseToken")) {
+      // Update the user's firebaseToken
+      user.firebaseToken = firebaseToken;
+      await user.save();
+    }
     const token = jwt.sign(
       {
         user: {
@@ -93,10 +104,11 @@ const login = async (req, res) => {
           createdAt: new Date(),
         },
       },
+      // Only server know make sure don't expose
       process.env.SECRET
     );
-    delete user.dataValues.password;
-    return successResponse(req, res, { user, token });
+    const formattedUser = formatUser(user);
+    return successResponse(req, res, { formattedUser, token });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -106,7 +118,8 @@ const profile = async (req, res) => {
   try {
     const { userId } = req.user;
     const user = await User.findOne({ where: { userId: userId } });
-    return successResponse(req, res, { user });
+    const formattedUser = formatUser(user);
+    return successResponse(req, res, { formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -114,13 +127,14 @@ const profile = async (req, res) => {
 const changePassword = async (req, res) => {
   try {
     const { userId } = req.user;
-    const user = await User.scope("withSecretColumns").findOne({
+    const user = await User.findOne({
       where: { userId: userId },
     });
 
     const previousPassMatch =
       crypto.createHash("sha256").update(req.body.oldPassword).digest("hex") ===
       user.password;
+
     if (!previousPassMatch) {
       throw new Error("Old password is incorrect");
     }
@@ -129,54 +143,18 @@ const changePassword = async (req, res) => {
       .createHash("sha256")
       .update(req.body.newPassword)
       .digest("hex");
-    await User.update({ password: newPass }, { where: { id: user.userId } });
-    return successResponse(req, res, {});
+
+    await User.update(
+      { password: newPass },
+      { where: { userId: user.userId } }
+    );
+
+    return successResponse(req, res, "Change Password Successful");
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
 };
-const verifyUser = async (req, res) => {
-  try {
-    const { fullName } = req.body;
 
-    // Check if the user is already verified
-    if (req.user.isVerified) {
-      return errorResponse(req, res, "User is already verified", 400);
-    }
-
-    // Check if fullName is provided
-    if (!fullName) {
-      return errorResponse(
-        req,
-        res,
-        "FullName is required for verification",
-        400
-      );
-    }
-
-    let userToUpdate = req.user;
-
-    // If req.user is not an instance of User, fetch the user from the database
-    if (!(userToUpdate instanceof User)) {
-      userToUpdate = await User.findByPk(req.user.userId);
-
-      if (!userToUpdate) {
-        return errorResponse(req, res, "User not found", 404);
-      }
-    }
-
-    // Update user information
-    await userToUpdate.update({
-      fullName: fullName,
-      isVerified: true,
-    });
-
-    return successResponse(req, res, { message: "User verified successfully" });
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
-};
 // Only admin can access this route
 const getUserInfo = async (req, res) => {
   try {
@@ -190,8 +168,8 @@ const getUserInfo = async (req, res) => {
       username: user.username,
       fullName: user.fullName,
     };
-
-    return successResponse(req, res, userInfo);
+    const formattedUser = formatUser(userInfo);
+    return successResponse(req, res, formattedUser);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -222,10 +200,32 @@ const activateUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+const deActivateUser = async (req, res) => {
+  try {
+    // Check if the logged-in user has admin privileges
+    const { userId } = req.params;
+    const user = await User.findByPk(userId);
 
-// Update current user's fullName and username
+    if (!user) {
+      return errorResponse(req, res, "User not found", 404);
+    }
+
+    // Deactivate the user by setting isActive to false
+    await user.update({
+      isActive: false,
+    });
+
+    return successResponse(req, res, {
+      message: "User de-activated successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+// Update current user's fullName
 const updateUser = async (req, res) => {
-  const userId = req.user.userId; // Assuming you have middleware that extracts the user ID from the request
+  const userId = req.user.userId;
 
   try {
     const user = await User.findByPk(userId);
@@ -238,29 +238,46 @@ const updateUser = async (req, res) => {
     if (req.body.fullName) {
       user.fullName = req.body.fullName;
     }
-
-    if (req.body.username) {
-      user.username = req.body.username;
-    }
-
     // Save the changes
     await user.save();
-
-    return successResponse(req, res, user);
+    const formattedUser = formatUser(user);
+    return successResponse(req, res, formattedUser);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-
+const forgotPassword = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    // Find the user by userId
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    // Reset the password to a default value (e.g., "123456")
+    const newPass = crypto.createHash("sha256").update("123456").digest("hex");
+    user.password = newPass;
+    await user.save();
+    return successResponse(
+      req,
+      res,
+      "Password has been reset to '123456' please change it again"
+    );
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 module.exports = {
   activateUser,
   getUserInfo,
-  verifyUser,
+  deActivateUser,
   changePassword,
   profile,
   allUsers,
   login,
   register,
   updateUser,
+  forgotPassword,
 };

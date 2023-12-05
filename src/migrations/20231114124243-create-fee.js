@@ -16,20 +16,12 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      concurrency: {
+      currency: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: "VND",
       },
       description: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      feeDate: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      feeMethod: {
         type: Sequelize.STRING,
         allowNull: false,
       },

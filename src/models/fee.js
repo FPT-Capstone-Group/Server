@@ -15,20 +15,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    concurrency: {
+    currency: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "VND",
     },
     description: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    feeDate: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    feeMethod: {
       type: DataTypes.STRING,
       allowNull: false,
     },
