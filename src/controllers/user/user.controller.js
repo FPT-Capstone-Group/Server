@@ -46,7 +46,7 @@ const allUsers = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { username, password, fullName } = req.body;
+    const { username, password, fullName, firebaseToken } = req.body;
 
     const user = await User.scope("withSecretColumns").findOne({
       where: { username },
@@ -62,6 +62,7 @@ const register = async (req, res) => {
       username,
       fullName,
       password: hashedPassword,
+      firebaseToken,
     };
 
     const newUser = await User.create(payload);
@@ -89,6 +90,9 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Incorrect username Id/Password");
     }
+    // Update the user's firebaseToken
+    user.firebaseToken = firebaseToken;
+    await user.save();
     const token = jwt.sign(
       {
         user: {
@@ -97,6 +101,7 @@ const login = async (req, res) => {
           createdAt: new Date(),
         },
       },
+      // Only server know make sure don't expose
       process.env.SECRET
     );
     const formattedUser = formatUser(user);
@@ -127,6 +132,7 @@ const changePassword = async (req, res) => {
     const previousPassMatch =
       crypto.createHash("sha256").update(req.body.oldPassword).digest("hex") ===
       user.password;
+
     if (!previousPassMatch) {
       throw new Error("Old password is incorrect");
     }
@@ -135,8 +141,13 @@ const changePassword = async (req, res) => {
       .createHash("sha256")
       .update(req.body.newPassword)
       .digest("hex");
-    await User.update({ password: newPass }, { where: { id: user.userId } });
-    return successResponse(req, res, "Change Password Succesful");
+
+    await User.update(
+      { password: newPass },
+      { where: { userId: user.userId } }
+    );
+
+    return successResponse(req, res, "Change Password Successful");
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -234,7 +245,28 @@ const updateUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-
+const forgotPassword = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    // Find the user by userId
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    // Reset the password to a default value (e.g., "123456")
+    const newPass = crypto.createHash("sha256").update("123456").digest("hex");
+    user.password = newPass;
+    await user.save();
+    return successResponse(
+      req,
+      res,
+      "Password has been reset to '123456' please change it again"
+    );
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 module.exports = {
   activateUser,
   getUserInfo,
@@ -245,4 +277,5 @@ module.exports = {
   login,
   register,
   updateUser,
+  forgotPassword,
 };

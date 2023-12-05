@@ -17,23 +17,18 @@ const router = express.Router();
 //= ===============================
 // API routes
 //= ===============================
-router.get("/me", userController.profile);
-router.post(
-  "/changePassword",
-  validate(userValidator.changePassword),
-  userController.changePassword
-);
 
 //Bike
 router.get("/bikes", bikeController.getAllBikesForUser);
-router.get("/bikes/plateNumber", bikeController.getPlateNumberByCardId);
+router.get("/bikes/:cardId", bikeController.getAllBikesByCard);
 //Fee
 router.get("/fees", feeController.getAllFees);
 router.get("/fees/:feeId", feeController.getFeeById);
 
 //User
-router.put("/users/verify", userController.verifyUser);
-router.put("/users/update", userController.updateUser);
+router.post("/forgotPassword", userController.forgotPassword);
+router.get("/me", userController.profile);
+router.post("/changePassword", userController.changePassword);
 
 //Registration
 router.post(
@@ -67,7 +62,7 @@ router.post("/cards/create", cardController.createCard);
 
 //Owner
 router.post("/owners/create", ownerController.createOwner);
-router.get("/owners/", ownerController.getOwnersByPlateNumber);
+router.get("/owners/:plateNumber", ownerController.getOwnersByPlateNumber);
 
 //Parking
 router.post("/parking/checkin", parkingController.checkIn);

@@ -37,7 +37,7 @@ router.put(
 );
 router.put(
   "/registrations/approve/:registrationId",
-  registrationController.approveRegistration
+  registrationController.verifyRegistration
 );
 
 //Bike
@@ -47,6 +47,7 @@ router.post("/bike", bikeController.createBike);
 router.get("/users", userController.allUsers);
 router.get("/users/:userId", userController.getUserInfo);
 router.put("/users/active/:userId", userController.activateUser);
+router.put("/users/deactive/:userId", userController.deActivateUser);
 
 //Owner
 router.post("/owners/create", ownerController.createOwner);

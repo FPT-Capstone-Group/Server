@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     firebaseToken: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
     createdAt: {
       type: DataTypes.DATE,

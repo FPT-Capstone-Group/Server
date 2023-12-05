@@ -39,7 +39,15 @@ const processPayment = async (req, res) => {
 
     // Fetch the fee amount based on the registrationId
     const amount = await getAmountByRegistrationId(registrationId);
-
+    // Check if the registration is already completed
+    const registration = await Registration.findByPk(registrationId);
+    if (!registration) {
+      return errorResponse(req, res, "Registration not found", 404);
+    }
+    // Registration is already completed, do not allow new payment
+    if (registration.registrationStatus === "Active") {
+      return errorResponse(req, res, "Registration is already completed", 400);
+    }
     // Set feeId appropriately based on the amount for now
     let feeId = null;
     if (amount === 300000) {

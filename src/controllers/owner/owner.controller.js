@@ -72,7 +72,7 @@ const createOwner = async (req, res) => {
 };
 const getOwnersByPlateNumber = async (req, res) => {
   try {
-    const { plateNumber } = req.query;
+    const { plateNumber } = req.params;
     const bike = await Bike.findOne({
       where: { plateNumber },
     });
