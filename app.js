@@ -16,8 +16,8 @@ dotenv.config();
 require("./src/config/sequelize");
 
 // Initialize Firebase Admin
-const serviceAccountPath = process.env.FIREBASE_ADMIN_CREDENTIALS;
-const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+// const serviceAccountPath = process.env.FIREBASE_ADMIN_CREDENTIALS;
+const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
