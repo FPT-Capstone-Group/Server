@@ -306,6 +306,5 @@ module.exports = {
   register,
   updateUser,
   forgotPassword,
-  getOtp,
-  verifyOtp
+  getOtp
 };
