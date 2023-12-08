@@ -17,9 +17,10 @@ require("./src/config/sequelize");
 
 // Initialize Firebase Admin
 // const serviceAccountPath = process.env.FIREBASE_ADMIN_CREDENTIALS;
-const serviceAccountCredentials = process.env.FIREBASE_ADMIN_CREDENTIALS.replace(/\\"/g, '"')
-console.log(serviceAccountCredentials);
-const serviceAccount = JSON.parse(serviceAccountCredentials);
+// const serviceAccountCredentials = process.env.FIREBASE_ADMIN_CREDENTIALS.replace(/\\"/g, '"')
+// const serviceAccountCredentials = process.env.FIREBASE_ADMIN_CREDENTIALS
+// const serviceAccount = JSON.parse(serviceAccountCredentials);
+const serviceAccount = require('./firebase-admin-credentials.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });

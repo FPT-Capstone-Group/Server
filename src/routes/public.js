@@ -11,10 +11,21 @@ const router = express.Router();
 //= ===============================
 
 router.post(
+    '/otp/send',
+    userController.getOtp,
+);
+
+router.post(
+    '/otp/verify',
+    userController.verifyOtp,
+);
+
+router.post(
   '/login',
   validate(userValidator.login),
   userController.login,
 );
+
 router.post(
   '/register',
   validate(userValidator.register),
