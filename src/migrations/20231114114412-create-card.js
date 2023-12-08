@@ -22,6 +22,7 @@ module.exports = {
       },
       cardType: {
         type: Sequelize.STRING,
+        defaultValue: "Guest",
       },
       createdAt: {
         allowNull: false,
