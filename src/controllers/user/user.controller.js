@@ -39,7 +39,7 @@ const allUsers = async (req, res) => {
       ],
     });
     const formattedUsers = users.map((user) => formatUser(user));
-    return successResponse(req, res, formattedUsers);
+    return successResponse(req, res, { users: formattedUsers });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -70,7 +70,7 @@ const register = async (req, res) => {
     const formattedUser = formatUser(newUser);
     const roleId = await getRoleIdByName("User");
     await UserRole.create({ userId: newUser.userId, roleId });
-    return successResponse(req, res, { newUser: formattedUser });
+    return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -108,7 +108,7 @@ const login = async (req, res) => {
       process.env.SECRET
     );
     const formattedUser = formatUser(user);
-    return successResponse(req, res, { formattedUser, token });
+    return successResponse(req, res, { user: formattedUser, token });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -119,7 +119,7 @@ const profile = async (req, res) => {
     const { userId } = req.user;
     const user = await User.findOne({ where: { userId: userId } });
     const formattedUser = formatUser(user);
-    return successResponse(req, res, { formattedUser });
+    return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -169,7 +169,7 @@ const getUserInfo = async (req, res) => {
       fullName: user.fullName,
     };
     const formattedUser = formatUser(userInfo);
-    return successResponse(req, res, formattedUser);
+    return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -241,7 +241,7 @@ const updateUser = async (req, res) => {
     // Save the changes
     await user.save();
     const formattedUser = formatUser(user);
-    return successResponse(req, res, formattedUser);
+    return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -249,26 +249,29 @@ const updateUser = async (req, res) => {
 };
 const forgotPassword = async (req, res) => {
   try {
-    const { userId } = req.user;
-    // Find the user by userId
-    const user = await User.findByPk(userId);
+    const { username, newPassword } = req.body;
+    // Verify the OTP (you need to implement OTP verification logic)
+    // Find the user by username
+    const user = await User.findOne({
+      where: { username },
+    });
     if (!user) {
       throw new Error("User not found");
     }
-    // Reset the password to a default value (e.g., "123456")
-    const newPass = crypto.createHash("sha256").update("123456").digest("hex");
-    user.password = newPass;
+    // Update the user's password
+    const hashedPassword = crypto
+      .createHash("sha256")
+      .update(newPassword)
+      .digest("hex");
+    user.password = hashedPassword;
     await user.save();
-    return successResponse(
-      req,
-      res,
-      "Password has been reset to '123456' please change it again"
-    );
+    return successResponse(req, res, "Password updated successfully");
   } catch (error) {
     console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
+    return errorResponse(req, res, error.message);
   }
 };
+
 module.exports = {
   activateUser,
   getUserInfo,

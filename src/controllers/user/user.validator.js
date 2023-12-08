@@ -16,7 +16,7 @@ export const changePassword = {
 export const register = {
   body: {
     username: Joi.string()
-      .regex(/^(08|09|03)\d{8}$/) // joi doesn't support regex for phone number
+      .regex(/^(08|09|03|02|07)\d{8}$/) // joi doesn't support regex for phone number
       .required(),
     password: Joi.string().required(),
   },

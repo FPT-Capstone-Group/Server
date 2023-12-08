@@ -20,7 +20,7 @@ const createBike = async (req, res) => {
     const { plateNumber } = req.body;
     const newBike = await Bike.create({ plateNumber });
     const formattedBike = formatBike(newBike);
-    return successResponse(req, res, formattedBike, 201);
+    return successResponse(req, res, { bike: formattedBike }, 201);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -35,7 +35,7 @@ const getAllBikesForUser = async (req, res) => {
       where: { userId },
     });
     const formattedBikes = userBikes.map((bike) => formatBike(bike));
-    return successResponse(req, res, formattedBikes, 200);
+    return successResponse(req, res, { bikes: formattedBikes }, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -62,7 +62,7 @@ const getAllBikesByCard = async (req, res) => {
       return errorResponse(req, res, "No bikes found for the card", 404);
     }
     const formattedBikes = bikes.map((bike) => formatBike(bike));
-    return successResponse(req, res, formattedBikes, 200);
+    return successResponse(req, res, { bikes: formattedBikes }, 200);
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
