@@ -82,7 +82,7 @@ const processPayment = async (req, res) => {
     await t.commit();
 
     const formattedPayment = formatPayment(newPayment);
-    return successResponse(req, res, formattedPayment, 200);
+    return successResponse(req, res, { payment: formattedPayment }, 200);
   } catch (error) {
     console.error(error);
 

@@ -38,7 +38,12 @@ const getAllPaymentHistoryForCurrentUser = async (req, res) => {
     const formattedPaymentHistory = paymentHistory.map((history) =>
       formatPaymentHistory(history)
     );
-    return successResponse(req, res, formattedPaymentHistory, 200);
+    return successResponse(
+      req,
+      res,
+      { paymentHistories: formattedPaymentHistory },
+      200
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -55,7 +60,12 @@ const getPaymentHistoryById = async (req, res) => {
       return errorResponse(req, res, "Payment history not found", 404);
     }
     const formattedPaymentHistory = formatPaymentHistory(paymentHistory);
-    return successResponse(req, res, formattedPaymentHistory, 200);
+    return successResponse(
+      req,
+      res,
+      { paymentHistory: formattedPaymentHistory },
+      200
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);

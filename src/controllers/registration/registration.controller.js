@@ -15,7 +15,28 @@ const {
 const fs = require("fs");
 const sequelize = require("../../config/sequelize");
 
-//sub func
+// Sub func
+const sendNotification = async (userId, title, body) => {
+  try {
+    const associatedUser = await User.findOne({
+      where: { userId },
+      attributes: ["firebaseToken"],
+    });
+
+    const message = {
+      data: {
+        title,
+        body,
+      },
+      token: associatedUser.firebaseToken,
+    };
+
+    await admin.messaging().send(message);
+  } catch (error) {
+    console.error("Error sending notification:", error);
+    // Handle error or log it as needed
+  }
+};
 const createRegistrationHistory = async (
   status,
   approvedBy,
@@ -67,7 +88,7 @@ const createOwnerFromRegistration = async (registration, bike, transaction) => {
     { transaction }
   );
 };
-//main func
+// Main func
 const createRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -208,7 +229,12 @@ const getAllUserRegistration = async (req, res) => {
     const formattedRegistrations = userRegistration.map((registration) =>
       formatRegistration(registration)
     );
-    return successResponse(req, res, formattedRegistrations, 200);
+    return successResponse(
+      req,
+      res,
+      { registrations: formattedRegistrations },
+      200
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -252,20 +278,17 @@ const updateRegistration = async (req, res) => {
     // Assign Card for bike missing
     // ...
     // Send Notification for user
-    const associatedUser = await User.findOne({
-      where: { userId: registration.userId },
-      attributes: ["firebaseToken"], // Make sure to include the firebaseToken
+    await sendNotification(
+      registration.userId,
+      "Registration Approved",
+      "Your registration has been approved."
+    );
+    // create Notification in db
+    await Notification.create({
+      userId: registration.userId,
+      message: "Registration Approved",
+      notificationType: "Registration",
     });
-    const message = {
-      data: {
-        // You can customize the data payload as needed
-        title: "Registration Approved",
-        body: "Your registration has been approved.",
-      },
-      token: associatedUser.firebaseToken,
-    };
-    // admin is firebase project not admin in our app
-    await admin.messaging().send(message);
     await t.commit();
     const formattedRegistration = formatRegistration(registration);
     return successResponse(
@@ -316,7 +339,7 @@ const disableRegistration = async (req, res) => {
     );
     await t.commit();
     const formattedRegistration = formatRegistration(registration);
-    return successResponse(req, res, formattedRegistration);
+    return successResponse(req, res, { registration: formattedRegistration });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -333,7 +356,7 @@ const getUserRegistration = async (req, res) => {
       return errorResponse(req, res, "Registration not found", 404);
     }
     const formattedRegistration = formatRegistration(registration);
-    return successResponse(req, res, formattedRegistration);
+    return successResponse(req, res, { registration: formattedRegistration });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
