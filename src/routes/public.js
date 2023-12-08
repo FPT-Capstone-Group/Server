@@ -15,10 +15,6 @@ router.post(
     userController.getOtp,
 );
 
-router.post(
-    '/otp/verify',
-    userController.verifyOtp,
-);
 
 router.post(
   '/login',

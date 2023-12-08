@@ -294,17 +294,6 @@ const getOtp = async (req, res) => {
   }
 };
 
-const verifyOtp = async (req, res) => {
-  try {
-    const { username, otpToken } = req.body;
-    const verificationCheckStatus = await verifyOtpToken(username, otpToken)
-    console.log(`verification Check Status: ${verificationCheckStatus}`)
-    return successResponse(req, res, { verificationCheckStatus: verificationCheckStatus });
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
-};
 
 module.exports = {
   activateUser,

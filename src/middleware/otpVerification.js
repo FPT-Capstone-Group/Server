@@ -1,8 +1,8 @@
 const crypto = require('crypto')
 
-const accountSid = "AC36c209b26995cbc64fff400848814b51";
-const authToken = "e7d8c820421016a66f2cf645538f36b6";
-const verifySid = "VA0135daca0617c30a10b1186cd1cae41e";
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const verifySid = process.env.TWILIO_VERIFY_SID;
 const client = require("twilio")(accountSid, authToken);
 
 const enableOtp = process.env.ENABLE_OTP
