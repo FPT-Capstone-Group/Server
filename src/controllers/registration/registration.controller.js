@@ -351,16 +351,39 @@ const disableRegistration = async (req, res) => {
       req.user.fullName,
       registration.registrationId
     );
-    // Create Registration History for the verification
-    await createRegistrationHistory(
-      "Verified",
-      req.user.userId,
-      registrationId,
-      t
-    );
     await t.commit();
-    const formattedRegistration = formatRegistration(registration);
-    return successResponse(req, res, { registration: formattedRegistration });
+
+    return successResponse(req, res, "Disable registration successfully");
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+const deactiveRegistration = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const { registrationId } = req.params;
+    const registration = await Registration.findByPk(registrationId);
+    if (!registration) {
+      return errorResponse(req, res, "Registration not found", 404);
+    }
+    // Check if the registration is already deactive
+    if (registration.registrationStatus === "deactive") {
+      return errorResponse(req, res, "Registration is already deactive", 400);
+    }
+    // Update the registrationStatus to "Disable"
+    registration.registrationStatus = "Deactive";
+    await registration.save({ transaction: t });
+    // Create Registration History
+    await createRegistrationHistory(
+      "Deactive",
+      req.user.fullName,
+      registration.registrationId
+    );
+    // Create Registration History for the verification
+    await t.commit();
+
+    return successResponse(req, res, "Deactive registration successfully");
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -449,4 +472,5 @@ module.exports = {
   createRegistrationHistory,
   verifyRegistration,
   cancelRegistration,
+  deactiveRegistration,
 };

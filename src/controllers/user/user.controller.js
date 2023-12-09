@@ -21,11 +21,14 @@ async function getRoleIdByName(roleName) {
   }
 }
 const formatUser = (user) => {
-  const { password, ...userWithoutPassword } = user.toJSON();
+  // Check if user is a Sequelize model instance
+  const userInstance = user instanceof User ? user.toJSON() : user;
+
+  const { password, ...userWithoutPassword } = userInstance;
   const formattedUser = {
     ...userWithoutPassword,
-    createdAt: formatToMoment(user.createdAt),
-    updatedAt: formatToMoment(user.updatedAt),
+    createdAt: formatToMoment(userInstance.createdAt),
+    updatedAt: formatToMoment(userInstance.updatedAt),
   };
   return formattedUser;
 };
@@ -101,8 +104,7 @@ const login = async (req, res) => {
       await user.save();
     }
 
-    // Extract roleIds from the associated roles
-    const roleIds = user.Roles.map((role) => role.roleId);
+    const roleNames = user.Roles.map((role) => role.name);
 
     const token = jwt.sign(
       {
@@ -124,7 +126,7 @@ const login = async (req, res) => {
       firebaseToken: user.firebaseToken,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      roleIds,
+      roleNames,
       token,
     });
   } catch (error) {
@@ -218,7 +220,7 @@ const activateUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-const deActivateUser = async (req, res) => {
+const deactivateUser = async (req, res) => {
   try {
     // Check if the logged-in user has admin privileges
     const { userId } = req.params;
@@ -293,7 +295,7 @@ const forgotPassword = async (req, res) => {
 module.exports = {
   activateUser,
   getUserInfo,
-  deActivateUser,
+  deactivateUser,
   changePassword,
   profile,
   allUsers,

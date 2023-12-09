@@ -49,6 +49,7 @@ const getAllPaymentHistoryForCurrentUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Admin get payment history
 const getPaymentHistoryById = async (req, res) => {
   try {
     const { paymentHistoryId } = req.params;
@@ -71,7 +72,27 @@ const getPaymentHistoryById = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Admin get all payment history
+const getAllPaymentHistories = async (req, res) => {
+  try {
+    // Fetch payment history
+    const paymentHistories = await PaymentHistory.findAll({});
+    const formattedPaymentHistory = paymentHistories.map((history) =>
+      formatPaymentHistory(history)
+    );
+    return successResponse(
+      req,
+      res,
+      { paymentHistories: formattedPaymentHistory },
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 module.exports = {
   getAllPaymentHistoryForCurrentUser,
   getPaymentHistoryById,
+  getAllPaymentHistories,
 };
