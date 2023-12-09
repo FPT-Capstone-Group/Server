@@ -72,4 +72,7 @@ router.get(
 );
 router.post("/parking/checkout", parkingController.checkOut);
 
+//Application Message
+router.get('/application-messages')
+
 module.exports = router;
