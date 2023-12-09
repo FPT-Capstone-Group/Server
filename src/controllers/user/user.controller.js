@@ -79,10 +79,13 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({
       where: { username: req.body.username },
+      include: [Role], // Include the Role model to retrieve roles associated with the user
     });
+
     if (!user) {
       throw new Error("Incorrect username Id/Password");
     }
+
     const isPasswordValid =
       crypto.createHash("sha256").update(req.body.password).digest("hex") ===
       user.password;
@@ -90,12 +93,17 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Incorrect username Id/Password");
     }
-    // Check if the user has a firebaseToken field, if user don't have, skip it
+
+    // Check if the user has a firebaseToken field, if the user doesn't have, skip it
     if (user.hasOwnProperty("firebaseToken")) {
       // Update the user's firebaseToken
       user.firebaseToken = firebaseToken;
       await user.save();
     }
+
+    // Extract roleIds from the associated roles
+    const roleIds = user.Roles.map((role) => role.roleId);
+
     const token = jwt.sign(
       {
         user: {
@@ -104,11 +112,21 @@ const login = async (req, res) => {
           createdAt: new Date(),
         },
       },
-      // Only server know make sure don't expose
+      // Only server knows, make sure not to expose
       process.env.SECRET
     );
-    const formattedUser = formatUser(user);
-    return successResponse(req, res, { user: formattedUser, token });
+
+    return successResponse(req, res, {
+      userId: user.userId,
+      fullName: user.fullName,
+      username: user.username,
+      isActive: user.isActive,
+      firebaseToken: user.firebaseToken,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      roleIds,
+      token,
+    });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
