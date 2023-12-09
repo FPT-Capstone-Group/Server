@@ -53,7 +53,12 @@ const createBikeFromRegistration = async (registration, transaction) => {
     { transaction }
   );
 };
-const createOwnerFromRegistration = async (registration, bike, transaction) => {
+const createOwnerFromRegistration = async (
+  registration,
+  bike,
+  transaction,
+  ownerFaceImage
+) => {
   const associatedUser = await User.findByPk(registration.userId);
   return await Owner.create(
     {
@@ -255,8 +260,8 @@ const updateRegistration = async (req, res) => {
     const newOwner = await createOwnerFromRegistration(
       registration,
       newBike,
-      req.body.ownerFaceImage,
-      t
+      t,
+      registration.faceImage
     );
     // Assign Card for bike missing
     // ...
