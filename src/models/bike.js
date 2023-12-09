@@ -29,15 +29,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "Active",
-    },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    }
   });
   Bike.associate = function (models) {
     Bike.belongsTo(models.User, { foreignKey: "userId" });
     Bike.hasMany(models.Owner, { foreignKey: "bikeId" });
+    Bike.hasMany(models.Card, { foreignKey: "bikeId" });
   };
   return Bike;
 };

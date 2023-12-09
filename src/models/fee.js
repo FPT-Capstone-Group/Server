@@ -26,7 +26,8 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
   Fee.associate = function (models) {
-    Fee.hasOne(models.Payment, { foreignKey: "feeId" });
+    Fee.hasMany(models.FeeHistory, { foreignKey: "feeId" });
+    Fee.hasMany(models.ParkingType, { foreignKey: "feeId" });
   };
   return Fee;
 };

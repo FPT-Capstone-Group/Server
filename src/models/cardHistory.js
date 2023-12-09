@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     eventTime: {
       type: DataTypes.DATE,
       allowNull: false,
-    },
+    }
   });
 
   CardHistory.associate = function (models) {

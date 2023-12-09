@@ -44,9 +44,6 @@ module.exports = (sequelize, DataTypes) => {
     ParkingSession.belongsTo(models.ParkingType, {
       foreignKey: "parkingTypeId",
     });
-    ParkingSession.belongsTo(models.Card, {
-      foreignKey: "cardId",
-    });
   };
 
   return ParkingSession;

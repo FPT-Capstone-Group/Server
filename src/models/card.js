@@ -16,20 +16,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     currentStatus: {
       type: DataTypes.STRING,
-      defaultValue: "Active",
-    },
-    cardType: {
-      type: DataTypes.STRING,
-      defaultValue: "Guest",
-    },
-    bikeId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
+      defaultValue: "active",
+    }
   });
   Card.associate = function (models) {
     Card.hasMany(models.CardHistory, { foreignKey: "cardId" });
     Card.belongsTo(models.Bike, { foreignKey: "bikeId" });
+    Card.belongsTo(models.ParkingType, { foreignKey: "parkingTypeId" });
   };
   return Card;
 };

@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
 
   ParkingType.associate = function (models) {
     ParkingType.hasMany(models.ParkingSession, { foreignKey: "parkingTypeId" });
+    ParkingType.hasMany(models.Card, { foreignKey: "parkingTypeId" });
+    ParkingType.belongsTo(models.Fee, {
+      foreignKey: "feeId",
+    });
   };
 
   return ParkingType;
