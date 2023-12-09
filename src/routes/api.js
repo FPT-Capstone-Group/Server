@@ -29,7 +29,7 @@ router.get("/fees/:feeId", feeController.getFeeById);
 router.post("/forgotPassword", userController.forgotPassword);
 router.get("/me", userController.profile);
 router.post("/changePassword", userController.changePassword);
-router.put("/api/users/update", userController.updateUser);
+router.put("/users/update", userController.updateUser);
 
 //Registration
 router.post(

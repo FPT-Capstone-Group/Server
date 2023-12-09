@@ -68,7 +68,8 @@ const processPayment = async (req, res) => {
       },
       { transaction: t }
     );
-
+    registration.registrationStatus = "Paid";
+    await registration.save({ transaction: t });
     await t.commit();
 
     const formattedPayment = formatPayment(newPayment);

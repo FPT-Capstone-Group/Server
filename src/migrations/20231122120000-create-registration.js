@@ -52,10 +52,6 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      hasPayment: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: "false",
-      },
     });
   },
   down: async (queryInterface, Sequelize) => {

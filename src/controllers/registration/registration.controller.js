@@ -241,7 +241,6 @@ const updateRegistration = async (req, res) => {
     registration.registrationStatus = "Active";
     // Update the approvedBy to the current user's id - Is admin Id since admin is the one who accesses this route
     registration.approvedBy = `${req.user.fullName}`;
-    registration.hasPayment = true;
     await registration.save({ transaction: t });
 
     // Create a registration history

@@ -23,10 +23,6 @@ module.exports = (sequelize, DataTypes) => {
     plateNumber: {
       type: DataTypes.STRING,
     },
-    hasPayment: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: "false",
-    },
     model: {
       type: DataTypes.STRING,
     },
