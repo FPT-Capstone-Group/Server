@@ -28,10 +28,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    feeId: {
-      type: DataTypes.INTEGER,
-      allowNull: true, // Allow null for the association to work
-    },
   });
   Payment.associate = function (models) {
     Payment.belongsTo(models.Registration, { foreignKey: "registrationId" });
