@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-import { Role, User, UserRole } from "../../models";
+import { Role, User } from "../../models";
 import { errorResponse, formatToMoment, successResponse } from "../../helpers";
 import { getOtpToken, verifyOtpToken } from "../../middleware/otpVerification";
 import crypto from "crypto";
@@ -74,7 +74,7 @@ const register = async (req, res) => {
       username,
       fullName,
       password: hashedPassword,
-      roleId: roleId
+      roleId: roleId,
     };
 
     const newUser = await User.create(payload);
@@ -87,7 +87,8 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const user = await User.findOne({
-      where: { username: req.body.username }
+      where: { username: req.body.username },
+
     });
 
     if (!user) {
@@ -105,8 +106,9 @@ const login = async (req, res) => {
     // Update the user's firebaseToken
     user.firebaseToken = req.body.firebaseToken;
     await user.save();
-    const userRole = await Role.findByPk(user.roleId)
-    const roleName = userRole.name
+    const userRole = await Role.findByPk(user.roleId);
+    const roleName = userRole.name;
+
     const token = jwt.sign(
       {
         user: {
@@ -130,7 +132,7 @@ const login = async (req, res) => {
         updatedAt: user.updatedAt,
         role: roleName,
       },
-      token: token
+      token: token,
     });
   } catch (error) {
     return errorResponse(req, res, error.message);

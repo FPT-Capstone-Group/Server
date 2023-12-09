@@ -15,11 +15,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    currency: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: "VND",
-    },
     description: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -27,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
   });
   Fee.associate = function (models) {
     Fee.hasMany(models.FeeHistory, { foreignKey: "feeId" });
-    Fee.hasMany(models.ParkingType, { foreignKey: "feeId" });
   };
   return Fee;
 };

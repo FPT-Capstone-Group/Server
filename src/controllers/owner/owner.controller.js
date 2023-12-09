@@ -41,13 +41,13 @@ const createOwner = async (req, res) => {
       // If an existing owner is found and check if req.body.relationship is "Owner"
       // Otherwise, the relationship can be anything you want
       if (
-        existingOwner.relationship === "Owner" &&
-        req.body.relationship === "Owner"
+        existingOwner.relationship === "owner" &&
+        req.body.relationship === "owner"
       ) {
         return errorResponse(
           req,
           res,
-          "Cannot create owner. Existing owner is already marked as 'Owner'",
+          "Cannot create owner. Existing owner is already marked as 'owner'",
           400
         );
       }
@@ -57,7 +57,7 @@ const createOwner = async (req, res) => {
     const newOwner = await Owner.create({
       fullName,
       ownerFaceImage,
-      relationship: relationship || "Owner",
+      relationship: relationship || "owner",
       gender,
       bikeId: existingBike.bikeId,
     });
