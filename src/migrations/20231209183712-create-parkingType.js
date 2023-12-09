@@ -16,15 +16,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      feeId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Fees",
-          key: "feeId",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE", // or 'CASCADE' depending on your use case
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

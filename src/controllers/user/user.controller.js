@@ -88,6 +88,7 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({
       where: { username: req.body.username },
+
     });
 
     if (!user) {
@@ -107,6 +108,7 @@ const login = async (req, res) => {
     await user.save();
     const userRole = await Role.findByPk(user.roleId);
     const roleName = userRole.name;
+
     const token = jwt.sign(
       {
         user: {
