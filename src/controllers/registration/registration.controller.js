@@ -53,15 +53,20 @@ const createBikeFromRegistration = async (registration, transaction) => {
     { transaction }
   );
 };
-const createOwnerFromRegistration = async (registration, bike, transaction) => {
+const createOwnerFromRegistration = async (
+  registration,
+  bike,
+  transaction,
+  ownerFaceImage
+) => {
   const associatedUser = await User.findByPk(registration.userId);
   return await Owner.create(
     {
       fullName: associatedUser.fullName,
       gender: registration.gender,
       relationship: "Owner", // Default to owner when created
-      ownerFaceImage: "Update later",
-      bikeId: bike.id,
+      ownerFaceImage,
+      bikeId: bike.bikeId,
     },
     { transaction }
   );
@@ -255,7 +260,8 @@ const updateRegistration = async (req, res) => {
     const newOwner = await createOwnerFromRegistration(
       registration,
       newBike,
-      t
+      t,
+      registration.faceImage
     );
     // Assign Card for bike missing
     // ...
