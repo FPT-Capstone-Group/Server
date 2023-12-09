@@ -96,12 +96,11 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Incorrect username Id/Password");
     }
-    // Check if the user has a firebaseToken field, if user don't have, skip it
-    if (user.hasOwnProperty("firebaseToken")) {
+      // Check if the user has a firebaseToken field, if user don't have, skip it
       // Update the user's firebaseToken
       user.firebaseToken = req.body.firebaseToken;
       await user.save();
-    }
+
     const token = jwt.sign(
       {
         user: {
@@ -265,7 +264,8 @@ const forgotPassword = async (req, res) => {
       throw new Error("User not found");
     }
     const verificationCheckStatus = await verifyOtpToken(username, otpToken)
-    if (!verificationCheckStatus.localeCompare("approved")){
+    if (verificationCheckStatus.localeCompare("approved") !== 0){
+      console.error("Please provide valid OTP Token!")
       throw new Error("Please provide valid OTP Token!");
     }
     // Update the user's password
