@@ -99,9 +99,7 @@ const login = async (req, res) => {
       // Check if the user has a firebaseToken field, if user don't have, skip it
       // Update the user's firebaseToken
       user.firebaseToken = req.body.firebaseToken;
-      console.log(`TOKEN: ${req.body.firebaseToken}`)
       await user.save();
-      console.log(`SAVED user: ${user}`)
 
     const token = jwt.sign(
       {
