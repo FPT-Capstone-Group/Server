@@ -7,6 +7,7 @@ import * as feeController from "../controllers/fee/fee.controller";
 import * as cardController from "../controllers/card/card.controller";
 import * as parkingSessionController from "../controllers/parkingSession/parkingSession.controller";
 import * as paymentHistoryController from "../controllers/paymentHistory/paymentHistory.controller";
+import * as notificationController from "../controllers/notification/notification.controller";
 const router = express.Router();
 
 //= ===============================
@@ -69,6 +70,9 @@ router.get("/cards/userId", cardController.getAllUserCards);
 router.get("/cards/:cardId", cardController.getCardDetails);
 router.put("/cards/:cardId", cardController.updateCard);
 router.delete("/cards/:cardId", cardController.deleteCard);
+
+//Notification
+router.post("/notifications/send", notificationController.sendNotification);
 
 // Parking Session
 router.get("/sessions", parkingSessionController.getAllParkingSessions);

@@ -1,9 +1,8 @@
 import jwt from "jsonwebtoken";
 
-import { User } from "../../models";
-import { Role } from "../../models";
-import { UserRole } from "../../models";
-import { successResponse, errorResponse, formatToMoment } from "../../helpers";
+import {Role, User, UserRole} from "../../models";
+import {errorResponse, formatToMoment, successResponse} from "../../helpers";
+import {getOtpToken, verifyOtpToken} from "../../middleware/otpVerification";
 import crypto from "crypto";
 
 // sub function
@@ -50,7 +49,7 @@ const allUsers = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { username, password, fullName, firebaseToken } = req.body;
+    const { username, password, fullName, otpToken } = req.body;
 
     const user = await User.findOne({
       where: { username },
@@ -58,6 +57,14 @@ const register = async (req, res) => {
     if (user) {
       throw new Error("User already exists with same username");
     }
+
+    const verificationCheckStatus = await verifyOtpToken(username, otpToken)
+    if (verificationCheckStatus.localeCompare("approved") !== 0){
+      console.error("Please provide valid OTP Token!")
+      throw new Error("Please provide valid OTP Token!");
+    }
+
+
     const hashedPassword = crypto
       .createHash("sha256")
       .update(password)
@@ -66,7 +73,6 @@ const register = async (req, res) => {
       username,
       fullName,
       password: hashedPassword,
-      firebaseToken,
     };
 
     const newUser = await User.create(payload);
@@ -96,11 +102,9 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Incorrect username Id/Password");
     }
-
-    // Check if the user has a firebaseToken field, if the user doesn't have, skip it
-    if (user.hasOwnProperty("firebaseToken")) {
+      // Check if the user has a firebaseToken field, if user don't have, skip it
       // Update the user's firebaseToken
-      user.firebaseToken = firebaseToken;
+      user.firebaseToken = req.body.firebaseToken;
       await user.save();
     }
 
@@ -269,7 +273,7 @@ const updateUser = async (req, res) => {
 };
 const forgotPassword = async (req, res) => {
   try {
-    const { username, newPassword } = req.body;
+    const { username, newPassword, otpToken } = req.body;
     // Verify the OTP (you need to implement OTP verification logic)
     // Find the user by username
     const user = await User.findOne({
@@ -277,6 +281,11 @@ const forgotPassword = async (req, res) => {
     });
     if (!user) {
       throw new Error("User not found");
+    }
+    const verificationCheckStatus = await verifyOtpToken(username, otpToken)
+    if (verificationCheckStatus.localeCompare("approved") !== 0){
+      console.error("Please provide valid OTP Token!")
+      throw new Error("Please provide valid OTP Token!");
     }
     // Update the user's password
     const hashedPassword = crypto
@@ -292,6 +301,19 @@ const forgotPassword = async (req, res) => {
   }
 };
 
+const getOtp = async (req, res) => {
+  try {
+    const { username } = req.body;
+    const verificationStatus = await getOtpToken(username)
+    console.log(`Verification status: ${verificationStatus}`)
+    return successResponse(req, res, { verificationStatus: verificationStatus });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+
+
 module.exports = {
   activateUser,
   getUserInfo,
@@ -303,4 +325,5 @@ module.exports = {
   register,
   updateUser,
   forgotPassword,
+  getOtp
 };
