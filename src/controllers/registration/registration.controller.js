@@ -71,6 +71,7 @@ const createOwnerFromRegistration = async (
     { transaction }
   );
 };
+
 // Main func
 const createRegistration = async (req, res) => {
   const t = await sequelize.transaction();
@@ -98,10 +99,6 @@ const createRegistration = async (req, res) => {
       console.log("No file received or buffer is undefined");
     }
 
-    // expireDate is in the current Date plus one year, renew every year
-    const expiredDate = new Date();
-    expiredDate.setFullYear(expiredDate.getFullYear() + 1);
-
     // Fetch the fee for the registration, if have many branch condition here
     const fee = await Fee.findOne({ where: { feeId: feeId } });
     if (!fee) {
@@ -112,7 +109,6 @@ const createRegistration = async (req, res) => {
     const newRegistration = await Registration.create(
       {
         registrationStatus: "Created",
-        expiredDate,
         approvedBy: "none",
         plateNumber,
         model,
@@ -228,8 +224,48 @@ const getAllUserRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// User cancels their registration
+const cancelRegistration = async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+    const userId = req.user.userId;
+
+    // Find the registration by ID and user ID
+    const registration = await Registration.findOne({
+      where: { registrationId, userId },
+    });
+
+    if (!registration) {
+      return errorResponse(req, res, "Registration not found", 404);
+    }
+
+    // Check if the registration is in a cancellable state
+    if (
+      registration.registrationStatus === "Paid" ||
+      registration.registrationStatus === "Active"
+    ) {
+      return errorResponse(
+        req,
+        res,
+        "Registration cannot be canceled in Paid or Active status",
+        400
+      );
+    }
+
+    // Update the registration status to "Canceled"
+    registration.registrationStatus = "Canceled";
+    await registration.save();
+
+    return successResponse(req, res, {
+      message: "Registration canceled successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 // Admin tu di check, them notification o day
-const updateRegistration = async (req, res) => {
+const activateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { registrationId } = req.params;
@@ -244,6 +280,12 @@ const updateRegistration = async (req, res) => {
       return errorResponse(req, res, "Payment not successful", 400);
     }
     registration.registrationStatus = "Active";
+
+    // Set the expiration date to one month from the current date
+    const expiredDate = new Date();
+    expiredDate.setMonth(expiredDate.getMonth() + 1);
+    registration.expiredDate = expiredDate;
+
     // Update the approvedBy to the current user's id - Is admin Id since admin is the one who accesses this route
     registration.approvedBy = `${req.user.fullName}`;
     await registration.save({ transaction: t });
@@ -255,7 +297,8 @@ const updateRegistration = async (req, res) => {
       registration.registrationId,
       t
     );
-    //Create owner and bike related to the registration
+
+    // Create owner and bike related to the registration
     const newBike = await createBikeFromRegistration(registration, t);
     const newOwner = await createOwnerFromRegistration(
       registration,
@@ -285,6 +328,7 @@ const updateRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+
 // Admin disable a specific registration
 const disableRegistration = async (req, res) => {
   const t = await sequelize.transaction();
@@ -294,7 +338,7 @@ const disableRegistration = async (req, res) => {
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
     }
-    // Check if the registration is already verified
+    // Check if the registration is already disable
     if (registration.registrationStatus === "Disable") {
       return errorResponse(req, res, "Registration is already Disabled", 400);
     }
@@ -322,7 +366,40 @@ const disableRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Admin rejects a user registration
+const rejectRegistration = async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+    const { message } = req.body;
 
+    // Find the registration by ID
+    const registration = await Registration.findByPk(registrationId);
+
+    if (!registration) {
+      return errorResponse(req, res, "Registration not found", 404);
+    }
+    // Check if the registration is already reject
+    if (registration.registrationStatus === "Reject") {
+      return errorResponse(req, res, "Registration is already Rejected", 400);
+    }
+    // Update the registration status to "Rejected"
+    registration.registrationStatus = "Rejected";
+    await registration.save();
+
+    // Store the rejection message in a variable
+    const rejectionMessage = message;
+    await registration.save();
+
+    // Store to notification instead return response
+    return successResponse(req, res, {
+      message: "Registration rejected successfully",
+      rejectionMessage,
+    });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 // Admin - User view a specific registration (Need to check admin role and user role here)
 // need to display if have payment or not, if have payment we get amount in payment, if not have payment we get amount in fee
 const getUserRegistration = async (req, res) => {
@@ -363,11 +440,13 @@ const allRegistration = async (req, res) => {
 };
 module.exports = {
   createRegistration,
-  updateRegistration,
+  activateRegistration,
   disableRegistration,
+  rejectRegistration,
   getAllUserRegistration,
   allRegistration,
   getUserRegistration,
   createRegistrationHistory,
   verifyRegistration,
+  cancelRegistration,
 };

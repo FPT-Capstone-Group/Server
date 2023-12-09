@@ -29,7 +29,7 @@ router.get(
 );
 router.put(
   "/registrations/:registrationId/",
-  registrationController.updateRegistration
+  registrationController.activateRegistration
 );
 router.put(
   "/registrations/disable/:registrationId",
@@ -38,6 +38,14 @@ router.put(
 router.put(
   "/registrations/approve/:registrationId",
   registrationController.verifyRegistration
+);
+router.put(
+  "/registrations/reject/:registrationId",
+  registrationController.rejectRegistration
+);
+router.put(
+  "/registrations/disable/:registrationId",
+  registrationController.disableRegistration
 );
 
 //Bike
