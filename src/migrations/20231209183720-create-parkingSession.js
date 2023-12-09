@@ -10,10 +10,10 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       checkinTime: {
-        type: Sequelize.TIMESTAMP,
+        type: Sequelize.DATE,
       },
       checkoutTime: {
-        type: Sequelize.TIMESTAMP,
+        type: Sequelize.DATE,
       },
       checkinFaceImage: {
         type: Sequelize.TEXT,
@@ -47,11 +47,11 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.TIMESTAMP,
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.TIMESTAMP,
+        type: Sequelize.DATE,
       },
     });
   },

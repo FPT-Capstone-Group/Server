@@ -18,7 +18,7 @@ module.exports = {
         allowNull: false,
       },
       updatedAt: {
-        type: Sequelize.TIMESTAMP,
+        type: Sequelize.DATE,
         allowNull: false,
       },
       cardId: {
@@ -29,7 +29,7 @@ module.exports = {
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
-      }
+      },
     });
   },
 

@@ -1,18 +1,19 @@
-// Inside the ParkingType migration file
+"use strict";
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('ParkingTypes', {
-      parkingTypeId: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
+    await queryInterface.createTable("FeeHistories", {
+      feeHistoryId: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
       },
-      name: {
+      eventType: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      description: {
+      approvedBy: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -23,19 +24,16 @@ module.exports = {
           key: "feeId",
         },
         onUpdate: "CASCADE",
-        onDelete: "CASCADE", // or 'CASCADE' depending on your use case
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.TIMESTAMP,
+        onDelete: "CASCADE",
       },
       updatedAt: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.TIMESTAMP,
       },
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('ParkingTypes');
+    await queryInterface.dropTable("FeeHistories");
   },
 };

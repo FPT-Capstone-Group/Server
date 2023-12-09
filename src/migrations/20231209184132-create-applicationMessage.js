@@ -2,38 +2,37 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("FeeHistories", {
-      feeHistoryId: {
+    await queryInterface.createTable("ApplicationMessages", {
+      messageID: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
       },
-      eventType: {
+      messageCode: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      approvedBy: {
+      messageType: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      feeId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Fees",
-          key: "feeId",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+      applicationType: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
       updatedAt: {
-        type: Sequelize.TIMESTAMP,
+        type: Sequelize.DATE,
         allowNull: false,
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("FeeHistories");
+    await queryInterface.dropTable("ApplicationMessages");
   },
 };
