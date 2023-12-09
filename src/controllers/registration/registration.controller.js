@@ -60,8 +60,8 @@ const createOwnerFromRegistration = async (registration, bike, transaction) => {
       fullName: associatedUser.fullName,
       gender: registration.gender,
       relationship: "Owner", // Default to owner when created
-      ownerFaceImage: "Update later",
-      bikeId: bike.id,
+      ownerFaceImage,
+      bikeId: bike.bikeId,
     },
     { transaction }
   );
@@ -255,6 +255,7 @@ const updateRegistration = async (req, res) => {
     const newOwner = await createOwnerFromRegistration(
       registration,
       newBike,
+      req.body.ownerFaceImage,
       t
     );
     // Assign Card for bike missing
