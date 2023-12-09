@@ -26,7 +26,12 @@ const getAllParkingSessions = async (req, res) => {
     const formattedParkingSessions = parkingSessions.map((parkingSession) =>
       formatParkingSession(parkingSession)
     );
-    return successResponse(req, res, formattedParkingSessions, 200);
+    return successResponse(
+      req,
+      res,
+      { parkingSessions: formattedParkingSessions },
+      200
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -45,7 +50,12 @@ const getParkingSessionById = async (req, res) => {
       return errorResponse(req, res, "Parking Session not found", 404);
     }
     const formattedParkingSession = formatParkingSession(parkingSession);
-    return successResponse(req, res, formattedParkingSession, 200);
+    return successResponse(
+      req,
+      res,
+      { parkingSession: formattedParkingSession },
+      200
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -103,7 +113,12 @@ const checkIn = async (req, res) => {
       parkingTypeId,
     });
 
-    return successResponse(req, res, newParkingSession, 201);
+    return successResponse(
+      req,
+      res,
+      { parkingSession: newParkingSession },
+      201
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -179,7 +194,12 @@ const getParkingSessionsByPlateNumber = async (req, res) => {
       formatParkingSession(session)
     );
 
-    return successResponse(req, res, formattedParkingSessions, 200);
+    return successResponse(
+      req,
+      res,
+      { parkingSessions: formattedParkingSessions },
+      200
+    );
   } catch (error) {
     console.error("Internal Server Error:", error);
     return errorResponse(req, res, "Internal Server Error", 500, error);

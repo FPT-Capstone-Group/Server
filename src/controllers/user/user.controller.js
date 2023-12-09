@@ -1,9 +1,8 @@
 import jwt from "jsonwebtoken";
 
-import { User } from "../../models";
-import { Role } from "../../models";
-import { UserRole } from "../../models";
-import { successResponse, errorResponse, formatToMoment } from "../../helpers";
+import {Role, User, UserRole} from "../../models";
+import {errorResponse, formatToMoment, successResponse} from "../../helpers";
+import {getOtpToken, verifyOtpToken} from "../../middleware/otpVerification";
 import crypto from "crypto";
 
 // sub function
@@ -39,7 +38,7 @@ const allUsers = async (req, res) => {
       ],
     });
     const formattedUsers = users.map((user) => formatUser(user));
-    return successResponse(req, res, formattedUsers);
+    return successResponse(req, res, { users: formattedUsers });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -47,7 +46,7 @@ const allUsers = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { username, password, fullName, firebaseToken } = req.body;
+    const { username, password, fullName, otpToken } = req.body;
 
     const user = await User.findOne({
       where: { username },
@@ -55,6 +54,14 @@ const register = async (req, res) => {
     if (user) {
       throw new Error("User already exists with same username");
     }
+
+    const verificationCheckStatus = await verifyOtpToken(username, otpToken)
+    if (verificationCheckStatus.localeCompare("approved") !== 0){
+      console.error("Please provide valid OTP Token!")
+      throw new Error("Please provide valid OTP Token!");
+    }
+
+
     const hashedPassword = crypto
       .createHash("sha256")
       .update(password)
@@ -63,14 +70,13 @@ const register = async (req, res) => {
       username,
       fullName,
       password: hashedPassword,
-      firebaseToken,
     };
 
     const newUser = await User.create(payload);
     const formattedUser = formatUser(newUser);
     const roleId = await getRoleIdByName("User");
     await UserRole.create({ userId: newUser.userId, roleId });
-    return successResponse(req, res, { newUser: formattedUser });
+    return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -90,12 +96,11 @@ const login = async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Incorrect username Id/Password");
     }
-    // Check if the user has a firebaseToken field, if user don't have, skip it
-    if (user.hasOwnProperty("firebaseToken")) {
+      // Check if the user has a firebaseToken field, if user don't have, skip it
       // Update the user's firebaseToken
-      user.firebaseToken = firebaseToken;
+      user.firebaseToken = req.body.firebaseToken;
       await user.save();
-    }
+
     const token = jwt.sign(
       {
         user: {
@@ -108,7 +113,7 @@ const login = async (req, res) => {
       process.env.SECRET
     );
     const formattedUser = formatUser(user);
-    return successResponse(req, res, { formattedUser, token });
+    return successResponse(req, res, { user: formattedUser, token });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -119,7 +124,7 @@ const profile = async (req, res) => {
     const { userId } = req.user;
     const user = await User.findOne({ where: { userId: userId } });
     const formattedUser = formatUser(user);
-    return successResponse(req, res, { formattedUser });
+    return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -169,7 +174,7 @@ const getUserInfo = async (req, res) => {
       fullName: user.fullName,
     };
     const formattedUser = formatUser(userInfo);
-    return successResponse(req, res, formattedUser);
+    return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -241,7 +246,7 @@ const updateUser = async (req, res) => {
     // Save the changes
     await user.save();
     const formattedUser = formatUser(user);
-    return successResponse(req, res, formattedUser);
+    return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -249,26 +254,47 @@ const updateUser = async (req, res) => {
 };
 const forgotPassword = async (req, res) => {
   try {
-    const { userId } = req.user;
-    // Find the user by userId
-    const user = await User.findByPk(userId);
+    const { username, newPassword, otpToken } = req.body;
+    // Verify the OTP (you need to implement OTP verification logic)
+    // Find the user by username
+    const user = await User.findOne({
+      where: { username },
+    });
     if (!user) {
       throw new Error("User not found");
     }
-    // Reset the password to a default value (e.g., "123456")
-    const newPass = crypto.createHash("sha256").update("123456").digest("hex");
-    user.password = newPass;
+    const verificationCheckStatus = await verifyOtpToken(username, otpToken)
+    if (verificationCheckStatus.localeCompare("approved") !== 0){
+      console.error("Please provide valid OTP Token!")
+      throw new Error("Please provide valid OTP Token!");
+    }
+    // Update the user's password
+    const hashedPassword = crypto
+      .createHash("sha256")
+      .update(newPassword)
+      .digest("hex");
+    user.password = hashedPassword;
     await user.save();
-    return successResponse(
-      req,
-      res,
-      "Password has been reset to '123456' please change it again"
-    );
+    return successResponse(req, res, "Password updated successfully");
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, error.message);
+  }
+};
+
+const getOtp = async (req, res) => {
+  try {
+    const { username } = req.body;
+    const verificationStatus = await getOtpToken(username)
+    console.log(`Verification status: ${verificationStatus}`)
+    return successResponse(req, res, { verificationStatus: verificationStatus });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+
+
 module.exports = {
   activateUser,
   getUserInfo,
@@ -280,4 +306,5 @@ module.exports = {
   register,
   updateUser,
   forgotPassword,
+  getOtp
 };

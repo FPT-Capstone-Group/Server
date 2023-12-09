@@ -1,4 +1,4 @@
-const { Payment, PaymentHistory, Registration } = require("../../models");
+const { Payment, PaymentHistory, Registration, Fee } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -15,39 +15,29 @@ const formatPayment = (payment) => {
   };
   return formattedPayment;
 };
-const getAmountByRegistrationId = async (registrationId) => {
-  const registration = await Registration.findOne({
-    attributes: ["amount"],
-    where: { registrationId },
-  });
 
-  if (!registration) {
-    throw new Error("Registration not found");
-  }
-
-  return registration.amount;
-};
 // Main function
 const processPayment = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    const { paymentMethod, registrationId } = req.body;
-    if (!registrationId) {
-      return errorResponse(req, res, "registrationId is required", 400);
+    const { paymentMethod, registrationId, amount } = req.body;
+    if (!registrationId || !amount) {
+      return errorResponse(
+        req,
+        res,
+        "registrationId and amount are required",
+        400
+      );
     }
 
-    // Fetch the fee amount based on the registrationId
-    const amount = await getAmountByRegistrationId(registrationId);
     // Check if the registration is already completed
     const registration = await Registration.findByPk(registrationId);
-    if (!registration) {
-      return errorResponse(req, res, "Registration not found", 404);
-    }
     // Registration is already completed, do not allow new payment
     if (registration.registrationStatus === "Active") {
       return errorResponse(req, res, "Registration is already completed", 400);
     }
+
     // Set feeId appropriately based on the amount for now
     let feeId = null;
     if (amount === 300000) {
@@ -78,11 +68,12 @@ const processPayment = async (req, res) => {
       },
       { transaction: t }
     );
-
+    registration.registrationStatus = "Paid";
+    await registration.save({ transaction: t });
     await t.commit();
 
     const formattedPayment = formatPayment(newPayment);
-    return successResponse(req, res, formattedPayment, 200);
+    return successResponse(req, res, { payment: formattedPayment }, 200);
   } catch (error) {
     console.error(error);
 

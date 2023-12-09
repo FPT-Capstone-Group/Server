@@ -8,11 +8,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     startDate: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     expiredDate: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     currentStatus: {
       type: DataTypes.STRING,
@@ -20,10 +20,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     cardType: {
       type: DataTypes.STRING,
+      defaultValue: "Guest",
     },
     bikeId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
   });
   Card.associate = function (models) {

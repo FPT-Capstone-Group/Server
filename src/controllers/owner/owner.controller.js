@@ -64,7 +64,7 @@ const createOwner = async (req, res) => {
 
     const formattedOwner = formatOwner(newOwner);
 
-    return successResponse(req, res, formattedOwner, 201);
+    return successResponse(req, res, { owner: formattedOwner }, 201);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -87,7 +87,7 @@ const getOwnersByPlateNumber = async (req, res) => {
     }
     // Format dates in each owner before sending the response
     const formattedOwner = owners.map((owner) => formatOwner(owner));
-    return successResponse(req, res, formattedOwner, 200);
+    return successResponse(req, res, { owners: formattedOwner }, 200);
   } catch (error) {
     console.error("Internal Server Error:", error);
     return errorResponse(req, res, "Internal Server Error", 500, error);

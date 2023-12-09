@@ -29,6 +29,7 @@ router.get("/fees/:feeId", feeController.getFeeById);
 router.post("/forgotPassword", userController.forgotPassword);
 router.get("/me", userController.profile);
 router.post("/changePassword", userController.changePassword);
+router.put("/users/update", userController.updateUser);
 
 //Registration
 router.post(
@@ -72,7 +73,6 @@ router.get(
 );
 router.post("/parking/checkout", parkingController.checkOut);
 
-//Application Message
-router.get('/application-messages')
+
 
 module.exports = router;

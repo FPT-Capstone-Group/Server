@@ -71,7 +71,7 @@ const getAllCards = async (req, res) => {
       return errorResponse(req, res, "No Cards", 404);
     }
     const formattedCards = allCards.map((card) => formatCard(card));
-    return successResponse(req, res, formattedCards, 200);
+    return successResponse(req, res, { cards: formattedCards }, 200);
   } catch (error) {
     console.error("Internal Server Error:", error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -91,7 +91,7 @@ const getAllUserCards = async (req, res) => {
       return errorResponse(req, res, "Cards not found", 404);
     }
     const formattedCards = userCards.map((card) => formatCard(card));
-    return successResponse(req, res, formattedCards, 200);
+    return successResponse(req, res, { cards: formattedCards }, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -109,7 +109,7 @@ const getCardDetails = async (req, res) => {
       return errorResponse(req, res, "Card not found", 404);
     }
     const formattedCard = formatCard(card);
-    return successResponse(req, res, formattedCard, 200);
+    return successResponse(req, res, { card: formattedCard }, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -147,7 +147,7 @@ const updateCard = async (req, res) => {
 
     await t.commit();
     const formattedCard = formatCard(card);
-    return successResponse(req, res, formattedCard, 200);
+    return successResponse(req, res, { card: formattedCard }, 200);
   } catch (error) {
     console.error(error);
     await t.rollback();
