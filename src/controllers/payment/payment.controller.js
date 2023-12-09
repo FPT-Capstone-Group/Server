@@ -34,7 +34,7 @@ const processPayment = async (req, res) => {
     // Check if the registration is already completed
     const registration = await Registration.findByPk(registrationId);
     // Registration is already completed, do not allow new payment
-    if (registration.registrationStatus === "Active") {
+    if (registration.registrationStatus === "Active" || "Paid") {
       return errorResponse(req, res, "Registration is already completed", 400);
     }
 
@@ -68,7 +68,7 @@ const processPayment = async (req, res) => {
       },
       { transaction: t }
     );
-    registration.registrationStatus = "Payment complete";
+    registration.registrationStatus = "Paid";
     await registration.save({ transaction: t });
     await t.commit();
 
