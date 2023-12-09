@@ -129,8 +129,8 @@ const login = async (req, res) => {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         roleNames,
-        token,
       },
+      token: token
     });
   } catch (error) {
     return errorResponse(req, res, error.message);
