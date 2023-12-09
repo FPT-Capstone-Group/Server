@@ -64,6 +64,7 @@ const register = async (req, res) => {
       console.error("Please provide valid OTP Token!");
       throw new Error("Please provide valid OTP Token!");
     }
+    const roleId = await getRoleIdByName("user");
 
     const hashedPassword = crypto
       .createHash("sha256")
@@ -73,12 +74,11 @@ const register = async (req, res) => {
       username,
       fullName,
       password: hashedPassword,
+      roleId: roleId
     };
 
     const newUser = await User.create(payload);
     const formattedUser = formatUser(newUser);
-    const roleId = await getRoleIdByName("User");
-    await UserRole.create({ userId: newUser.userId, roleId });
     return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     return errorResponse(req, res, error.message);
@@ -87,8 +87,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const user = await User.findOne({
-      where: { username: req.body.username },
-      include: [Role], // Include the Role model to retrieve roles associated with the user
+      where: { username: req.body.username }
     });
 
     if (!user) {
@@ -106,7 +105,8 @@ const login = async (req, res) => {
     // Update the user's firebaseToken
     user.firebaseToken = req.body.firebaseToken;
     await user.save();
-    const roleNames = user.Roles.map((role) => role.name);
+    const userRole = await Role.findByPk(user.roleId)
+    const roleName = userRole.name
     const token = jwt.sign(
       {
         user: {
@@ -128,7 +128,7 @@ const login = async (req, res) => {
         firebaseToken: user.firebaseToken,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        roleNames,
+        role: roleName,
       },
       token: token
     });

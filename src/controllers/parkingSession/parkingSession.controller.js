@@ -65,10 +65,15 @@ const getParkingSessionById = async (req, res) => {
 
 const getParkingDataForEvaluate = async (req, res) => {
   const { cardId } = req.query;
+  const card = await Card.findByPk(cardId, {
+    attributes : 'plateNumber',
+    include    : [{ model: Bike, attributes: attributes}]
+  })
+  const bike = await Bike.findByPk(card.bikeId)
 
   try {
     let parkingSession = await ParkingSession.findOne({
-      where: { cardId: cardId },
+      where: { cardId: bike.plateNumber },
       order: [["checkinTime", "DESC"]], // Get the latest checkin
     });
 

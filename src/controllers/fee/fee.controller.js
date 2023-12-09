@@ -28,14 +28,12 @@ const createFeeHistory = async (eventType, approvedBy, feeId) => {
 // Create a new fee
 const createFee = async (req, res) => {
   try {
-    const { feeName, amount, description, feeMethod } = req.body;
+    const { feeName, amount, description } = req.body;
 
     const newFee = await Fee.create({
       feeName,
       amount,
       description,
-      feeDate: new Date().toISOString(),
-      feeMethod,
     });
     await createFeeHistory("Created", req.user.fullName, newFee.feeId);
     const formattedFee = formatFee(newFee);
@@ -82,7 +80,7 @@ const getFeeById = async (req, res) => {
 const updateFeeById = async (req, res) => {
   try {
     const { feeId } = req.params;
-    const { feeName, amount, description, feeMethod } = req.body;
+    const { feeName, amount, description } = req.body;
 
     const fee = await Fee.findByPk(feeId);
 
@@ -94,8 +92,6 @@ const updateFeeById = async (req, res) => {
     fee.feeName = feeName;
     fee.amount = amount;
     fee.description = description;
-    fee.feeDate = new Date().toISOString();
-    fee.feeMethod = feeMethod;
     await createFeeHistory("Update", req.user.fullName, fee.feeId);
     await fee.save();
     const formattedFee = formatFee(fee);
