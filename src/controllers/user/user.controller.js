@@ -46,7 +46,7 @@ const allUsers = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { username, password, fullName, firebaseToken, otpToken } = req.body;
+    const { username, password, fullName, otpToken } = req.body;
 
     const user = await User.findOne({
       where: { username },
@@ -56,7 +56,8 @@ const register = async (req, res) => {
     }
 
     const verificationCheckStatus = await verifyOtpToken(username, otpToken)
-    if (!verificationCheckStatus.localeCompare("approved")){
+    if (verificationCheckStatus.localeCompare("approved") !== 0){
+      console.error("Please provide valid OTP Token!")
       throw new Error("Please provide valid OTP Token!");
     }
 
@@ -69,7 +70,6 @@ const register = async (req, res) => {
       username,
       fullName,
       password: hashedPassword,
-      firebaseToken,
     };
 
     const newUser = await User.create(payload);
@@ -99,7 +99,7 @@ const login = async (req, res) => {
     // Check if the user has a firebaseToken field, if user don't have, skip it
     if (user.hasOwnProperty("firebaseToken")) {
       // Update the user's firebaseToken
-      user.firebaseToken = firebaseToken;
+      user.firebaseToken = req.body.firebaseToken;
       await user.save();
     }
     const token = jwt.sign(
