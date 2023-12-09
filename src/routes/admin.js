@@ -5,6 +5,8 @@ import * as bikeController from "../controllers/bike/bike.controller";
 import * as ownerController from "../controllers/owner/owner.controller";
 import * as feeController from "../controllers/fee/fee.controller";
 import * as cardController from "../controllers/card/card.controller";
+import * as parkingSessionController from "../controllers/parkingSession/parkingSession.controller";
+import * as paymentHistoryController from "../controllers/paymentHistory/paymentHistory.controller";
 import * as notificationController from "../controllers/notification/notification.controller";
 const router = express.Router();
 
@@ -29,16 +31,24 @@ router.get(
   registrationController.getUserRegistration
 );
 router.put(
-  "/registrations/:registrationId/",
-  registrationController.updateRegistration
+  "/registrations/active/:registrationId/",
+  registrationController.activateRegistration
+);
+router.put(
+  "/registrations/deactive/:registrationId/",
+  registrationController.deactiveRegistration
+);
+router.put(
+  "/registrations/verify/:registrationId",
+  registrationController.verifyRegistration
+);
+router.put(
+  "/registrations/reject/:registrationId",
+  registrationController.rejectRegistration
 );
 router.put(
   "/registrations/disable/:registrationId",
   registrationController.disableRegistration
-);
-router.put(
-  "/registrations/approve/:registrationId",
-  registrationController.verifyRegistration
 );
 
 //Bike
@@ -48,7 +58,7 @@ router.post("/bike", bikeController.createBike);
 router.get("/users", userController.allUsers);
 router.get("/users/:userId", userController.getUserInfo);
 router.put("/users/active/:userId", userController.activateUser);
-router.put("/users/deactive/:userId", userController.deActivateUser);
+router.put("/users/deactive/:userId", userController.deactivateUser);
 
 //Owner
 router.post("/owners/create", ownerController.createOwner);
@@ -61,9 +71,23 @@ router.get("/cards/:cardId", cardController.getCardDetails);
 router.put("/cards/:cardId", cardController.updateCard);
 router.delete("/cards/:cardId", cardController.deleteCard);
 
-
 //Notification
-router.post("/notifications/send", notificationController.sendNotification)
+router.post("/notifications/send", notificationController.sendNotification);
 
+// Parking Session
+router.get("/sessions", parkingSessionController.getAllParkingSessions);
+router.get(
+  "/sessions/:parkingSessionId",
+  parkingSessionController.getParkingSessionById
+);
 
+// Payment History
+router.get(
+  "/paymentHistories/:paymentHistoryId",
+  paymentHistoryController.getPaymentHistoryById
+);
+router.get(
+  "/paymentHistories",
+  paymentHistoryController.getAllPaymentHistories
+);
 module.exports = router;

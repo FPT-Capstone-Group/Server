@@ -42,6 +42,10 @@ router.get(
   "/registrations/:registrationId",
   registrationController.getUserRegistration
 );
+router.put(
+  "/registrations/cancel/:registrationId",
+  registrationController.cancelRegistration
+);
 
 //Payment
 router.post("/payments", paymentController.processPayment);
@@ -63,7 +67,7 @@ router.post("/cards/create", cardController.createCard);
 
 //Owner
 router.post("/owners/create", ownerController.createOwner);
-router.get("/owners/:plateNumber", ownerController.getOwnersByPlateNumber);
+router.get("/owners", ownerController.getOwnersByPlateNumber);
 
 //Parking
 router.post("/parking/checkin", parkingController.checkIn);
