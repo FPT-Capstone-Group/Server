@@ -1,50 +1,38 @@
 "use strict";
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("PaymentHistories", {
-      paymentHistoryId: {
+    await queryInterface.createTable("ApplicationMessages", {
+      messageID: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
       },
-      eventType: {
+      messageCode: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      eventTime: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      details: {
+      messageType: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      status: {
+      applicationType: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      paymentId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Payments",
-          key: "paymentId",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
       },
       createdAt: {
+        type: Sequelize.TIMESTAMP,
         allowNull: false,
-        type: Sequelize.DATE,
       },
       updatedAt: {
+        type: Sequelize.TIMESTAMP,
         allowNull: false,
-        type: Sequelize.DATE,
       },
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("PaymentHistories");
+    await queryInterface.dropTable("ApplicationMessages");
   },
 };

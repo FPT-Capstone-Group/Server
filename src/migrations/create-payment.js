@@ -1,50 +1,51 @@
 "use strict";
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Owners", {
-      ownerId: {
+    await queryInterface.createTable("Payments", {
+      paymentId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      fullName: {
+      amount: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
+      paymentDate: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      status: {
+        type: Sequelize.STRING,
+        defaultValue: "Processing",
+        allowNull: false,
+      },
+      paymentMethod: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      gender: {
-        type: Sequelize.STRING,
-      },
-      relationship: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      ownerFaceImage: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      bikeId: {
+      registrationId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
-          model: "Bikes",
-          key: "bikeId",
+          model: "Registrations",
+          key: "registrationId",
         },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL", // or 'CASCADE' depending on your use case
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.TIMESTAMP,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.TIMESTAMP,
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Owners");
+    await queryInterface.dropTable("Payments");
   },
 };

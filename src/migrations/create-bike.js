@@ -1,25 +1,41 @@
 "use strict";
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Notifications", {
-      notificationId: {
+    await queryInterface.createTable("Bikes", {
+      bikeId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      message: {
+      model: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      notificationType: {
+      registrationNumber: {
         type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
+      },
+      plateNumber: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
+      },
+      manufacture: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: "active",
       },
       userId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
-          model: "Users",
+          model: "Users", // Adjust the table name if needed
           key: "userId",
         },
         onUpdate: "CASCADE",
@@ -35,8 +51,7 @@ module.exports = {
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Notifications");
+    await queryInterface.dropTable("Bikes");
   },
 };

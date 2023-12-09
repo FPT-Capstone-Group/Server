@@ -9,15 +9,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      cardId: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       checkinTime: {
-        type: Sequelize.DATE,
+        type: Sequelize.TIMESTAMP,
       },
       checkoutTime: {
-        type: Sequelize.DATE,
+        type: Sequelize.TIMESTAMP,
       },
       checkinFaceImage: {
         type: Sequelize.TEXT,
@@ -51,11 +47,11 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.TIMESTAMP,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.TIMESTAMP,
       },
     });
   },

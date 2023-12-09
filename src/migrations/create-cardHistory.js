@@ -1,41 +1,39 @@
 "use strict";
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Fees", {
-      feeId: {
+    await queryInterface.createTable("CardHistories", {
+      cardHistoryId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      feeName: {
+      eventType: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      amount: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-      },
-      currency: {
+      approvedBy: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: "VND",
-      },
-      description: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
       },
       updatedAt: {
+        type: Sequelize.TIMESTAMP,
         allowNull: false,
-        type: Sequelize.DATE,
       },
+      cardId: {
+        type: Sequelize.STRING,
+        references: {
+          model: "Cards",
+          key: "cardId",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      }
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Fees");
+    await queryInterface.dropTable("CardHistories");
   },
 };

@@ -2,42 +2,41 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("CardHistories", {
-      cardHistoryId: {
+    await queryInterface.createTable("Notifications", {
+      notificationId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      eventType: {
+      message: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      eventTime: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      cardId: {
+      notificationType: {
         type: Sequelize.STRING,
+      },
+      userId: {
+        type: Sequelize.INTEGER,
         references: {
-          model: "Cards",
-          key: "cardId",
+          model: "Users",
+          key: "userId",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.TIMESTAMP,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.TIMESTAMP,
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("CardHistories");
+    await queryInterface.dropTable("Notifications");
   },
 };

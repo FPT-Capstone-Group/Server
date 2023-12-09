@@ -1,38 +1,36 @@
 "use strict";
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("ApplicationMessages", {
-      messageID: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
+    await queryInterface.createTable("Fees", {
+      feeId: {
+        allowNull: false,
         autoIncrement: true,
-        allowNull: false,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
       },
-      messageCode: {
+      feeName: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      messageType: {
-        type: Sequelize.STRING,
+      amount: {
+        type: Sequelize.FLOAT,
         allowNull: false,
       },
-      applicationType: {
+      description: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       createdAt: {
-        type: Sequelize.DATE,
         allowNull: false,
+        type: Sequelize.TIMESTAMP,
       },
       updatedAt: {
-        type: Sequelize.DATE,
         allowNull: false,
+        type: Sequelize.TIMESTAMP,
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("ApplicationMessages");
+    await queryInterface.dropTable("Fees");
   },
 };

@@ -1,41 +1,37 @@
-"use strict";
+'use strict';
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Users", {
-      userId: {
+    await queryInterface.createTable("Configurations", {
+      configurationId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      fullName: {
+      SettingName: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
-      username: {
+      SettingValue: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
-      password: {
+      Notes: {
         type: Sequelize.STRING,
-      },
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-      },
-      firebaseToken: {
-        type: Sequelize.STRING,
-        allowNull: true,
       },
       createdAt: {
-        type: Sequelize.DATE,
+        allowNull: false,
+        type: Sequelize.TIMESTAMP,
       },
       updatedAt: {
-        type: Sequelize.DATE,
+        allowNull: false,
+        type: Sequelize.TIMESTAMP,
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("Configurations");
   },
 };
