@@ -37,7 +37,7 @@ const createFee = async (req, res) => {
       feeDate: new Date().toISOString(),
       feeMethod,
     });
-    await createFeeHistory("Created", req.user.fullName, newFee.feeId);
+    await createFeeHistory("created", req.user.fullName, newFee.feeId);
     const formattedFee = formatFee(newFee);
     return successResponse(req, res, { fee: formattedFee }, 201);
   } catch (error) {
@@ -96,7 +96,11 @@ const updateFeeById = async (req, res) => {
     fee.description = description;
     fee.feeDate = new Date().toISOString();
     fee.feeMethod = feeMethod;
-    await createFeeHistory("Update", req.user.fullName, fee.feeId);
+    await createFeeHistory(
+      `update ${feeName} with ${amount}`,
+      req.user.fullName,
+      fee.feeId
+    );
     await fee.save();
     const formattedFee = formatFee(fee);
     return successResponse(req, res, { fee: formattedFee }, 200);
@@ -114,8 +118,8 @@ const deleteFeeById = async (req, res) => {
     if (!fee) {
       return errorResponse(req, res, "Fee not found", 404);
     }
-    await createFeeHistory("Deleted", req.user.fullName, fee.feeId);
-    await fee.destroy();
+    await createFeeHistory("deleted", req.user.fullName, fee.feeId);
+    // disable or delete fee login in here
     return successResponse(req, res, "Fee deleted successfully", 200);
   } catch (error) {
     console.error(error);

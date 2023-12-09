@@ -1,4 +1,4 @@
-const { Payment, PaymentHistory, Registration, Fee } = require("../../models");
+const { Payment, Registration } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -34,7 +34,7 @@ const processPayment = async (req, res) => {
     // Check if the registration is already completed
     const registration = await Registration.findByPk(registrationId);
     // Registration is already completed, do not allow new payment
-    if (registration.registrationStatus === "Active") {
+    if (registration.registrationStatus === "active") {
       return errorResponse(req, res, "Registration is already completed", 400);
     }
 
@@ -49,26 +49,14 @@ const processPayment = async (req, res) => {
       {
         amount,
         paymentDate: new Date().toISOString(),
-        status: "Success", // Assuming it's successful since it's a third-party payment
+        status: "success", // Assuming it's successful since it's a third-party payment
         paymentMethod,
         registrationId,
-        feeId,
       },
       { transaction: t }
     );
 
-    // Create a payment history entry
-    await PaymentHistory.create(
-      {
-        eventType: "Payment Success",
-        eventTime: new Date().toISOString(),
-        details: "Payment successfully",
-        paymentId: newPayment.paymentId,
-        status: "Success",
-      },
-      { transaction: t }
-    );
-    registration.registrationStatus = "Paid";
+    registration.registrationStatus = "paid";
     await registration.save({ transaction: t });
     await t.commit();
 
