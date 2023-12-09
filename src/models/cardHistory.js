@@ -11,10 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    eventTime: {
-      type: DataTypes.DATE,
+    approvedBy: {
+      type: DataTypes.STRING,
       allowNull: false,
-    }
+    },
   });
 
   CardHistory.associate = function (models) {

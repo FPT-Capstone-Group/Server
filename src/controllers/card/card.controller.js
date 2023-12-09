@@ -1,6 +1,6 @@
 // controllers/cardController.js
 
-const { Card, CardHistory } = require("../../models");
+const { Card, CardHistory, ParkingType} = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -22,19 +22,18 @@ const createCard = async (req, res) => {
   const t = await sequelize.transaction();
   const newCards = [];
   try {
+    const parkingType = await ParkingType.findOne({ where: { name: 'guest' } })
+    console.log(parkingType)
     for (const { cardId } of req.body) {
       const currentDate = new Date();
-      const expiredDate = new Date(currentDate);
-      expiredDate.setFullYear(currentDate.getFullYear() + 1);
       const newCard = await Card.create(
         {
           cardId: cardId,
           startDate: currentDate,
-          expiredDate: expiredDate,
-          cCurrentStatus: "Active",
-          isActive: false,
-          cardType: "Guest",
-          userId: req.user.userId,
+          currentStatus: "active",
+          createdAt: currentDate,
+          updatedAt: currentDate,
+          parkingTypeId: parkingType.parkingTypeId
         },
         { transaction: t, ignoreDuplicates: true } // Use for ignore duplicate card
       );
@@ -43,10 +42,9 @@ const createCard = async (req, res) => {
         await CardHistory.create(
           {
             eventType: "Card Created",
-            eventTime: currentDate,
-            details: "Card created successfully",
             cardId: newCard.cardId,
-            status: "Active",
+            updatedAt: currentDate,
+            approvedBy: 'auto'
           },
           { transaction: t }
         );
@@ -102,14 +100,13 @@ const getAllUserCards = async (req, res) => {
 const getCardDetails = async (req, res) => {
   try {
     const { cardId } = req.query;
-
     const card = await Card.findByPk(cardId);
-
     if (!card) {
       return errorResponse(req, res, "Card not found", 404);
     }
-    const formattedCard = formatCard(card);
-    return successResponse(req, res, { card: formattedCard }, 200);
+    const parkingType = await ParkingType.findByPk(card.parkingTypeId)
+    // const formattedCard = formatCard(card);
+    return successResponse(req, res, {cardId: cardId, currentStatus: card.currentStatus, parkingTypeName: parkingType.name}, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);

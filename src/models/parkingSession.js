@@ -7,10 +7,6 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    cardId: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     checkinTime: {
       type: DataTypes.DATE,
     },

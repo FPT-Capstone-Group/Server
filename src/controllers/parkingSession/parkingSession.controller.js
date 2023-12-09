@@ -1,4 +1,4 @@
-const { Fee, ParkingSession, ParkingType, Bike } = require("../../models");
+const { Fee, ParkingSession, ParkingType, Bike, Card } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -65,15 +65,14 @@ const getParkingSessionById = async (req, res) => {
 
 const getParkingDataForEvaluate = async (req, res) => {
   const { cardId } = req.query;
-  const card = await Card.findByPk(cardId, {
-    attributes : 'plateNumber',
-    include    : [{ model: Bike, attributes: attributes}]
-  })
-  const bike = await Bike.findByPk(card.bikeId)
 
   try {
+    const card = await Card.findByPk(cardId, {
+      include  : [{ model: Bike, attributes: ['plateNumber']}]
+    })
+    console.log(card)
     let parkingSession = await ParkingSession.findOne({
-      where: { cardId: bike.plateNumber },
+      where: { plateNumber: card.Bike.plateNumber },
       order: [["checkinTime", "DESC"]], // Get the latest checkin
     });
 
@@ -81,10 +80,10 @@ const getParkingDataForEvaluate = async (req, res) => {
       return errorResponse(req, res, "Parking Session not found", 404);
     }
     const dayFee = await Fee.findOne({
-      where: { feeName: "day" },
+      where: { feeName: "guest_day" },
     });
     const nightFee = await Fee.findOne({
-      where: { feeName: "night" },
+      where: { feeName: "guest_night" },
     });
     // parkingSession.checkoutTime = moment.tz.zonesForCountry('VN').format('YYYY-MM-DD:HH:mm:ss');
     parkingSession.checkoutTime = moment().format("YYYY-MM-DD:HH:mm:ss");
@@ -104,19 +103,20 @@ const getParkingDataForEvaluate = async (req, res) => {
 
 // Create new parking session aka Checkin
 const checkIn = async (req, res) => {
-  const { cardId, checkinFaceImage, checkinPlateNumberImage, plateNumber } =
+  const { checkinFaceImage, checkinPlateNumberImage, plateNumber, parkingTypeName } =
     req.body;
-  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss");
+  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss")
 
   try {
-    const parkingTypeId = 1;
+    const security = req.user.fullName
+    const parkingType = await ParkingType.findOne({where: {name: parkingTypeName}})
     const newParkingSession = await ParkingSession.create({
-      cardId,
       checkinTime,
       checkinFaceImage,
       checkinPlateNumberImage,
       plateNumber,
-      parkingTypeId,
+      approvedBy: security,
+      parkingTypeId: parkingType.parkingTypeId,
     });
 
     return successResponse(
@@ -158,7 +158,7 @@ const checkOut = async (req, res) => {
 // User get parking Session by their plateNumber
 const getParkingSessionsByPlateNumber = async (req, res) => {
   try {
-    const { plateNumber } = req.params;
+    const { plateNumber } = req.query;
     const user = req.user;
     // Bike already associate owner when updateRegis, only check bike associate with user through card
     const bike = await Bike.findOne({

@@ -14,7 +14,7 @@ module.exports = {
       },
       expiredDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       currentStatus: {
         type: Sequelize.STRING,
