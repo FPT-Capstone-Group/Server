@@ -124,7 +124,6 @@ const createRegistration = async (req, res) => {
       res,
       {
         registration: formattedRegistration,
-        amount,
       },
       201
     );
