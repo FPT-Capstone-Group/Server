@@ -10,6 +10,12 @@ module.exports = (sequelize, DataTypes) => {
     checkinTime: {
       type: DataTypes.DATE,
     },
+    checkinCardId: {
+      type: DataTypes.STRING,
+    },
+    checkoutCardId: {
+      type: DataTypes.STRING,
+    },
     checkoutTime: {
       type: DataTypes.DATE,
     },

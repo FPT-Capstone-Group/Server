@@ -214,7 +214,7 @@ const getAllUserRegistration = async (req, res) => {
 // User cancels their registration
 const cancelRegistration = async (req, res) => {
   try {
-    const { registrationId } = req.params;
+    const { registrationId } = req.query;
     const userId = req.user.userId;
 
     // Find the registration by ID and user ID
