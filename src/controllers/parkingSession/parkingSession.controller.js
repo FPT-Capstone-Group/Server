@@ -69,7 +69,7 @@ const getParkingSessionById = async (req, res) => {
   }
 };
 
-const getParkingDataForEvaluate = async (req, res) => {
+const getParkingDataForEvaluateGuest = async (req, res) => {
   const { cardId } = req.query;
 
   try {
@@ -78,7 +78,7 @@ const getParkingDataForEvaluate = async (req, res) => {
     });
     console.log(card);
     let parkingSession = await ParkingSession.findOne({
-      where: { plateNumber: card.Bike.plateNumber },
+      where: { checkinCardId: cardId },
       order: [["checkinTime", "DESC"]], // Get the latest checkin
     });
 
@@ -107,15 +107,41 @@ const getParkingDataForEvaluate = async (req, res) => {
   }
 };
 
+
+const getParkingDataForEvaluateNotGuest = async (req, res) => {
+  const { cardId } = req.query;
+
+  try {
+    const card = await Card.findByPk(cardId, {
+      include  : [{ model: Bike, attributes: ['plateNumber']}]
+    })
+    console.log(card)
+    let parkingSession = await ParkingSession.findOne({
+      where: { plateNumber: card.plateNumber },
+      order: [["checkinTime", "DESC"]], // Get the latest checkin
+    });
+
+    if (!parkingSession) {
+      return errorResponse(req, res, "Parking Session not found", 404);
+    }
+
+    // parkingSession.checkoutTime = moment.tz.zonesForCountry('VN').format('YYYY-MM-DD:HH:mm:ss');
+    parkingSession.checkoutTime = moment().format("YYYY-MM-DD:HH:mm:ss");
+    // Calculate parking fee
+    parkingSession.parkingFee = 0
+    return successResponse(req, res, parkingSession, 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+
+
 // Create new parking session aka Checkin
 const checkIn = async (req, res) => {
-  const {
-    checkinFaceImage,
-    checkinPlateNumberImage,
-    plateNumber,
-    parkingTypeName,
-  } = req.body;
-  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss");
+  const { checkinCardId,checkinFaceImage, checkinPlateNumberImage, plateNumber, parkingTypeName } =
+    req.body;
+  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss")
 
   try {
     const security = req.user.fullName;
@@ -123,6 +149,7 @@ const checkIn = async (req, res) => {
       where: { name: parkingTypeName },
     });
     const newParkingSession = await ParkingSession.create({
+      checkinCardId,
       checkinTime,
       checkinFaceImage,
       checkinPlateNumberImage,
@@ -134,7 +161,7 @@ const checkIn = async (req, res) => {
     return successResponse(
       req,
       res,
-      { parkingSession: newParkingSession },
+      { cardId: newParkingSession.checkinCardId, plateNumber: newParkingSession.plateNumber, parkingType: parkingType },
       201
     );
   } catch (error) {
@@ -147,6 +174,7 @@ const checkIn = async (req, res) => {
 const checkOut = async (req, res) => {
   const {
     parkingSessionId,
+    checkoutCardId,
     checkoutFaceImage,
     checkoutPlateNumberImage,
     parkingFee,
@@ -154,6 +182,7 @@ const checkOut = async (req, res) => {
 
   try {
     let parkingSession = await ParkingSession.findByPk(parkingSessionId);
+    parkingSession.checkoutCardId = checkoutCardId;
     parkingSession.checkoutFaceImage = checkoutFaceImage;
     parkingSession.checkoutPlateNumberImage = checkoutPlateNumberImage;
     parkingSession.parkingFee = parkingFee;
@@ -257,7 +286,8 @@ module.exports = {
   getAllParkingSessions,
   getParkingSessionById,
   checkIn,
-  getParkingDataForEvaluate,
+  getParkingDataForEvaluateGuest,
+  getParkingDataForEvaluateNotGuest,
   checkOut,
   getParkingSessionsByPlateNumber,
   getParkingSessionsByUsersPlateNumber,

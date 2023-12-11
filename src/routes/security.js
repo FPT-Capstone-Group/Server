@@ -24,8 +24,13 @@ router.post("/owners", ownerController.getOwnersByPlateNumber);
 //Parking
 router.post("/parking/checkin", parkingController.checkIn);
 router.get(
-    "/parking/getDataForEvaluation",
-    parkingController.getParkingDataForEvaluate
+    "/parking/getParkingDataForEvaluateGuest",
+    parkingController.getParkingDataForEvaluateGuest
+);
+router.get(
+    "/parking/getParkingDataForEvaluateNotGuest",
+    parkingController.getParkingDataForEvaluateNotGuest
 );
 router.post("/parking/checkout", parkingController.checkOut);
+
 module.exports = router;

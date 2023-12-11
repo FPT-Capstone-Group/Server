@@ -15,6 +15,12 @@ module.exports = {
       checkoutTime: {
         type: Sequelize.DATE,
       },
+      checkinCardId: {
+        type: Sequelize.STRING,
+      },
+      checkoutCardId: {
+        type: Sequelize.STRING,
+      },
       checkinFaceImage: {
         type: Sequelize.TEXT,
       },
