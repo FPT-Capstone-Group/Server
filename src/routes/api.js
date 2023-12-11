@@ -11,7 +11,7 @@ import * as feeController from "../controllers/fee/fee.controller";
 import * as cardController from "../controllers/card/card.controller";
 import * as ownerController from "../controllers/owner/owner.controller";
 import * as bikeController from "../controllers/bike/bike.controller";
-import * as parkingController from "../controllers/parkingSession/parkingSession.controller";
+import * as parkingSessionController from "../controllers/parkingSession/parkingSession.controller";
 const router = express.Router();
 
 //= ===============================
@@ -63,11 +63,14 @@ router.get(
 //Card
 router.get("/cards/userId", cardController.getAllUserCards);
 
-
 //Owner
 router.post("/owners/create", ownerController.createOwner);
+router.get("/owners", ownerController.getOwnersByUsersPlateNumber);
 
-
-
+//Parking Session
+router.get(
+  "/sessions",
+  parkingSessionController.getParkingSessionsByUsersPlateNumber
+);
 
 module.exports = router;
