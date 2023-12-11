@@ -62,20 +62,11 @@ router.get(
 
 //Card
 router.get("/cards/userId", cardController.getAllUserCards);
-router.get("/cards/detail", cardController.getCardDetails);
-router.post("/cards/create", cardController.createCard);
+
 
 //Owner
 router.post("/owners/create", ownerController.createOwner);
-router.post("/owners", ownerController.getOwnersByPlateNumber);
 
-//Parking
-router.post("/parking/checkin", parkingController.checkIn);
-router.get(
-  "/parking/getDataForEvaluation",
-  parkingController.getParkingDataForEvaluate
-);
-router.post("/parking/checkout", parkingController.checkOut);
 
 
 
