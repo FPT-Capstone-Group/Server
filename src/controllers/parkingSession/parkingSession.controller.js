@@ -1,4 +1,10 @@
-const { Fee, ParkingSession, ParkingType, Bike, Card } = require("../../models");
+const {
+  Fee,
+  ParkingSession,
+  ParkingType,
+  Bike,
+  Card,
+} = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -68,9 +74,9 @@ const getParkingDataForEvaluate = async (req, res) => {
 
   try {
     const card = await Card.findByPk(cardId, {
-      include  : [{ model: Bike, attributes: ['plateNumber']}]
-    })
-    console.log(card)
+      include: [{ model: Bike, attributes: ["plateNumber"] }],
+    });
+    console.log(card);
     let parkingSession = await ParkingSession.findOne({
       where: { plateNumber: card.Bike.plateNumber },
       order: [["checkinTime", "DESC"]], // Get the latest checkin
@@ -103,13 +109,19 @@ const getParkingDataForEvaluate = async (req, res) => {
 
 // Create new parking session aka Checkin
 const checkIn = async (req, res) => {
-  const { checkinFaceImage, checkinPlateNumberImage, plateNumber, parkingTypeName } =
-    req.body;
-  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss")
+  const {
+    checkinFaceImage,
+    checkinPlateNumberImage,
+    plateNumber,
+    parkingTypeName,
+  } = req.body;
+  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss");
 
   try {
-    const security = req.user.fullName
-    const parkingType = await ParkingType.findOne({where: {name: parkingTypeName}})
+    const security = req.user.fullName;
+    const parkingType = await ParkingType.findOne({
+      where: { name: parkingTypeName },
+    });
     const newParkingSession = await ParkingSession.create({
       checkinTime,
       checkinFaceImage,
@@ -155,33 +167,12 @@ const checkOut = async (req, res) => {
   }
 };
 
-// User get parking Session by their plateNumber
+// Admin get parking Session by plateNumber
 const getParkingSessionsByPlateNumber = async (req, res) => {
   try {
     const { plateNumber } = req.query;
-    const user = req.user;
-    // Bike already associate owner when updateRegis, only check bike associate with user through card
-    const bike = await Bike.findOne({
-      where: { plateNumber, userId: user.userId },
-      include: [
-        {
-          model: Card,
-          required: true,
-          where: { bikeId: Sequelize.col("Bike.bikeId"), userId: user.userId },
-        },
-      ],
-    });
 
-    if (!bike) {
-      return errorResponse(
-        req,
-        res,
-        "User does not own the bike or is not associated with it through a card",
-        404
-      );
-    }
-
-    // If the user is associated, fetch the parking sessions
+    // Fetch all parking sessions for the given plate number
     const parkingSessions = await ParkingSession.findAll({
       where: { plateNumber },
     });
@@ -190,7 +181,57 @@ const getParkingSessionsByPlateNumber = async (req, res) => {
       return errorResponse(
         req,
         res,
-        "No parking sessions found for the bike",
+        "No parking sessions found for the given plate number",
+        404
+      );
+    }
+
+    // Format the response or perform additional operations if needed
+    const formattedParkingSessions = parkingSessions.map((session) =>
+      formatParkingSession(session)
+    );
+
+    return successResponse(
+      req,
+      res,
+      { parkingSessions: formattedParkingSessions },
+      200
+    );
+  } catch (error) {
+    console.error("Internal Server Error:", error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+// User get parking session by their plateNumber
+const getParkingSessionsByUsersPlateNumber = async (req, res) => {
+  try {
+    const { plateNumber } = req.query;
+    const user = req.user;
+
+    // Check if the user owns the bike with the provided plate number
+    const bike = await Bike.findOne({
+      where: { plateNumber, userId: user.userId },
+    });
+
+    if (!bike) {
+      return errorResponse(
+        req,
+        res,
+        "The bike is invalid or is not associated with the user",
+        404
+      );
+    }
+
+    // If the user owns the bike, fetch the parking sessions for that bike
+    const parkingSessions = await ParkingSession.findAll({
+      where: { plateNumber },
+    });
+
+    if (!parkingSessions || parkingSessions.length === 0) {
+      return errorResponse(
+        req,
+        res,
+        "No parking sessions found for the given plate number",
         404
       );
     }
@@ -219,4 +260,5 @@ module.exports = {
   getParkingDataForEvaluate,
   checkOut,
   getParkingSessionsByPlateNumber,
+  getParkingSessionsByUsersPlateNumber,
 };
