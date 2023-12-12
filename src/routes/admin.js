@@ -8,6 +8,7 @@ import * as cardController from "../controllers/card/card.controller";
 import * as parkingSessionController from "../controllers/parkingSession/parkingSession.controller";
 import * as paymentHistoryController from "../controllers/paymentHistory/paymentHistory.controller";
 import * as notificationController from "../controllers/notification/notification.controller";
+import * as registrationHistoryController from "../controllers/registrationHistory/registrationHistory.controller";
 const router = express.Router();
 
 //= ===============================
@@ -51,6 +52,11 @@ router.put(
   registrationController.disableRegistration
 );
 
+//Registration History
+router.get(
+  "/registrations/history/:registrationId",
+  registrationHistoryController.getRegistrationHistory
+);
 //Bike
 router.post("/bike", bikeController.createBike);
 
