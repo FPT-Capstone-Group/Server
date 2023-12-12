@@ -1,37 +1,24 @@
 "use strict";
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Fees", {
-      feeId: {
+    await queryInterface.createTable("Configurations", {
+      configurationId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      feeName: {
+      SettingName: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      amount: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-      },
-      concurrency: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: "VND",
-      },
-      description: {
+      SettingValue: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      feeDate: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      feeMethod: {
+      Notes: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -43,7 +30,8 @@ module.exports = {
       },
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Fees");
+    await queryInterface.dropTable("Configurations");
   },
 };

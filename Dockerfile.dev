@@ -14,5 +14,6 @@ RUN yarn config set network-timeout 600000 -g && yarn install
 COPY . .
 
 EXPOSE 3000
+ENV TZ Asia/Saigon
 
 CMD [ "yarn", "start" ]

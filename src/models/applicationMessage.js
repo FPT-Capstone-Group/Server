@@ -1,27 +1,26 @@
 module.exports = (sequelize, DataTypes) => {
-  const Fee = sequelize.define("Fee", {
-    // Define attributes for Fee
-    feeId: {
+  const ApplicationMessage = sequelize.define("ApplicationMessage", {
+    messageID: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    feeName: {
+    messageCode: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    amount: {
-      type: DataTypes.FLOAT,
+    messageType: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    description: {
+    applicationType: {
       type: DataTypes.STRING,
       allowNull: false,
     },
   });
-  Fee.associate = function (models) {
-    Fee.hasMany(models.FeeHistory, { foreignKey: "feeId" });
-  };
-  return Fee;
+
+  // Add any associations if needed
+
+  return ApplicationMessage;
 };

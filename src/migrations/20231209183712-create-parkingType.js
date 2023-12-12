@@ -1,24 +1,20 @@
-'use strict';
-
+// Inside the ParkingType migration file
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Configurations", {
-      configurationId: {
+    await queryInterface.createTable("ParkingTypes", {
+      parkingTypeId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      SettingName: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      SettingValue: {
+      description: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      Notes: {
-        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
@@ -30,8 +26,7 @@ module.exports = {
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Configurations");
+    await queryInterface.dropTable("ParkingTypes");
   },
 };

@@ -11,28 +11,24 @@ import * as feeController from "../controllers/fee/fee.controller";
 import * as cardController from "../controllers/card/card.controller";
 import * as ownerController from "../controllers/owner/owner.controller";
 import * as bikeController from "../controllers/bike/bike.controller";
-import * as parkingController from "../controllers/parkingSession/parkingSession.controller";
+import * as parkingSessionController from "../controllers/parkingSession/parkingSession.controller";
 const router = express.Router();
 
 //= ===============================
 // API routes
 //= ===============================
-router.get("/me", userController.profile);
-router.post(
-  "/changePassword",
-  validate(userValidator.changePassword),
-  userController.changePassword
-);
 
 //Bike
 router.get("/bikes", bikeController.getAllBikesForUser);
-router.get("/bikes/plateNumber", bikeController.getPlateNumberByCardId);
+router.get("/bikes/:cardId", bikeController.getAllBikesByCard);
 //Fee
 router.get("/fees", feeController.getAllFees);
 router.get("/fees/:feeId", feeController.getFeeById);
 
 //User
-router.put("/users/verify", userController.verifyUser);
+router.post("/forgotPassword", userController.forgotPassword);
+router.get("/me", userController.profile);
+router.post("/changePassword", userController.changePassword);
 router.put("/users/update", userController.updateUser);
 
 //Registration
@@ -45,6 +41,10 @@ router.get("/registrations", registrationController.getAllUserRegistration);
 router.get(
   "/registrations/:registrationId",
   registrationController.getUserRegistration
+);
+router.put(
+  "/registrations/cancel/:registrationId",
+  registrationController.cancelRegistration
 );
 
 //Payment
@@ -62,20 +62,15 @@ router.get(
 
 //Card
 router.get("/cards/userId", cardController.getAllUserCards);
-router.get("/cards/detail", cardController.getCardDetails);
-router.post("/cards/create", cardController.createCard);
 
 //Owner
 router.post("/owners/create", ownerController.createOwner);
-router.get("/owners/", ownerController.getOwnersByCardId);
+router.get("/owners", ownerController.getOwnersByUsersPlateNumber);
 
-
-//Parking
-router.post("/parking/checkin", parkingController.checkIn);
-router.get("/parking/getDataForEvaluation", parkingController.getParkingDataForEvaluate);
-router.post("/parking/checkout", parkingController.checkOut);
-
-
-
+//Parking Session
+router.get(
+  "/sessions",
+  parkingSessionController.getParkingSessionsByUsersPlateNumber
+);
 
 module.exports = router;

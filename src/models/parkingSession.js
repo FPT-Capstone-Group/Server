@@ -7,12 +7,14 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    cardId: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     checkinTime: {
       type: DataTypes.DATE,
+    },
+    checkinCardId: {
+      type: DataTypes.STRING,
+    },
+    checkoutCardId: {
+      type: DataTypes.STRING,
     },
     checkoutTime: {
       type: DataTypes.DATE,
@@ -43,9 +45,6 @@ module.exports = (sequelize, DataTypes) => {
   ParkingSession.associate = function (models) {
     ParkingSession.belongsTo(models.ParkingType, {
       foreignKey: "parkingTypeId",
-    });
-    ParkingSession.belongsTo(models.Card, {
-      foreignKey: "cardId",
     });
   };
 

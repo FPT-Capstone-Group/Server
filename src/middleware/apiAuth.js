@@ -20,17 +20,14 @@ const apiAuth = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.SECRET);
     req.user = decoded.user;
-    const user = await User.scope("withSecretColumns").findOne({
+    const user = await User.findOne({
       where: { username: req.user.username },
     });
     if (!user) {
       return errorResponse(req, res, "User is not found in system", 401);
     }
-    // Exempt /me route and verify from isActive and isVerified checks
-    if (
-      (req.baseUrl === "/api" && req.path === "/me") ||
-      (req.baseUrl === "/api" && req.path === "/users/verify")
-    ) {
+    // Exempt /me route  from isActive checks
+    if (req.baseUrl === "/api" && req.path === "/me") {
       const reqUser = { ...user.get() };
       reqUser.userId = user.userId;
       req.user = reqUser;
@@ -41,11 +38,6 @@ const apiAuth = async (req, res, next) => {
     if (!user.isActive) {
       return errorResponse(req, res, "User account is not active", 403);
     }
-
-    if (!user.isVerified) {
-      return errorResponse(req, res, "User is not verified", 403);
-    }
-
     const reqUser = { ...user.get() };
     reqUser.userId = user.userId;
     req.user = reqUser;

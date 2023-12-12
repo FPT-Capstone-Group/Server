@@ -20,15 +20,12 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      timestamps: false, // Disable timestamps
+      timestamps: false, // Disable DATEs
     }
   );
 
   Role.associate = function (models) {
-    Role.belongsToMany(models.User, {
-      through: models.UserRole,
-      foreignKey: "roleId",
-    });
+    Role.hasMany(models.User, { foreignKey: "roleId" });
   };
   return Role;
 };

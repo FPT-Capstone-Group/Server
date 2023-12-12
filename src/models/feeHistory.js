@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
-  const CardHistory = sequelize.define("CardHistory", {
-    // Define attributes for CardHistory
-    cardHistoryId: {
+  const FeeHistory = sequelize.define("FeeHistory", {
+    // Define attributes for FeeHistory
+    feeHistoryId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -16,9 +16,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
   });
-
-  CardHistory.associate = function (models) {
-    CardHistory.belongsTo(models.Card, { foreignKey: "cardId" });
+  FeeHistory.associate = function (models) {
+    FeeHistory.belongsTo(models.Fee, { foreignKey: "feeId" });
   };
-  return CardHistory;
+  return FeeHistory;
 };

@@ -1,30 +1,38 @@
 "use strict";
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Cards", {
-      cardId: {
+    await queryInterface.createTable("Registrations", {
+      registrationId: {
         allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
+      registrationStatus: {
         type: Sequelize.STRING,
       },
-      startDate: {
-        type: Sequelize.DATE,
-        allowNull: false,
+      approvedBy: {
+        type: Sequelize.STRING,
       },
       expiredDate: {
         type: Sequelize.DATE,
-        allowNull: false,
       },
-      currentStatus: {
+      faceImage: {
+        type: Sequelize.TEXT,
+      },
+      plateNumber: {
         type: Sequelize.STRING,
-        defaultValue: "Active",
       },
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
+      model: {
+        type: Sequelize.STRING,
       },
-      cardType: {
+      registrationNumber: {
+        type: Sequelize.STRING,
+      },
+      manufacture: {
+        type: Sequelize.STRING,
+      },
+      gender: {
         type: Sequelize.STRING,
       },
       createdAt: {
@@ -46,8 +54,7 @@ module.exports = {
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Cards");
+    await queryInterface.dropTable("Registrations");
   },
 };

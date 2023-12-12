@@ -13,6 +13,11 @@ module.exports = {
         name: "User",
         description: "User role",
       },
+      {
+        roleId: 0,
+        name: "Staff",
+        description: "Staff role",
+      },
     ]);
   },
 

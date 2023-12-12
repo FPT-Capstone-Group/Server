@@ -1,8 +1,9 @@
 "use strict";
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("PaymentHistories", {
-      paymentHistoryId: {
+    await queryInterface.createTable("FeeHistories", {
+      feeHistoryId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -12,39 +13,31 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      eventTime: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      details: {
+      approvedBy: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      status: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      paymentId: {
+      feeId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: {
-          model: "Payments",
-          key: "paymentId",
+          model: "Fees",
+          key: "feeId",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
       },
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("PaymentHistories");
+    await queryInterface.dropTable("FeeHistories");
   },
 };

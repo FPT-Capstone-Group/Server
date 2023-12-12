@@ -1,39 +1,39 @@
 "use strict";
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Notifications", {
-      notificationId: {
+    await queryInterface.createTable("RegistrationHistories", {
+      registrationHistoryId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      message: {
+      status: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
-      userId: {
+      approvedBy: {
+        type: Sequelize.STRING,
+      },
+      registrationId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Users",
-          key: "userId",
+          model: "Registrations",
+          key: "registrationId",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Notifications");
+    await queryInterface.dropTable("RegistrationHistories");
   },
 };

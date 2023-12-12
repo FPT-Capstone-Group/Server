@@ -2,36 +2,37 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Users", {
-      userId: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
+    await queryInterface.createTable("ApplicationMessages", {
+      messageID: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
       },
-      fullName: {
+      messageCode: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
-      username: {
+      messageType: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
-      password: {
+      applicationType: {
         type: Sequelize.STRING,
-      },
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
+        allowNull: false,
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("ApplicationMessages");
   },
 };

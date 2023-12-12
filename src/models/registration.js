@@ -11,9 +11,6 @@ module.exports = (sequelize, DataTypes) => {
     registrationStatus: {
       type: DataTypes.STRING,
     },
-    amount: {
-      type: DataTypes.FLOAT,
-    },
     approvedBy: {
       type: DataTypes.STRING,
     },
@@ -25,10 +22,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     plateNumber: {
       type: DataTypes.STRING,
-    },
-    hasPayment: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: "false",
     },
     model: {
       type: DataTypes.STRING,
