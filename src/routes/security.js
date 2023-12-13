@@ -19,7 +19,7 @@ router.post("/cards/create", cardController.createCard);
 router.get("bikes/plateNumber", bikeController.getPlateNumberByCard)
 
 //Owner
-router.post("/owners", ownerController.getOwnersByPlateNumber);
+router.get("/owners", ownerController.getOwnersByPlateNumber);
 
 //Parking
 router.post("/parking/checkin", parkingController.checkIn);

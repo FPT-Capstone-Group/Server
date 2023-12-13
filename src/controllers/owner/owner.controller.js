@@ -73,7 +73,7 @@ const createOwner = async (req, res) => {
 // Security, admin
 const getOwnersByPlateNumber = async (req, res) => {
   try {
-    const { plateNumber } = req.body;
+    const { plateNumber } = req.query;
     const bike = await Bike.findOne({
       where: { plateNumber },
     });
@@ -97,7 +97,7 @@ const getOwnersByPlateNumber = async (req, res) => {
 // User
 const getOwnersByUsersPlateNumber = async (req, res) => {
   try {
-    const { plateNumber } = req.body;
+    const { plateNumber } = req.query;
     const user = req.user; 
 
     // Check if the user owns the bike with the provided plate number
