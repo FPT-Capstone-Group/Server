@@ -15,13 +15,13 @@ const moment = require("moment-timezone");
 moment.tz.setDefault("Asia/Saigon")
 // Sub function
 const formatParkingSession = (parkingSession) => {
-  const formattedParkingSession = {
+  return {
     ...parkingSession.toJSON(),
     createdAt: formatToMoment(parkingSession.createdAt),
     updatedAt: formatToMoment(parkingSession.updatedAt),
+    checkinTime: formatToMoment(parkingSession.checkinTime),
+    checkoutTime: formatToMoment(parkingSession.checkoutTime),
   };
-
-  return formattedParkingSession;
 };
 
 // Admin get all parking sessions
