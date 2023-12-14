@@ -15,7 +15,20 @@ router.post("/otp/send", userController.getOtp);
 router.post("/login", validate(userValidator.login), userController.login);
 
 router.post(
-  "/register",
+  '/login',
+  validate(userValidator.login),
+  userController.login,
+);
+
+
+router.post(
+    '/loginSecurity',
+    userController.loginSecurity,
+);
+
+
+router.post(
+  '/register',
   validate(userValidator.register),
   userController.register
 );

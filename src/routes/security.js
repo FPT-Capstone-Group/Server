@@ -4,12 +4,15 @@ const bikeController = require("../controllers/bike/bike.controller");
 const ownerController = require("../controllers/owner/owner.controller");
 const cardController = require("../controllers/card/card.controller");
 const parkingController = require("../controllers/parkingSession/parkingSession.controller");
+const userValidator = require("../controllers/user/user.validator");
+const userController = require("../controllers/user/user.controller");
 
 const router = express.Router();
 
 //= ===============================
 // Security routes
 //= ===============================
+
 
 //Card
 router.get("/cards/detail", cardController.getCardDetails);

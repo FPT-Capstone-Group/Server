@@ -145,6 +145,61 @@ const login = async (req, res) => {
   }
 };
 
+
+const loginSecurity = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { username: req.body.username },
+    });
+
+    if (!user) {
+      throw new Error("Incorrect username Id/Password");
+    }
+
+    const isPasswordValid =
+        crypto.createHash("sha256").update(req.body.password).digest("hex") ===
+        user.password;
+
+    if (!isPasswordValid) {
+      throw new Error("Incorrect username Id/Password");
+    }
+
+    const userRole = await Role.findByPk(user.roleId);
+    const roleName = userRole.name;
+
+    if(roleName !== 'security'){
+      throw new Error("Unauthorized!");
+    }
+
+    const token = jwt.sign(
+        {
+          user: {
+            userId: user.userId,
+            username: user.username,
+            createdAt: new Date(),
+          },
+        },
+        // Only server knows, make sure not to expose
+        process.env.SECRET
+    );
+
+    return successResponse(req, res, {
+      user: {
+        userId: user.userId,
+        fullName: user.fullName,
+        username: user.username,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        role: roleName,
+      },
+      token: token,
+    });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
 const profile = async (req, res) => {
   try {
     const { userId } = req.user;
@@ -377,4 +432,5 @@ module.exports = {
   getOtp,
   createSecurityAccount,
   getFirebaseTokenDevice,
+  loginSecurity
 };
