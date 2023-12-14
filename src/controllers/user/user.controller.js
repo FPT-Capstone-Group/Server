@@ -242,20 +242,20 @@ const deactivateUser = async (req, res) => {
 // Update current user's fullName
 const updateUser = async (req, res) => {
   const userId = req.user.userId;
-  const { fullName, address, gender } = req.body;
+  const { fullName, address, gender, age } = req.body;
 
   try {
     const user = await User.findByPk(userId);
 
     if (!user) {
-      return errorResponse(req, res, "User not found", 404);
+      return errorResponse(req, res, "User not    found", 404);
     }
 
     // Update only the specified fields
     user.fullName = fullName;
     user.address = address;
     user.gender = gender;
-
+    user.age = age;
     // Save the changes
     await user.save();
 
