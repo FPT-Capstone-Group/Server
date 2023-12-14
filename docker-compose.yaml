@@ -1,14 +1,10 @@
 version: "3"  
 services:  
   
-  # ----------------- #  
-  #    File-server    # 
-  # ----------------- #
-  file-server:  
+  smart-parking-server:
     container_name: smart-parking-server  
     build:   
        context: .
        dockerfile: Dockerfile.dev
     ports:  
       - "3000:3000"  
-

@@ -1,9 +1,9 @@
-import jwt from "jsonwebtoken";
+const jwt = require("jsonwebtoken");
 
-import { Role, User } from "../../models";
-import { errorResponse, formatToMoment, successResponse } from "../../helpers";
-import { getOtpToken, verifyOtpToken } from "../../middleware/otpVerification";
-import crypto from "crypto";
+const {Role, User} = require( "../../models")
+const { errorResponse, formatToMoment, successResponse } = require("../../helpers");
+const { getOtpToken, verifyOtpToken } = require("../../middleware/otpVerification");
+const crypto = require("crypto");
 
 // sub function
 async function getRoleIdByName(roleName) {

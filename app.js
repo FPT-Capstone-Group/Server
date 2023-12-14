@@ -1,19 +1,17 @@
-import express from "express";
-import dotenv from "dotenv";
-import fs from "fs";
+const express = require("express");
+const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const admin = require("firebase-admin");
 
-import bodyParser from "body-parser";
-import cors from "cors";
-import admin from "firebase-admin";
-
-import publicRoutes from "./src/routes/public";
-import apiRoutes from "./src/routes/api";
-import adminRoutes from "./src/routes/admin";
-import securityRoutes from "./src/routes/security";
-import apiMiddleware from "./src/middleware/apiAuth";
-import adminMiddleware from "./src/middleware/adminAuth";
-import securityMiddleware from "./src/middleware/securityAuth";
-import errorHandler from "./src/middleware/errorHandler";
+const publicRoutes = require("./src/routes/public");
+const apiRoutes = require("./src/routes/api");
+const adminRoutes = require("./src/routes/admin");
+const securityRoutes = require("./src/routes/security");
+const apiMiddleware = require("./src/middleware/apiAuth");
+const adminMiddleware = require("./src/middleware/adminAuth");
+const securityMiddleware = require("./src/middleware/securityAuth");
+const errorHandler = require("./src/middleware/errorHandler");
 dotenv.config();
 require("./src/config/sequelize");
 
@@ -33,7 +31,9 @@ app.use(
     extended: true,
   })
 );
-
+app.get("/", (req, res) => {
+    res.json({ message: `SmartParking Server is running on ${process.env.NODE_ENV}!` });
+});
 app.use(cors());
 app.use(bodyParser.json());
 app.use("/pub", publicRoutes);
