@@ -33,7 +33,9 @@ app.use(
     extended: true,
   })
 );
-
+app.get("/", (req, res) => {
+    res.json({ message: `SmartParking Server is running on ${process.env.NODE_ENV}!` });
+});
 app.use(cors());
 app.use(bodyParser.json());
 app.use("/pub", publicRoutes);
