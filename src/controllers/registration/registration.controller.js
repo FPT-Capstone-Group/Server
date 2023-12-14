@@ -35,10 +35,11 @@ const createRegistrationHistory = async (
     { transaction: t }
   );
 };
-const formatRegistration = (registration, amount) => {
+const formatRegistration = (registration, amount, username) => {
   const formattedRegistration = {
     ...registration.toJSON(),
     amount,
+    username,
     createdAt: formatToMoment(registration.createdAt),
     updatedAt: formatToMoment(registration.updatedAt),
   };
@@ -646,6 +647,13 @@ const allRegistration = async (req, res) => {
   try {
     // Retrieve all registrations
     const registrations = await Registration.findAll({
+      attributes: { exclude: ["faceImage"] },
+      include: [
+        {
+          model: User,
+          attributes: ["username"],
+        },
+      ],
       order: [["createdAt", "DESC"]],
     });
     // Check if there are registrations
