@@ -16,7 +16,7 @@ const {
 } = require("../../helpers");
 const fs = require("fs");
 const sequelize = require("../../config/sequelize");
-
+const Op = require("sequelize").Op;
 // Sub func
 const createRegistrationHistory = async (
   status,
@@ -84,11 +84,27 @@ const createRegistration = async (req, res) => {
   try {
     const { plateNumber, model, registrationNumber, manufacture, gender } =
       req.body;
-    // Check if the plateNumber already exists in the Bike model (thats mean bike associate with regis active)
+
+    // Check if the plateNumber already exists in the Bike model redundant but guaranteed
     const existingBike = await Bike.findOne({
       where: { plateNumber },
     });
+
     if (existingBike) {
+      return errorResponse(req, res, "Plate number already exists", 400);
+    }
+
+    // Check if there is an existing registration with the same plateNumber and not rejected
+    const existingRegistration = await Registration.findOne({
+      where: {
+        plateNumber,
+        registrationStatus: {
+          [Op.not]: "rejected",
+        },
+      },
+    });
+
+    if (existingRegistration) {
       return errorResponse(req, res, "Plate number already exists", 400);
     }
 
@@ -122,9 +138,13 @@ const createRegistration = async (req, res) => {
       newRegistration.registrationId,
       t
     );
+
+    // Commit the transaction
     await t.commit();
-    // amount 0
+
+    // Set the amount to 0 (or the desired value) for the response
     const formattedRegistration = formatRegistration(newRegistration, 0);
+
     return successResponse(
       req,
       res,

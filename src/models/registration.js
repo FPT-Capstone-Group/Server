@@ -22,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     plateNumber: {
       type: DataTypes.STRING,
-      unique: true,
     },
     model: {
       type: DataTypes.STRING,
