@@ -101,7 +101,7 @@ const setupServer = (isClusterRequired) => {
 };
 
 if (process.env.NODE_ENV === 'production') {
-  setupServer(true);
+  setupServer(false);
 } else {
   setupServer(false);
 }
