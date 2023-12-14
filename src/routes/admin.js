@@ -25,7 +25,7 @@ router.get(
 );
 router.get(
   "/registrations/:registrationId",
-  registrationController.AdminGetUserRegistration
+  registrationController.adminGetUserRegistration
 );
 router.put(
   "/registrations/active/:registrationId/",
