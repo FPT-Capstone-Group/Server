@@ -6,7 +6,6 @@ import * as userController from "../controllers/user/user.controller";
 import * as userValidator from "../controllers/user/user.validator";
 import * as registrationController from "../controllers/registration/registration.controller";
 import * as paymentController from "../controllers/payment/payment.controller";
-import * as paymentHistoryController from "../controllers/paymentHistory/paymentHistory.controller";
 import * as feeController from "../controllers/fee/fee.controller";
 import * as cardController from "../controllers/card/card.controller";
 import * as ownerController from "../controllers/owner/owner.controller";
@@ -50,22 +49,13 @@ router.put(
 //Payment
 router.post("/payments", paymentController.processPayment);
 
-//Payment History
-router.get(
-  "/payments/history",
-  paymentHistoryController.getAllPaymentHistoryForCurrentUser
-);
-router.get(
-  "/payments/history/:paymentHistoryId",
-  paymentHistoryController.getPaymentHistoryById
-);
 
 //Card
 router.get("/cards/userId", cardController.getAllUserCards);
 
 //Owner
 router.post("/owners/create", ownerController.createOwner);
-router.get("/owners", ownerController.getOwnersByUsersPlateNumber);
+router.post("/owners", ownerController.getOwnersByUsersPlateNumber);
 
 //Parking Session
 router.get(

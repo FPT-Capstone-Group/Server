@@ -6,6 +6,7 @@ const {
   RegistrationHistory,
   Fee,
   User,
+  Card,
 } = require("../../models");
 const {
   successResponse,
@@ -256,6 +257,7 @@ const activateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { registrationId } = req.params;
+    const { cardId } = req.body;
     const registration = await Registration.findByPk(registrationId);
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
@@ -293,8 +295,21 @@ const activateRegistration = async (req, res) => {
       t,
       registration.faceImage
     );
-    // Assign Card for bike missing
-    // ...
+
+    const card = await Card.findByPk(cardId);
+
+    if (!card) {
+      return errorResponse(req, res, "Card not found", 404);
+    }
+
+    if (card.currentStatus === "active") {
+      await card.update(
+        { currentStatus: "assigned", bikeId: newBike.bikeId },
+        { transaction: t }
+      );
+    } else {
+      return errorResponse(req, res, "Card is not active", 400);
+    }
 
     await t.commit();
     const formattedRegistration = formatRegistration(registration);

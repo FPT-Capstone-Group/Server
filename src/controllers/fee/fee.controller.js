@@ -48,6 +48,9 @@ const createFee = async (req, res) => {
 const getAllFees = async (req, res) => {
   try {
     const fees = await Fee.findAll();
+    //const fees = await Fee.unscoped().findAll({
+    // paranoid: false, //find with fee deleted
+    //});
     if (!fees || fees.length === 0) {
       return successResponse(req, res, "No fees available");
     }
@@ -93,7 +96,6 @@ const updateFeeById = async (req, res) => {
     fee.amount = amount;
     fee.description = description;
     fee.feeDate = new Date().toISOString();
-    fee.feeMethod = feeMethod;
     await createFeeHistory(
       `update ${feeName} with ${amount}`,
       req.user.fullName,
@@ -117,8 +119,9 @@ const deleteFeeById = async (req, res) => {
     if (!fee) {
       return errorResponse(req, res, "Fee not found", 404);
     }
+    // destroy will soft delete bcs we use paranoid
+    await fee.destroy();
     await createFeeHistory("deleted", req.user.fullName, fee.feeId);
-    // disable or delete fee login in here
     return successResponse(req, res, "Fee deleted successfully", 200);
   } catch (error) {
     console.error(error);

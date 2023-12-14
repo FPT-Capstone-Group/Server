@@ -88,7 +88,6 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({
       where: { username: req.body.username },
-
     });
 
     if (!user) {
@@ -188,12 +187,7 @@ const getUserInfo = async (req, res) => {
     if (!user) {
       return errorResponse(req, res, "User not found", 404);
     }
-    const userInfo = {
-      userId: user.userId,
-      username: user.username,
-      fullName: user.fullName,
-    };
-    const formattedUser = formatUser(userInfo);
+    const formattedUser = formatUser(user);
     return successResponse(req, res, { user: formattedUser });
   } catch (error) {
     console.error(error);
@@ -218,7 +212,7 @@ const activateUser = async (req, res) => {
     });
 
     return successResponse(req, res, {
-      message: "User activated successfully",
+      message: "User has been activated successfully",
     });
   } catch (error) {
     console.error(error);
@@ -230,18 +224,15 @@ const deactivateUser = async (req, res) => {
     // Check if the logged-in user has admin privileges
     const { userId } = req.params;
     const user = await User.findByPk(userId);
-
     if (!user) {
       return errorResponse(req, res, "User not found", 404);
     }
-
     // Deactivate the user by setting isActive to false
     await user.update({
       isActive: false,
     });
-
     return successResponse(req, res, {
-      message: "User de-activated successfully",
+      message: "User has been de-activated successfully",
     });
   } catch (error) {
     console.error(error);
@@ -315,6 +306,37 @@ const getOtp = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Only admin can create security
+const createSecurityAccount = async (req, res) => {
+  try {
+    const { username, password, fullName } = req.body;
+    const user = await User.findOne({
+      where: { username },
+    });
+    if (user) {
+      throw new Error("User already exists with the same username");
+    }
+
+    const hashedPassword = crypto
+      .createHash("sha256")
+      .update(password)
+      .digest("hex");
+
+    const payload = {
+      username,
+      fullName,
+      password: hashedPassword,
+      roleId: 2, // security role is 2
+    };
+
+    const newUser = await User.create(payload);
+    const formattedUser = formatUser(newUser);
+
+    return successResponse(req, res, { user: formattedUser });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
 
 module.exports = {
   activateUser,
@@ -328,4 +350,5 @@ module.exports = {
   updateUser,
   forgotPassword,
   getOtp,
+  createSecurityAccount,
 };

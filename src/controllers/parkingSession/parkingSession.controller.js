@@ -17,6 +17,8 @@ const moment = require("moment");
 const formatParkingSession = (parkingSession) => {
   const formattedParkingSession = {
     ...parkingSession.toJSON(),
+    checkinTime:formatToMoment(parkingSession.checkinTime),
+    checkoutTime:formatToMoment(parkingSession.checkoutTime),
     createdAt: formatToMoment(parkingSession.createdAt),
     updatedAt: formatToMoment(parkingSession.updatedAt),
   };
