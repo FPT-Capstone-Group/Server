@@ -47,6 +47,10 @@ router.put(
   "/registrations/disable/:registrationId",
   registrationController.disableRegistration
 );
+router.put(
+  "/registrations/enable/:registrationId",
+  registrationController.enableRegistration
+);
 router.get(
   "/registrations/payment/:registrationId",
   paymentController.getPaymentsForRegistration
