@@ -34,7 +34,7 @@ const processPayment = async (req, res) => {
     // Check if the registration is already completed
     const registration = await Registration.findByPk(registrationId);
     // Registration is already completed, do not allow new payment
-    if (registration.registrationStatus === "active") {
+    if (registration.status === "active") {
       return errorResponse(req, res, "Registration is already completed", 400);
     }
 
@@ -48,7 +48,6 @@ const processPayment = async (req, res) => {
     const newPayment = await Payment.create(
       {
         amount,
-        paymentDate: new Date().toISOString(),
         status: "success", // Assuming it's successful since it's a third-party payment
         paymentMethod,
         registrationId,
@@ -56,7 +55,7 @@ const processPayment = async (req, res) => {
       { transaction: t }
     );
 
-    registration.registrationStatus = "paid";
+    registration.status = "paid";
     await registration.save({ transaction: t });
     await t.commit();
 
@@ -73,6 +72,42 @@ const processPayment = async (req, res) => {
   }
 };
 
+// Function to get all payments for an admin
+const getAllPayments = async (req, res) => {
+  try {
+    const payments = await Payment.findAll({ order: [["createdAt", "DESC"]] });
+    const formattedPayments = payments.map((payment) => formatPayment(payment));
+
+    return successResponse(req, res, formattedPayments, 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+
+// Function to get payments for a specific registration ID
+const getPaymentsForRegistration = async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+    const payments = await Payment.findAll({
+      where: { registrationId },
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!payments) {
+      return errorResponse(req, res, "Payments not found", 404);
+    }
+
+    const formattedPayments = payments.map((payment) => formatPayment(payment));
+    return successResponse(req, res, formattedPayments, 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+
 module.exports = {
   processPayment,
+  getAllPayments,
+  getPaymentsForRegistration,
 };

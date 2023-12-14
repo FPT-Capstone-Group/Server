@@ -1,6 +1,6 @@
 // controllers/cardController.js
 
-const { Card, CardHistory, ParkingType} = require("../../models");
+const { Card, CardHistory, ParkingType } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -22,8 +22,8 @@ const createCard = async (req, res) => {
   const t = await sequelize.transaction();
   const newCards = [];
   try {
-    const parkingType = await ParkingType.findOne({ where: { name: 'guest' } })
-    console.log(parkingType)
+    const parkingType = await ParkingType.findOne({ where: { name: "guest" } });
+    console.log(parkingType);
     for (const { cardId } of req.body) {
       const currentDate = new Date();
       const newCard = await Card.create(
@@ -33,7 +33,7 @@ const createCard = async (req, res) => {
           currentStatus: "active",
           createdAt: currentDate,
           updatedAt: currentDate,
-          parkingTypeId: parkingType.parkingTypeId
+          parkingTypeId: parkingType.parkingTypeId,
         },
         { transaction: t, ignoreDuplicates: true } // Use for ignore duplicate card
       );
@@ -44,7 +44,7 @@ const createCard = async (req, res) => {
             eventType: "Card Created",
             cardId: newCard.cardId,
             updatedAt: currentDate,
-            approvedBy: 'auto'
+            approvedBy: "auto",
           },
           { transaction: t }
         );
@@ -70,6 +70,31 @@ const getAllCards = async (req, res) => {
     }
     const formattedCards = allCards.map((card) => formatCard(card));
     return successResponse(req, res, { cards: formattedCards }, 200);
+  } catch (error) {
+    console.error("Internal Server Error:", error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+// Get all cards active
+const getAllActiveCards = async (req, res) => {
+  try {
+    const activeCards = await Card.findAll({
+      where: {
+        currentStatus: "active",
+      },
+    });
+
+    if (!activeCards || activeCards.length === 0) {
+      return errorResponse(req, res, "No Active Cards", 404);
+    }
+
+    const formattedActiveCards = activeCards.map((card) => formatCard(card));
+    return successResponse(
+      req,
+      res,
+      { activeCards: formattedActiveCards },
+      200
+    );
   } catch (error) {
     console.error("Internal Server Error:", error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -104,9 +129,18 @@ const getCardDetails = async (req, res) => {
     if (!card) {
       return errorResponse(req, res, "Card not found", 404);
     }
-    const parkingType = await ParkingType.findByPk(card.parkingTypeId)
+    const parkingType = await ParkingType.findByPk(card.parkingTypeId);
     // const formattedCard = formatCard(card);
-    return successResponse(req, res, {cardId: cardId, currentStatus: card.currentStatus, parkingTypeName: parkingType.name}, 200);
+    return successResponse(
+      req,
+      res,
+      {
+        cardId: cardId,
+        currentStatus: card.currentStatus,
+        parkingTypeName: parkingType.name,
+      },
+      200
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -179,4 +213,5 @@ module.exports = {
   updateCard,
   deleteCard,
   getAllCards,
+  getAllActiveCards,
 };

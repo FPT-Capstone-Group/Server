@@ -11,17 +11,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    paymentDate: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
     registrationId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
     status: {
       type: DataTypes.STRING,
-      defaultValue: "Processing",
+      defaultValue: "success",
       allowNull: false,
     },
     paymentMethod: {

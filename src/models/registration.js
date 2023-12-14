@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    registrationStatus: {
+    status: {
       type: DataTypes.STRING,
     },
     approvedBy: {

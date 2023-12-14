@@ -6,7 +6,9 @@ const {
   RegistrationHistory,
   Fee,
   User,
+  Card,
 } = require("../../models");
+const notificationController = require("../notification/notification.controller");
 const {
   successResponse,
   errorResponse,
@@ -14,7 +16,7 @@ const {
 } = require("../../helpers");
 const fs = require("fs");
 const sequelize = require("../../config/sequelize");
-
+const Op = require("sequelize").Op;
 // Sub func
 const createRegistrationHistory = async (
   status,
@@ -33,9 +35,11 @@ const createRegistrationHistory = async (
     { transaction: t }
   );
 };
-const formatRegistration = (registration) => {
+const formatRegistration = (registration, amount, username) => {
   const formattedRegistration = {
     ...registration.toJSON(),
+    amount,
+    username,
     createdAt: formatToMoment(registration.createdAt),
     updatedAt: formatToMoment(registration.updatedAt),
   };
@@ -74,16 +78,34 @@ const createOwnerFromRegistration = async (
 };
 
 // Main func
+
+// User create
 const createRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { plateNumber, model, registrationNumber, manufacture, gender } =
       req.body;
-    // Check if the plateNumber already exists in the Bike model (thats mean bike associate with regis active)
+
+    // Check if the plateNumber already exists in the Bike model redundant but guaranteed
     const existingBike = await Bike.findOne({
       where: { plateNumber },
     });
+
     if (existingBike) {
+      return errorResponse(req, res, "Plate number already exists", 400);
+    }
+
+    // Check if there is an existing registration with the same plateNumber and not rejected
+    const existingRegistration = await Registration.findOne({
+      where: {
+        plateNumber,
+        status: {
+          [Op.notIn]: ["rejected", "canceled"],
+        },
+      },
+    });
+
+    if (existingRegistration) {
       return errorResponse(req, res, "Plate number already exists", 400);
     }
 
@@ -97,7 +119,7 @@ const createRegistration = async (req, res) => {
     // Create a new registration
     const newRegistration = await Registration.create(
       {
-        registrationStatus: "created",
+        status: "created",
         approvedBy: "none",
         plateNumber,
         model,
@@ -117,8 +139,13 @@ const createRegistration = async (req, res) => {
       newRegistration.registrationId,
       t
     );
+
+    // Commit the transaction
     await t.commit();
-    const formattedRegistration = formatRegistration(newRegistration);
+
+    // Set the amount to 0 (or the desired value) for the response
+    const formattedRegistration = formatRegistration(newRegistration, 0);
+
     return successResponse(
       req,
       res,
@@ -134,12 +161,12 @@ const createRegistration = async (req, res) => {
   }
 };
 
-//  Verify registration, change status pending to verified,wait to payment....
+// Admin Verify registration, change status pending to verified,wait to payment....
 const verifyRegistration = async (req, res) => {
   const t = await sequelize.transaction();
+  let amount = 0;
   try {
     const { registrationId } = req.params;
-    const { feeId } = req.body;
     // Find the registration by ID
     const registration = await Registration.findByPk(registrationId);
 
@@ -149,12 +176,12 @@ const verifyRegistration = async (req, res) => {
 
     // Check if the registration is already verified
     // Need to check more like rejected status,...
-    if (registration.registrationStatus === "verified") {
+    if (registration.status === "verified") {
       return errorResponse(req, res, "Registration is already verified", 400);
     }
 
     // Update registration status to "verified"
-    registration.registrationStatus = "verified";
+    registration.status = "verified";
     await registration.save({ transaction: t });
 
     // Create Registration History
@@ -164,18 +191,30 @@ const verifyRegistration = async (req, res) => {
       registrationId,
       t
     );
-    const fee = await Fee.findOne({ where: { feeId: feeId } });
+    const fee = await Fee.findOne({ where: { feeName: "resident" } });
     if (!fee) {
-      return errorResponse(req, res, "Fee not found", 404);
+      return errorResponse(req, res, "Resident package not found", 404);
     }
-    const amount = fee.amount;
+    amount = fee.amount;
 
     await t.commit();
-    const formattedRegistration = formatRegistration(registration);
+
+    // Send notification
+    const user = await User.findByPk(registration.userId);
+    if (user) {
+      const notificationTitle = "Registration Verified";
+      const notificationBody = "Your registration has been verified.";
+      await notificationController.sendNotificationMessage(
+        user.userId,
+        notificationTitle,
+        notificationBody
+      );
+    }
+    const formattedRegistration = formatRegistration(registration, amount);
     return successResponse(
       req,
       res,
-      { registration: formattedRegistration, amount },
+      { registration: formattedRegistration },
       200
     );
   } catch (error) {
@@ -189,17 +228,54 @@ const verifyRegistration = async (req, res) => {
 const getAllUserRegistration = async (req, res) => {
   try {
     const userId = req.user.userId;
-    // Fetch the user's registration
-    const userRegistration = await Registration.findAll({
+
+    // Fetch all registrations for the user
+    const userRegistrations = await Registration.findAll({
       where: { userId },
     });
 
-    if (!userRegistration) {
-      return errorResponse(req, res, "Registration not found", 404);
+    if (!userRegistrations || userRegistrations.length === 0) {
+      return errorResponse(req, res, "Registrations not found", 404);
     }
-    const formattedRegistrations = userRegistration.map((registration) =>
-      formatRegistration(registration)
-    );
+
+    // Create a new array to store the formatted registrations
+    const formattedRegistrations = [];
+
+    // Iterate through userRegistrations to check each registration
+    for (let registration of userRegistrations) {
+      let amount = 0;
+
+      if (registration.status === "verified") {
+        const residentFee = await Fee.findOne({
+          where: { feeName: "resident" },
+        });
+
+        if (residentFee) {
+          // If a fee with the name "resident" is found, use its amount
+          amount = residentFee.amount;
+        }
+
+        // Check if there is a successful payment for the current registration
+        const successfulPayment = await Payment.findOne({
+          where: {
+            registrationId: registration.registrationId,
+            status: "success",
+          },
+        });
+
+        if (successfulPayment) {
+          // If there is a successful payment, use the payment amount
+          amount = successfulPayment.amount;
+        }
+      }
+
+      // Format each registration and include the amount
+      const formattedRegistration = formatRegistration(registration, amount);
+
+      // Push the formatted registration to the new array
+      formattedRegistrations.push(formattedRegistration);
+    }
+
     return successResponse(
       req,
       res,
@@ -211,6 +287,7 @@ const getAllUserRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+
 // User cancels their registration
 const cancelRegistration = async (req, res) => {
   try {
@@ -227,10 +304,7 @@ const cancelRegistration = async (req, res) => {
     }
 
     // Check if the registration is in a cancellable state
-    if (
-      registration.registrationStatus === "paid" ||
-      registration.registrationStatus === "active"
-    ) {
+    if (registration.status === "paid" || registration.status === "active") {
       return errorResponse(
         req,
         res,
@@ -240,7 +314,7 @@ const cancelRegistration = async (req, res) => {
     }
 
     // Update the registration status to "Canceled"
-    registration.registrationStatus = "canceled";
+    registration.status = "canceled";
     await registration.save();
 
     return successResponse(req, res, {
@@ -256,6 +330,7 @@ const activateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { registrationId } = req.params;
+    const { cardId } = req.body;
     const registration = await Registration.findByPk(registrationId);
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
@@ -266,7 +341,7 @@ const activateRegistration = async (req, res) => {
     if (!successfulPayment) {
       return errorResponse(req, res, "Payment not successful", 400);
     }
-    registration.registrationStatus = "active";
+    registration.status = "active";
 
     // Set the expiration date to one month from the current date
     const expiredDate = new Date();
@@ -293,9 +368,32 @@ const activateRegistration = async (req, res) => {
       t,
       registration.faceImage
     );
-    // Assign Card for bike missing
-    // ...
 
+    const card = await Card.findByPk(cardId);
+
+    if (!card) {
+      return errorResponse(req, res, "Card not found", 404);
+    }
+
+    if (card.currentStatus === "active") {
+      await card.update(
+        { currentStatus: "assigned", bikeId: newBike.bikeId },
+        { transaction: t }
+      );
+    } else {
+      return errorResponse(req, res, "Card is not active", 400);
+    }
+    //Send Noti
+    const user = await User.findByPk(registration.userId);
+    if (user) {
+      const notificationTitle = "Registration Activated";
+      const notificationBody = "Your registration has been activated.";
+      await notificationController.sendNotificationMessage(
+        user.userId,
+        notificationTitle,
+        notificationBody
+      );
+    }
     await t.commit();
     const formattedRegistration = formatRegistration(registration);
     return successResponse(
@@ -316,35 +414,7 @@ const activateRegistration = async (req, res) => {
 };
 
 // Admin disable a specific registration
-const disableRegistration = async (req, res) => {
-  const t = await sequelize.transaction();
-  try {
-    const { registrationId } = req.params;
-    const registration = await Registration.findByPk(registrationId);
-    if (!registration) {
-      return errorResponse(req, res, "Registration not found", 404);
-    }
-    // Check if the registration is already disable
-    if (registration.registrationStatus === "disable") {
-      return errorResponse(req, res, "Registration is already Disabled", 400);
-    }
-    // Update the registrationStatus to "Disable"
-    registration.registrationStatus = "disable";
-    await registration.save({ transaction: t });
-    // Create Registration History
-    await createRegistrationHistory(
-      "disable",
-      req.user.fullName,
-      registration.registrationId
-    );
-    await t.commit();
 
-    return successResponse(req, res, "Disable registration successfully");
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
-};
 const deactiveRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -354,11 +424,11 @@ const deactiveRegistration = async (req, res) => {
       return errorResponse(req, res, "Registration not found", 404);
     }
     // Check if the registration is already deactive
-    if (registration.registrationStatus === "inactive") {
+    if (registration.status === "inactive") {
       return errorResponse(req, res, "Registration is already inactive", 400);
     }
-    // Update the registrationStatus to "inactive"
-    registration.registrationStatus = "inactive";
+    // Update the status to "inactive"
+    registration.status = "inactive";
     await registration.save({ transaction: t });
     // Create Registration History
     await createRegistrationHistory(
@@ -368,13 +438,118 @@ const deactiveRegistration = async (req, res) => {
     );
     // Create Registration History for the verification
     await t.commit();
-
+    // Send notification to user
+    const user = await User.findByPk(registration.userId);
+    if (user) {
+      const notificationTitle = "Registration Deactivated";
+      const notificationBody = "Your registration has been deactivated.";
+      await notificationController.sendNotificationMessage(
+        user.userId,
+        notificationTitle,
+        notificationBody
+      );
+    }
     return successResponse(req, res, "Deactivated registration successfully");
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+const disableRegistration = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const { registrationId } = req.params;
+    const registration = await Registration.findByPk(registrationId);
+    if (!registration) {
+      return errorResponse(req, res, "Registration not found", 404);
+    }
+    // Check if the registration is already disable
+    if (registration.status === "disable") {
+      return errorResponse(req, res, "Registration is already Disabled", 400);
+    }
+    if (registration.status !== "active") {
+      return errorResponse(
+        req,
+        res,
+        "Registration cannot be disabled as it is not active",
+        400
+      );
+    }
+    // Update the status to "Disable"
+    registration.status = "disable";
+    await registration.save({ transaction: t });
+    // Create Registration History
+    await createRegistrationHistory(
+      "disable",
+      req.user.fullName,
+      registration.registrationId
+    );
+    await t.commit();
+    // Send notification to user
+    const user = await User.findByPk(registration.userId);
+    if (user) {
+      const notificationTitle = "Registration Disabled";
+      const notificationBody = "Your registration has been disabled.";
+      await notificationController.sendNotificationMessage(
+        user.userId,
+        notificationTitle,
+        notificationBody
+      );
+    }
+    return successResponse(req, res, "Disable registration successfully");
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+const enableRegistration = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const { registrationId } = req.params;
+    const registration = await Registration.findByPk(registrationId);
+    if (!registration) {
+      return errorResponse(req, res, "Registration not found", 404);
+    }
+    // Check if the registration is already enable
+    if (registration.status === "enable") {
+      return errorResponse(req, res, "Registration is already Enabled", 400);
+    }
+    if (registration.status !== "disable") {
+      return errorResponse(
+        req,
+        res,
+        "Registration cannot be enabled as it is not disable",
+        400
+      );
+    }
+    // Update the status to "active" again
+    registration.status = "active";
+    await registration.save({ transaction: t });
+    // Create Registration History
+    await createRegistrationHistory(
+      "active",
+      req.user.fullName,
+      registration.registrationId
+    );
+    await t.commit();
+    // Send notification to user
+    const user = await User.findByPk(registration.userId);
+    if (user) {
+      const notificationTitle = "Registration Enabled";
+      const notificationBody = "Your registration has been enabled.";
+      await notificationController.sendNotificationMessage(
+        user.userId,
+        notificationTitle,
+        notificationBody
+      );
+    }
+    return successResponse(req, res, "Disable registration successfully");
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+
 // Admin rejects a user registration
 const rejectRegistration = async (req, res) => {
   try {
@@ -388,39 +563,133 @@ const rejectRegistration = async (req, res) => {
       return errorResponse(req, res, "Registration not found", 404);
     }
     // Check if the registration is already rejected
-    if (registration.registrationStatus === "rejected") {
+    if (registration.status === "rejected") {
       return errorResponse(req, res, "Registration is already rejected", 400);
     }
     // Update the registration status to "rejected"
-    registration.registrationStatus = "rejected";
+    registration.status = "rejected";
     await registration.save();
 
     // Store the rejection message in a variable
-    const rejectionMessage = message;
-    await registration.save();
-
+    const rejectionMessage = message || "Your registration has been rejected.";
+    // Send notification to user
+    const user = await User.findByPk(registration.userId);
+    if (user) {
+      const notificationTitle = "Registration Rejected";
+      const notificationBody = rejectionMessage;
+      await notificationController.sendNotificationMessage(
+        user.userId,
+        notificationTitle,
+        notificationBody
+      );
+    }
     // Store to notification instead return response
     return successResponse(req, res, {
-      message: "Registration rejected successfully",
-      rejectionMessage,
+      message: rejectionMessage,
     });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-// Admin - User view a specific registration (Need to check admin role and user role here)
-// need to display if have payment or not, if have payment we get amount in payment, if not have payment we get amount in fee
+
+//User view a specific registration
 const getUserRegistration = async (req, res) => {
   try {
     const { registrationId } = req.params;
-    const registration = await Registration.findByPk(registrationId);
-
+    const userId = req.user.userId;
+    let amount = 0;
+    const registration = await Registration.findOne({
+      where: { registrationId, userId },
+    });
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
     }
+
+    // Check if there is a successful payment for this registration
+    const successfulPayment = await Payment.findOne({
+      where: { registrationId, status: "success" },
+    });
+
+    if (successfulPayment) {
+      // If there is a successful payment, use the payment amount
+      amount = successfulPayment.amount;
+    } else {
+      // check status if created then 0
+      if (registration.status == "created") {
+        amount = 0;
+        // if status is not created then set fee for verify,...
+      } else {
+        const residentFee = await Fee.findOne({
+          where: { feeName: "resident" },
+        });
+        if (residentFee) {
+          amount = residentFee.amount;
+        } else {
+          return errorResponse(
+            req,
+            res,
+            "resident package not found",
+            404,
+            error
+          );
+        }
+      }
+      // If there is no successful payment, use some other logic to determine the amount
+    }
+
+    const formattedRegistration = formatRegistration(registration, amount);
+
+    return successResponse(req, res, {
+      registration: formattedRegistration,
+    });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+const adminGetUserRegistration = async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+    const registration = await Registration.findByPk(registrationId);
+    if (!registration) {
+      return errorResponse(req, res, "Registration not found", 404);
+    }
+
+    // Check if there is a successful payment for this registration
+    const successfulPayment = await Payment.findOne({
+      where: { registrationId, status: "success" },
+    });
+
+    let amount = 0;
+
+    if (successfulPayment) {
+      // If there is a successful payment, use the payment amount
+      amount = successfulPayment.amount;
+    } else {
+      // If there is no successful payment, use some other logic to determine the amount
+      const residentFee = await Fee.findOne({ where: { feeName: "resident" } });
+      if (residentFee) {
+        // If a fee with the name "resident" is found, use its amount
+        amount = residentFee.amount;
+      } else {
+        // If no "resident" fee is found, ...
+        return errorResponse(
+          req,
+          res,
+          "resident package not found",
+          404,
+          error
+        );
+      }
+    }
+
     const formattedRegistration = formatRegistration(registration);
-    return successResponse(req, res, { registration: formattedRegistration });
+
+    return successResponse(req, res, {
+      registration: formattedRegistration,
+      amount,
+    });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -432,6 +701,13 @@ const allRegistration = async (req, res) => {
   try {
     // Retrieve all registrations
     const registrations = await Registration.findAll({
+      attributes: { exclude: ["faceImage"] },
+      include: [
+        {
+          model: User,
+          attributes: ["username"],
+        },
+      ],
       order: [["createdAt", "DESC"]],
     });
     // Check if there are registrations
@@ -459,4 +735,6 @@ module.exports = {
   verifyRegistration,
   cancelRegistration,
   deactiveRegistration,
+  adminGetUserRegistration,
+  enableRegistration,
 };

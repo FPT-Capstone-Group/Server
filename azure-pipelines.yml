@@ -3,10 +3,10 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 
-trigger:
-  tags:
-    include:
-      - v*
+# trigger:
+#   tags:
+#     include:
+#       - v*
 pr:
   branches:
     include:

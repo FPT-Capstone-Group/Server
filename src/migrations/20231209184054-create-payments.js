@@ -12,13 +12,9 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      paymentDate: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
       status: {
         type: Sequelize.STRING,
-        defaultValue: "Processing",
+        defaultValue: "processing",
         allowNull: false,
       },
       paymentMethod: {

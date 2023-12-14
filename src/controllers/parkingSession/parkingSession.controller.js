@@ -17,6 +17,8 @@ moment.tz.setDefault("Asia/Saigon")
 const formatParkingSession = (parkingSession) => {
   return {
     ...parkingSession.toJSON(),
+    checkinTime:formatToMoment(parkingSession.checkinTime),
+    checkoutTime:formatToMoment(parkingSession.checkoutTime),
     createdAt: formatToMoment(parkingSession.createdAt),
     updatedAt: formatToMoment(parkingSession.updatedAt),
     checkinTime: formatToMoment(parkingSession.checkinTime),

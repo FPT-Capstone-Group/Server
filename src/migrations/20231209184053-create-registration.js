@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      registrationStatus: {
+      status: {
         type: Sequelize.STRING,
       },
       approvedBy: {
