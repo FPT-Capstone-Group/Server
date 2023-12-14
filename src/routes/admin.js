@@ -11,7 +11,6 @@ import * as parkingSessionController from "../controllers/parkingSession/parking
 import * as notificationController from "../controllers/notification/notification.controller";
 import * as registrationHistoryController from "../controllers/registrationHistory/registrationHistory.controller";
 import * as feeHistoryController from "../controllers/feeHistory/feeHistory.controller";
-import * as userValidator from "../controllers/user/user.validator";
 import * as paymentController from "../controllers/payment/payment.controller";
 const router = express.Router();
 
@@ -26,7 +25,7 @@ router.get(
 );
 router.get(
   "/registrations/:registrationId",
-  registrationController.getUserRegistration
+  registrationController.AdminGetUserRegistration
 );
 router.put(
   "/registrations/active/:registrationId/",

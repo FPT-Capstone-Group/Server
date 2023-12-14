@@ -135,7 +135,7 @@ const createRegistration = async (req, res) => {
   }
 };
 
-//  Verify registration, change status pending to verified,wait to payment....
+// Admin Verify registration, change status pending to verified,wait to payment....
 const verifyRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -424,18 +424,101 @@ const rejectRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-// Admin - User view a specific registration (Need to check admin role and user role here)
-// need to display if have payment or not, if have payment we get amount in payment, if not have payment we get amount in fee
+
+//User view a specific registration
 const getUserRegistration = async (req, res) => {
   try {
     const { registrationId } = req.params;
-    const registration = await Registration.findByPk(registrationId);
+    const userId = req.user.userId;
 
+    const registration = await Registration.findOne({
+      where: { registrationId, userId },
+    });
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
     }
+
+    // Check if there is a successful payment for this registration
+    const successfulPayment = await Payment.findOne({
+      where: { registrationId, status: "success" },
+    });
+
+    let amount = 0;
+
+    if (successfulPayment) {
+      // If there is a successful payment, use the payment amount
+      amount = successfulPayment.amount;
+    } else {
+      // If there is no successful payment, use some other logic to determine the amount
+      const residentFee = await Fee.findOne({ where: { feeName: "resident" } });
+      if (residentFee) {
+        // If a fee with the name "resident" is found, use its amount
+        amount = residentFee.amount;
+      } else {
+        // If no "resident" fee is found, ...
+        return errorResponse(
+          req,
+          res,
+          "resident package not found",
+          404,
+          error
+        );
+      }
+    }
+
     const formattedRegistration = formatRegistration(registration);
-    return successResponse(req, res, { registration: formattedRegistration });
+
+    return successResponse(req, res, {
+      registration: formattedRegistration,
+      amount,
+    });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+const AdminGetUserRegistration = async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+    const registration = await Registration.findByPk(registrationId);
+    if (!registration) {
+      return errorResponse(req, res, "Registration not found", 404);
+    }
+
+    // Check if there is a successful payment for this registration
+    const successfulPayment = await Payment.findOne({
+      where: { registrationId, status: "success" },
+    });
+
+    let amount = 0;
+
+    if (successfulPayment) {
+      // If there is a successful payment, use the payment amount
+      amount = successfulPayment.amount;
+    } else {
+      // If there is no successful payment, use some other logic to determine the amount
+      const residentFee = await Fee.findOne({ where: { feeName: "resident" } });
+      if (residentFee) {
+        // If a fee with the name "resident" is found, use its amount
+        amount = residentFee.amount;
+      } else {
+        // If no "resident" fee is found, ...
+        return errorResponse(
+          req,
+          res,
+          "resident package not found",
+          404,
+          error
+        );
+      }
+    }
+
+    const formattedRegistration = formatRegistration(registration);
+
+    return successResponse(req, res, {
+      registration: formattedRegistration,
+      amount,
+    });
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -474,4 +557,5 @@ module.exports = {
   verifyRegistration,
   cancelRegistration,
   deactiveRegistration,
+  AdminGetUserRegistration,
 };
