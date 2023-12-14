@@ -1,8 +1,15 @@
 const jwt = require("jsonwebtoken");
 
-const {Role, User} = require( "../../models")
-const { errorResponse, formatToMoment, successResponse } = require("../../helpers");
-const { getOtpToken, verifyOtpToken } = require("../../middleware/otpVerification");
+const { Role, User } = require("../../models");
+const {
+  errorResponse,
+  formatToMoment,
+  successResponse,
+} = require("../../helpers");
+const {
+  getOtpToken,
+  verifyOtpToken,
+} = require("../../middleware/otpVerification");
 const crypto = require("crypto");
 
 // sub function
@@ -340,7 +347,22 @@ const createSecurityAccount = async (req, res) => {
     return errorResponse(req, res, error.message);
   }
 };
+const getFirebaseTokenDevice = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { username: req.body.username },
+    });
 
+    return successResponse(req, res, {
+      user: {
+        username: user.username,
+        firebaseToken: user.firebaseToken,
+      },
+    });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
 module.exports = {
   activateUser,
   getUserInfo,
@@ -354,4 +376,5 @@ module.exports = {
   forgotPassword,
   getOtp,
   createSecurityAccount,
+  getFirebaseTokenDevice,
 };
