@@ -23,6 +23,7 @@ router.get("/bikes/:cardId", bikeController.getAllBikesByCard);
 //Fee
 router.get("/fees", feeController.getAllFees);
 router.get("/fees/:feeId", feeController.getFeeById);
+router.get("/fees", feeController.getAllResidentFees);
 
 //User
 router.post("/forgotPassword", userController.forgotPassword);
@@ -48,7 +49,6 @@ router.put(
 
 //Payment
 router.post("/payments", paymentController.processPayment);
-
 
 //Card
 router.get("/cards/userId", cardController.getAllUserCards);

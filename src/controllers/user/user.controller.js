@@ -242,6 +242,7 @@ const deactivateUser = async (req, res) => {
 // Update current user's fullName
 const updateUser = async (req, res) => {
   const userId = req.user.userId;
+  const { fullName, address, gender } = req.body;
 
   try {
     const user = await User.findByPk(userId);
@@ -251,11 +252,13 @@ const updateUser = async (req, res) => {
     }
 
     // Update only the specified fields
-    if (req.body.fullName) {
-      user.fullName = req.body.fullName;
-    }
+    user.fullName = fullName;
+    user.address = address;
+    user.gender = gender;
+
     // Save the changes
     await user.save();
+
     const formattedUser = formatUser(user);
     return successResponse(req, res, { user: formattedUser });
   } catch (error) {

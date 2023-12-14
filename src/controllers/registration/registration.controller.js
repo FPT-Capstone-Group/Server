@@ -35,9 +35,10 @@ const createRegistrationHistory = async (
     { transaction: t }
   );
 };
-const formatRegistration = (registration) => {
+const formatRegistration = (registration, amount) => {
   const formattedRegistration = {
     ...registration.toJSON(),
+    amount,
     createdAt: formatToMoment(registration.createdAt),
     updatedAt: formatToMoment(registration.updatedAt),
   };
@@ -122,7 +123,8 @@ const createRegistration = async (req, res) => {
       t
     );
     await t.commit();
-    const formattedRegistration = formatRegistration(newRegistration);
+    // amount 0
+    const formattedRegistration = formatRegistration(newRegistration, 0);
     return successResponse(
       req,
       res,
@@ -141,9 +143,9 @@ const createRegistration = async (req, res) => {
 // Admin Verify registration, change status pending to verified,wait to payment....
 const verifyRegistration = async (req, res) => {
   const t = await sequelize.transaction();
+  let amount = 0;
   try {
     const { registrationId } = req.params;
-    const { feeId } = req.body;
     // Find the registration by ID
     const registration = await Registration.findByPk(registrationId);
 
@@ -168,11 +170,11 @@ const verifyRegistration = async (req, res) => {
       registrationId,
       t
     );
-    const fee = await Fee.findOne({ where: { feeId: feeId } });
+    const fee = await Fee.findOne({ where: { feeName: "resident" } });
     if (!fee) {
-      return errorResponse(req, res, "Fee not found", 404);
+      return errorResponse(req, res, "Resident package not found", 404);
     }
-    const amount = fee.amount;
+    amount = fee.amount;
 
     await t.commit();
 
@@ -187,11 +189,11 @@ const verifyRegistration = async (req, res) => {
         notificationBody
       );
     }
-    const formattedRegistration = formatRegistration(registration);
+    const formattedRegistration = formatRegistration(registration, amount);
     return successResponse(
       req,
       res,
-      { registration: formattedRegistration, amount },
+      { registration: formattedRegistration },
       200
     );
   } catch (error) {
@@ -205,28 +207,62 @@ const verifyRegistration = async (req, res) => {
 const getAllUserRegistration = async (req, res) => {
   try {
     const userId = req.user.userId;
-    // Fetch the user's registration
-    const userRegistration = await Registration.findAll({
+
+    // Fetch all registrations for the user
+    const userRegistrations = await Registration.findAll({
       where: { userId },
     });
 
-    if (!userRegistration) {
-      return errorResponse(req, res, "Registration not found", 404);
+    if (!userRegistrations || userRegistrations.length === 0) {
+      return errorResponse(req, res, "Registrations not found", 404);
     }
-    const formattedRegistrations = userRegistration.map((registration) =>
-      formatRegistration(registration)
-    );
-    return successResponse(
-      req,
-      res,
-      { registrations: formattedRegistrations },
-      200
-    );
+
+    // Create a new array to store the formatted registrations
+    const formattedRegistrations = [];
+
+    // Iterate through userRegistrations to check each registration
+    for (let registration of userRegistrations) {
+      let amount = 0;
+
+      if (registration.registrationStatus === "verified") {
+        const residentFee = await Fee.findOne({
+          where: { feeName: "resident" },
+        });
+
+        if (residentFee) {
+          // If a fee with the name "resident" is found, use its amount
+          amount = residentFee.amount;
+        }
+
+        // Check if there is a successful payment for the current registration
+        const successfulPayment = await Payment.findOne({
+          where: {
+            registrationId: registration.registrationId,
+            status: "success",
+          },
+        });
+
+        if (successfulPayment) {
+          // If there is a successful payment, use the payment amount
+          amount = successfulPayment.amount;
+        }
+      }
+
+      // Format each registration and include the amount
+      const formattedRegistration = formatRegistration(registration, amount);
+
+      // Push the formatted registration to the new array
+      formattedRegistrations.push(formattedRegistration);
+    }
+
+    return successResponse(req, res, { registrations: formattedRegistrations }, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+
+
 // User cancels their registration
 const cancelRegistration = async (req, res) => {
   try {
@@ -483,7 +519,7 @@ const getUserRegistration = async (req, res) => {
   try {
     const { registrationId } = req.params;
     const userId = req.user.userId;
-
+    let amount = 0;
     const registration = await Registration.findOne({
       where: { registrationId, userId },
     });
@@ -496,34 +532,37 @@ const getUserRegistration = async (req, res) => {
       where: { registrationId, status: "success" },
     });
 
-    let amount = 0;
-
     if (successfulPayment) {
       // If there is a successful payment, use the payment amount
       amount = successfulPayment.amount;
     } else {
-      // If there is no successful payment, use some other logic to determine the amount
-      const residentFee = await Fee.findOne({ where: { feeName: "resident" } });
-      if (residentFee) {
-        // If a fee with the name "resident" is found, use its amount
-        amount = residentFee.amount;
+      // check status if created then 0
+      if (registration.registrationStatus == "created") {
+        amount = 0;
+        // if status is not created then set fee for verify,...
       } else {
-        // If no "resident" fee is found, ...
-        return errorResponse(
-          req,
-          res,
-          "resident package not found",
-          404,
-          error
-        );
+        const residentFee = await Fee.findOne({
+          where: { feeName: "resident" },
+        });
+        if (residentFee) {
+          amount = residentFee.amount;
+        } else {
+          return errorResponse(
+            req,
+            res,
+            "resident package not found",
+            404,
+            error
+          );
+        }
       }
+      // If there is no successful payment, use some other logic to determine the amount
     }
 
-    const formattedRegistration = formatRegistration(registration);
+    const formattedRegistration = formatRegistration(registration, amount);
 
     return successResponse(req, res, {
       registration: formattedRegistration,
-      amount,
     });
   } catch (error) {
     console.error(error);
@@ -540,7 +579,7 @@ const adminGetUserRegistration = async (req, res) => {
 
     // Check if there is a successful payment for this registration
     const successfulPayment = await Payment.findOne({
-      where: { registrationId, status: "success" },
+      where: { registrationId, registrationStatus: "success" },
     });
 
     let amount = 0;
