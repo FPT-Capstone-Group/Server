@@ -13,12 +13,6 @@ const router = express.Router();
 // Security routes
 //= ===============================
 
-//Authentication
-router.post(
-    '/login',
-    userController.login,
-);
-
 
 //Card
 router.get("/cards/detail", cardController.getCardDetails);
