@@ -255,13 +255,17 @@ const getAllUserRegistration = async (req, res) => {
       formattedRegistrations.push(formattedRegistration);
     }
 
-    return successResponse(req, res, { registrations: formattedRegistrations }, 200);
+    return successResponse(
+      req,
+      res,
+      { registrations: formattedRegistrations },
+      200
+    );
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-
 
 // User cancels their registration
 const cancelRegistration = async (req, res) => {
@@ -579,7 +583,7 @@ const adminGetUserRegistration = async (req, res) => {
 
     // Check if there is a successful payment for this registration
     const successfulPayment = await Payment.findOne({
-      where: { registrationId, registrationStatus: "success" },
+      where: { registrationId, status: "success" },
     });
 
     let amount = 0;
