@@ -12,13 +12,13 @@ const {
   formatToMoment,
 } = require("../../helpers");
 const moment = require("moment-timezone");
-moment.tz.setDefault("Asia/Saigon")
+moment.tz.setDefault("Asia/Saigon");
 // Sub function
 const formatParkingSession = (parkingSession) => {
   return {
     ...parkingSession.toJSON(),
-    checkinTime:formatToMoment(parkingSession.checkinTime),
-    checkoutTime:formatToMoment(parkingSession.checkoutTime),
+    checkinTime: formatToMoment(parkingSession.checkinTime),
+    checkoutTime: formatToMoment(parkingSession.checkoutTime),
     createdAt: formatToMoment(parkingSession.createdAt),
     updatedAt: formatToMoment(parkingSession.updatedAt),
     checkinTime: formatToMoment(parkingSession.checkinTime),
@@ -31,6 +31,14 @@ const getAllParkingSessions = async (req, res) => {
   try {
     const parkingSessions = await ParkingSession.findAll({
       include: ParkingType,
+      attributes: {
+        exclude: [
+          "checkinFaceImage",
+          "checkinPlateNumberImage",
+          "checkoutFaceImage",
+          "checkoutPlateNumberImage",
+        ],
+      },
     });
     const formattedParkingSessions = parkingSessions.map((parkingSession) =>
       formatParkingSession(parkingSession)
@@ -94,7 +102,9 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
       where: { feeName: "guest_night" },
     });
     // parkingSession.checkoutTime = moment.tz.zonesForCountry('VN').format('YYYY-MM-DD:HH:mm:ss');
-    parkingSession.checkoutTime = moment(new Date()).tz("Asia/Saigon").format('YYYY-MM-DD:HH:mm:ss');
+    parkingSession.checkoutTime = moment(new Date())
+      .tz("Asia/Saigon")
+      .format("YYYY-MM-DD:HH:mm:ss");
     // Calculate parking fee
     parkingSession.parkingFee = calculateParkingFee(
       parkingSession.checkinTime,
@@ -109,15 +119,14 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
   }
 };
 
-
 const getParkingDataForEvaluateNotGuest = async (req, res) => {
   const { cardId } = req.query;
 
   try {
     const card = await Card.findByPk(cardId, {
-      include  : [{ model: Bike, attributes: ['plateNumber']}]
-    })
-    console.log(card)
+      include: [{ model: Bike, attributes: ["plateNumber"] }],
+    });
+    console.log(card);
     let parkingSession = await ParkingSession.findOne({
       where: { plateNumber: card.plateNumber },
       order: [["checkinTime", "DESC"]], // Get the latest checkin
@@ -130,7 +139,7 @@ const getParkingDataForEvaluateNotGuest = async (req, res) => {
     // parkingSession.checkoutTime = moment.tz.zonesForCountry('VN').format('YYYY-MM-DD:HH:mm:ss');
     parkingSession.checkoutTime = moment().format("YYYY-MM-DD:HH:mm:ss");
     // Calculate parking fee
-    parkingSession.parkingFee = 0
+    parkingSession.parkingFee = 0;
     return successResponse(req, res, parkingSession, 200);
   } catch (error) {
     console.error(error);
@@ -138,12 +147,16 @@ const getParkingDataForEvaluateNotGuest = async (req, res) => {
   }
 };
 
-
 // Create new parking session aka Checkin
 const checkIn = async (req, res) => {
-  const { checkinCardId,checkinFaceImage, checkinPlateNumberImage, plateNumber, parkingTypeName } =
-    req.body;
-  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss")
+  const {
+    checkinCardId,
+    checkinFaceImage,
+    checkinPlateNumberImage,
+    plateNumber,
+    parkingTypeName,
+  } = req.body;
+  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss");
   try {
     const security = req.user.fullName;
     const parkingType = await ParkingType.findOne({
@@ -162,7 +175,11 @@ const checkIn = async (req, res) => {
     return successResponse(
       req,
       res,
-      { cardId: newParkingSession.checkinCardId, plateNumber: newParkingSession.plateNumber, parkingType: parkingType },
+      {
+        cardId: newParkingSession.checkinCardId,
+        plateNumber: newParkingSession.plateNumber,
+        parkingType: parkingType,
+      },
       201
     );
   } catch (error) {
