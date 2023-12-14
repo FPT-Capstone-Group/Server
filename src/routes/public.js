@@ -22,6 +22,13 @@ router.post(
   userController.login,
 );
 
+
+router.post(
+    '/loginSecurity',
+    userController.loginSecurity,
+);
+
+
 router.post(
   '/register',
   validate(userValidator.register),
