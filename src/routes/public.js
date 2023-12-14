@@ -14,21 +14,11 @@ router.post("/otp/send", userController.getOtp);
 
 router.post("/login", validate(userValidator.login), userController.login);
 
+router.post("/login", validate(userValidator.login), userController.login);
+router.post("/loginSecurity", userController.loginSecurity);
+router.post("/loginAdmin", userController.loginAdmin);
 router.post(
-  '/login',
-  validate(userValidator.login),
-  userController.login,
-);
-
-
-router.post(
-    '/loginSecurity',
-    userController.loginSecurity,
-);
-
-
-router.post(
-  '/register',
+  "/register",
   validate(userValidator.register),
   userController.register
 );

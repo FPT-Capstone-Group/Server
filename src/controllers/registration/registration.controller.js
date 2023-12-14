@@ -7,6 +7,7 @@ const {
   Fee,
   User,
   Card,
+  Notification,
 } = require("../../models");
 const notificationController = require("../notification/notification.controller");
 const {
@@ -31,6 +32,18 @@ const createRegistrationHistory = async (
       updatedAt: new Date(),
       approvedBy,
       registrationId,
+    },
+    { transaction: t }
+  );
+};
+const createNotification = async (userId, message, notificationType, t) => {
+  return Notification.create(
+    {
+      userId,
+      message,
+      notificationType,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     { transaction: t }
   );
@@ -108,7 +121,18 @@ const createRegistration = async (req, res) => {
     if (existingRegistration) {
       return errorResponse(req, res, "Plate number already exists", 400);
     }
-
+    //Check registrationNumber
+    const existingRegistrationNumber = await Registration.findOne({
+      where: {
+        registrationNumber,
+        status: {
+          [Op.notIn]: ["rejected", "canceled"],
+        },
+      },
+    });
+    if (existingRegistrationNumber) {
+      return errorResponse(req, res, "Registration number already exists", 400);
+    }
     let faceImageBase64 = "";
     if (req.file && req.file.buffer) {
       faceImageBase64 = req.file.buffer.toString("base64");
@@ -139,7 +163,6 @@ const createRegistration = async (req, res) => {
       newRegistration.registrationId,
       t
     );
-
     // Commit the transaction
     await t.commit();
 
@@ -182,12 +205,13 @@ const verifyRegistration = async (req, res) => {
 
     // Update registration status to "verified"
     registration.status = "verified";
+    registration.approvedBy = `${req.user.fullName}`;
     await registration.save({ transaction: t });
 
     // Create Registration History
     await createRegistrationHistory(
       "verified",
-      req.user.userId,
+      req.user.fullName,
       registrationId,
       t
     );
@@ -196,8 +220,6 @@ const verifyRegistration = async (req, res) => {
       return errorResponse(req, res, "Resident package not found", 404);
     }
     amount = fee.amount;
-
-    await t.commit();
 
     // Send notification
     const user = await User.findByPk(registration.userId);
@@ -209,7 +231,16 @@ const verifyRegistration = async (req, res) => {
         notificationTitle,
         notificationBody
       );
+
+      // Save Notification
+      await createNotification(
+        user.userId,
+        notificationBody, //message
+        notificationTitle, //notiType
+        t
+      );
     }
+    await t.commit();
     const formattedRegistration = formatRegistration(registration, amount);
     return successResponse(
       req,
@@ -325,7 +356,7 @@ const cancelRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-// Admin tu di check, them notification o day
+// Admin active registration
 const activateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -393,6 +424,12 @@ const activateRegistration = async (req, res) => {
         notificationTitle,
         notificationBody
       );
+      await createNotification(
+        user.userId,
+        notificationBody, //message
+        notificationTitle, //notiType
+        t
+      );
     }
     await t.commit();
     const formattedRegistration = formatRegistration(registration);
@@ -414,7 +451,6 @@ const activateRegistration = async (req, res) => {
 };
 
 // Admin disable a specific registration
-
 const deactiveRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -436,8 +472,6 @@ const deactiveRegistration = async (req, res) => {
       req.user.fullName,
       registration.registrationId
     );
-    // Create Registration History for the verification
-    await t.commit();
     // Send notification to user
     const user = await User.findByPk(registration.userId);
     if (user) {
@@ -448,13 +482,22 @@ const deactiveRegistration = async (req, res) => {
         notificationTitle,
         notificationBody
       );
+      await createNotification(
+        user.userId,
+        notificationBody, //message
+        notificationTitle, //notiType
+        t
+      );
     }
+    await t.commit();
+
     return successResponse(req, res, "Deactivated registration successfully");
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Admin disable a registration
 const disableRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -484,7 +527,7 @@ const disableRegistration = async (req, res) => {
       req.user.fullName,
       registration.registrationId
     );
-    await t.commit();
+
     // Send notification to user
     const user = await User.findByPk(registration.userId);
     if (user) {
@@ -495,7 +538,14 @@ const disableRegistration = async (req, res) => {
         notificationTitle,
         notificationBody
       );
+      await createNotification(
+        user.userId,
+        notificationBody, //message
+        notificationTitle, //notiType
+        t
+      );
     }
+    await t.commit();
     return successResponse(req, res, "Disable registration successfully");
   } catch (error) {
     console.error(error);
@@ -531,7 +581,6 @@ const enableRegistration = async (req, res) => {
       req.user.fullName,
       registration.registrationId
     );
-    await t.commit();
     // Send notification to user
     const user = await User.findByPk(registration.userId);
     if (user) {
@@ -542,15 +591,21 @@ const enableRegistration = async (req, res) => {
         notificationTitle,
         notificationBody
       );
+      await createNotification(
+        user.userId,
+        notificationBody, //message
+        notificationTitle, //notiType
+        t
+      );
     }
+    await t.commit();
     return successResponse(req, res, "Disable registration successfully");
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-
-// Admin rejects a user registration
+// Admin rejects a user registration with message in UI
 const rejectRegistration = async (req, res) => {
   try {
     const { registrationId } = req.params;
@@ -582,8 +637,13 @@ const rejectRegistration = async (req, res) => {
         notificationTitle,
         notificationBody
       );
+      await createNotification(
+        user.userId,
+        notificationBody, //message
+        notificationTitle, //notiType
+        t
+      );
     }
-    // Store to notification instead return response
     return successResponse(req, res, {
       message: rejectionMessage,
     });
@@ -593,7 +653,7 @@ const rejectRegistration = async (req, res) => {
   }
 };
 
-//User view a specific registration
+// User view a specific registration
 const getUserRegistration = async (req, res) => {
   try {
     const { registrationId } = req.params;
@@ -648,6 +708,7 @@ const getUserRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Admin get a user registration
 const adminGetUserRegistration = async (req, res) => {
   try {
     const { registrationId } = req.params;
