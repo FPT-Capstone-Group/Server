@@ -1,9 +1,9 @@
-import MockExpressResponse from 'mock-express-response';
-import { allUsers } from './user.controller';
+const MockExpressResponse = require('mock-express-response');
+const { allUsers } = require('./user.controller');
 
-import { successResponse } from '../../helpers';
+const { successResponse } = require('../../helpers');
 
-import { User } from '../../models';
+const { User } = require('../../models');
 // mock success and error function mock
 jest.mock('./../../helpers');
 

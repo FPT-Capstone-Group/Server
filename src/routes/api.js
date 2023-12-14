@@ -1,16 +1,16 @@
-import express from "express";
-import validate from "express-validation";
+const express = require("express");
+const validate = require("express-validation");
 
-import uploadMiddleware from "../middleware/uploadMiddleware";
-import * as userController from "../controllers/user/user.controller";
-import * as userValidator from "../controllers/user/user.validator";
-import * as registrationController from "../controllers/registration/registration.controller";
-import * as paymentController from "../controllers/payment/payment.controller";
-import * as feeController from "../controllers/fee/fee.controller";
-import * as cardController from "../controllers/card/card.controller";
-import * as ownerController from "../controllers/owner/owner.controller";
-import * as bikeController from "../controllers/bike/bike.controller";
-import * as parkingSessionController from "../controllers/parkingSession/parkingSession.controller";
+const uploadMiddleware = require("../middleware/uploadMiddleware");
+const userController = require("../controllers/user/user.controller");
+const userValidator = require("../controllers/user/user.validator");
+const registrationController = require("../controllers/registration/registration.controller");
+const paymentController = require("../controllers/payment/payment.controller");
+const feeController = require("../controllers/fee/fee.controller");
+const cardController = require("../controllers/card/card.controller");
+const ownerController = require("../controllers/owner/owner.controller");
+const bikeController = require("../controllers/bike/bike.controller");
+const parkingSessionController = require("../controllers/parkingSession/parkingSession.controller");
 const router = express.Router();
 
 //= ===============================

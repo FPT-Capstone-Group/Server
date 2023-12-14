@@ -1,17 +1,17 @@
-import express from "express";
-import validate from "express-validation";
+const express = require("express");
+const validate = require("express-validation");
 
-import * as userController from "../controllers/user/user.controller";
-import * as registrationController from "../controllers/registration/registration.controller";
-import * as bikeController from "../controllers/bike/bike.controller";
-import * as ownerController from "../controllers/owner/owner.controller";
-import * as feeController from "../controllers/fee/fee.controller";
-import * as cardController from "../controllers/card/card.controller";
-import * as parkingSessionController from "../controllers/parkingSession/parkingSession.controller";
-import * as notificationController from "../controllers/notification/notification.controller";
-import * as registrationHistoryController from "../controllers/registrationHistory/registrationHistory.controller";
-import * as feeHistoryController from "../controllers/feeHistory/feeHistory.controller";
-import * as paymentController from "../controllers/payment/payment.controller";
+const userController = require("../controllers/user/user.controller");
+const registrationController = require("../controllers/registration/registration.controller");
+const bikeController = require("../controllers/bike/bike.controller");
+const ownerController = require("../controllers/owner/owner.controller");
+const feeController = require("../controllers/fee/fee.controller");
+const cardController = require("../controllers/card/card.controller");
+const parkingSessionController = require("../controllers/parkingSession/parkingSession.controller");
+const notificationController = require("../controllers/notification/notification.controller");
+const registrationHistoryController = require("../controllers/registrationHistory/registrationHistory.controller");
+const feeHistoryController = require("../controllers/feeHistory/feeHistory.controller");
+const paymentController = require("../controllers/payment/payment.controller");
 const router = express.Router();
 
 //= ===============================

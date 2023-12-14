@@ -1,9 +1,9 @@
-import express from "express";
+const express = require("express");
 
-import * as bikeController from "../controllers/bike/bike.controller";
-import * as ownerController from "../controllers/owner/owner.controller";
-import * as cardController from "../controllers/card/card.controller";
-import * as parkingController from "../controllers/parkingSession/parkingSession.controller";
+const bikeController = require("../controllers/bike/bike.controller");
+const ownerController = require("../controllers/owner/owner.controller");
+const cardController = require("../controllers/card/card.controller");
+const parkingController = require("../controllers/parkingSession/parkingSession.controller");
 
 const router = express.Router();
 

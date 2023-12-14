@@ -1,5 +1,5 @@
-import { errorResponse } from "../helpers";
-import { Role, User } from "../models";
+const { errorResponse } = require("../helpers");
+const { Role, User } = require("../models");
 
 const adminAuth = async (req, res, next) => {
   try {
@@ -28,4 +28,4 @@ const adminAuth = async (req, res, next) => {
   }
 };
 
-export default adminAuth;
+module.exports = adminAuth;
