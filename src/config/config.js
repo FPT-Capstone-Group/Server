@@ -7,7 +7,10 @@ const x = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
-    timezone: 'Asia/Ho_Chi_Minh'
+    dialectOptions: {
+      useUTC: false,
+    },
+    timezone: '+07:00',
   },
   test: {
     username: process.env.DB_USER,
