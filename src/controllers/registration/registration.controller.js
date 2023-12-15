@@ -466,6 +466,7 @@ const deactiveRegistration = async (req, res) => {
     // Update the status to "inactive"
     registration.status = "inactive";
     await registration.save({ transaction: t });
+
     // Create Registration History
     await createRegistrationHistory(
       "inactive",
@@ -521,6 +522,17 @@ const disableRegistration = async (req, res) => {
     // Update the status to "Disable"
     registration.status = "disable";
     await registration.save({ transaction: t });
+    // Update Bike also
+    const bike = await Bike.findOne({
+      where: { plateNumber: registration.plateNumber },
+    });
+
+    if (!bike) {
+      return errorResponse(req, res, "Bike not found", 404);
+    }
+
+    // Set bike status to disable
+    await bike.update({ status: "disable" }, { transaction: t });
     // Create Registration History
     await createRegistrationHistory(
       "disable",
@@ -575,6 +587,15 @@ const enableRegistration = async (req, res) => {
     // Update the status to "active" again
     registration.status = "active";
     await registration.save({ transaction: t });
+    // Update Bike also
+    const bike = await Bike.findOne({
+      where: { plateNumber: registration.plateNumber },
+    });
+    if (!bike) {
+      return errorResponse(req, res, "Bike not found", 404);
+    }
+    // Set bike status to active
+    await bike.update({ status: "active" }, { transaction: t });
     // Create Registration History
     await createRegistrationHistory(
       "active",

@@ -107,6 +107,10 @@ router.put(
   "/parkingTypes/:parkingTypeId",
   parkingTypeController.updateParkingTypeById
 );
+router.delete(
+  "/parkingTypes/delete/:parkingTypeId",
+  parkingTypeController.deleteParkingTypeById
+);
 
 //Fee
 router.post("/fees", feeController.createFee);

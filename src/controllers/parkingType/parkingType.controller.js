@@ -1,5 +1,5 @@
 // controllers/parkingTypeController.js
-const { ParkingType } = require("../../models");
+const { ParkingType, ParkingSession, Card } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -118,10 +118,44 @@ const updateParkingTypeById = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+const deleteParkingTypeById = async (req, res) => {
+  try {
+    const { parkingTypeId } = req.params;
+
+    const parkingType = await ParkingType.findByPk(parkingTypeId);
+
+    if (!parkingType) {
+      return errorResponse(req, res, "Parking type not found", 404);
+    }
+
+    // Check if there are associated ParkingSessions or Cards
+    const associatedParkingSessions = await ParkingSession.findOne({
+      where: { parkingTypeId },
+    });
+    const associatedCards = await Card.findOne({ where: { parkingTypeId } });
+
+    if (associatedParkingSessions || associatedCards) {
+      return errorResponse(
+        req,
+        res,
+        "Cannot delete parking type with associated sessions or cards",
+        400
+      );
+    }
+
+    await parkingType.destroy();
+
+    return successResponse(req, res, "Parking type deleted successfully", 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 
 module.exports = {
   createParkingType,
   getAllParkingTypes,
   getParkingTypeById,
   updateParkingTypeById,
+  deleteParkingTypeById,
 };

@@ -3,7 +3,6 @@ const validate = require("express-validation");
 
 const uploadMiddleware = require("../middleware/uploadMiddleware");
 const userController = require("../controllers/user/user.controller");
-const userValidator = require("../controllers/user/user.validator");
 const registrationController = require("../controllers/registration/registration.controller");
 const paymentController = require("../controllers/payment/payment.controller");
 const feeController = require("../controllers/fee/fee.controller");
