@@ -55,6 +55,9 @@ router.get("/cards/userId", cardController.getAllUserCards);
 //Owner
 router.post("/owners/create", ownerController.createOwner);
 router.get("/owners", ownerController.getOwnersByUsersPlateNumber);
+router.post("/owners/activate", ownerController.activateOwner);
+router.post("/owners/deactivate", ownerController.deactivateOwner);
+
 
 //Parking Session
 router.get(
