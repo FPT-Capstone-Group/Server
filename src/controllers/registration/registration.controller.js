@@ -406,9 +406,9 @@ const activateRegistration = async (req, res) => {
       return errorResponse(req, res, "Card not found", 404);
     }
 
-    if (card.currentStatus === "active") {
+    if (card.status === "active") {
       await card.update(
-        { currentStatus: "assigned", bikeId: newBike.bikeId },
+        { status: "assigned", bikeId: newBike.bikeId },
         { transaction: t }
       );
     } else {

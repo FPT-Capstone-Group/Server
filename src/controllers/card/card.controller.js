@@ -1,6 +1,6 @@
 // controllers/cardController.js
 
-const { Card, CardHistory, ParkingType } = require("../../models");
+const { Card, CardHistory, ParkingType, Bike } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -30,7 +30,7 @@ const createCard = async (req, res) => {
         {
           cardId: cardId,
           startDate: currentDate,
-          currentStatus: "active",
+          status: "active",
           createdAt: currentDate,
           updatedAt: currentDate,
           parkingTypeId: parkingType.parkingTypeId,
@@ -63,7 +63,12 @@ const createCard = async (req, res) => {
 // Get all cards
 const getAllCards = async (req, res) => {
   try {
-    const allCards = await Card.findAll();
+    const allCards = await Card.findAll({
+      include: {
+        model: Bike,
+        attributes: ["plateNumber"],
+      },
+    });
 
     if (!allCards || allCards.length === 0) {
       return errorResponse(req, res, "No Cards", 404);
@@ -80,7 +85,7 @@ const getAllActiveCards = async (req, res) => {
   try {
     const activeCards = await Card.findAll({
       where: {
-        currentStatus: "active",
+        status: "active",
       },
     });
 
@@ -136,7 +141,7 @@ const getCardDetails = async (req, res) => {
       res,
       {
         cardId: cardId,
-        currentStatus: card.currentStatus,
+        status: card.status,
         parkingTypeName: parkingType.name,
       },
       200
@@ -171,7 +176,7 @@ const updateCard = async (req, res) => {
         eventTime: new Date().toISOString(),
         details: "Card updated successfully",
         cardId: card.cardId,
-        status: card.CurrentStatus,
+        status: card.status,
       },
       { transaction: t }
     );

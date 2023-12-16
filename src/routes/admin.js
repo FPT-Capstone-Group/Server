@@ -118,6 +118,7 @@ router.get("/fees", feeController.getAllFees);
 router.get("/fees/:feeId", feeController.getFeeById);
 router.put("/fees/:feeId", feeController.updateFeeById);
 router.delete("/fees/:feeId", feeController.deleteFeeById);
+router.get("/fees-deleted", feeController.getAllFeesWithDeleted);
 
 // Fee History
 router.get("/fees/:feeId/history", feeHistoryController.getFeeHistory);
