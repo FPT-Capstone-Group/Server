@@ -12,6 +12,8 @@ const notificationController = require("../controllers/notification/notification
 const registrationHistoryController = require("../controllers/registrationHistory/registrationHistory.controller");
 const feeHistoryController = require("../controllers/feeHistory/feeHistory.controller");
 const paymentController = require("../controllers/payment/payment.controller");
+const parkingTypeController = require("../controllers/parkingType/parkingType.controller");
+
 const router = express.Router();
 
 //= ===============================
@@ -92,6 +94,22 @@ router.get("/sessions", parkingSessionController.getAllParkingSessions);
 router.get(
   "/sessions/:parkingSessionId",
   parkingSessionController.getParkingSessionById
+);
+
+// Parking Type
+router.get("/parkingTypes", parkingTypeController.getAllParkingTypes);
+router.post("/parkingTypes", parkingTypeController.createParkingType);
+router.get(
+  "/parkingTypes/:parkingTypeId",
+  parkingTypeController.getParkingTypeById
+);
+router.put(
+  "/parkingTypes/:parkingTypeId",
+  parkingTypeController.updateParkingTypeById
+);
+router.delete(
+  "/parkingTypes/delete/:parkingTypeId",
+  parkingTypeController.deleteParkingTypeById
 );
 
 //Fee

@@ -30,7 +30,7 @@ const createCard = async (req, res) => {
         {
           cardId: cardId,
           startDate: currentDate,
-          currentStatus: "active",
+          status: "active",
           createdAt: currentDate,
           updatedAt: currentDate,
           parkingTypeId: parkingType.parkingTypeId,
@@ -80,7 +80,7 @@ const getAllActiveCards = async (req, res) => {
   try {
     const activeCards = await Card.findAll({
       where: {
-        currentStatus: "active",
+        status: "active",
       },
     });
 
@@ -121,10 +121,10 @@ const getAllUserCards = async (req, res) => {
   }
 };
 
-// Get details of a specific card
+// Admin get details of a specific card
 const getCardDetails = async (req, res) => {
   try {
-    const { cardId } = req.query;
+    const { cardId } = req.params;
     const card = await Card.findByPk(cardId);
     if (!card) {
       return errorResponse(req, res, "Card not found", 404);
@@ -136,7 +136,7 @@ const getCardDetails = async (req, res) => {
       res,
       {
         cardId: cardId,
-        currentStatus: card.currentStatus,
+        status: card.status,
         parkingTypeName: parkingType.name,
       },
       200
@@ -171,7 +171,7 @@ const updateCard = async (req, res) => {
         eventTime: new Date().toISOString(),
         details: "Card updated successfully",
         cardId: card.cardId,
-        status: card.CurrentStatus,
+        status: card.status,
       },
       { transaction: t }
     );
