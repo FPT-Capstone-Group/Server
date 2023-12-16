@@ -35,7 +35,7 @@ const createOwner = async (req, res) => {
       );
     }
     // Check maximum active owners
-    const totalActiveOwners = Owner.Count({
+    const totalActiveOwners = Owner.count({
       where:{
         isActive: {[Op.eq]: true},
         bikeId: existingBike.bikeId
@@ -158,7 +158,7 @@ const activateOwner = async (req, res) => {
   const { ownerId } =
       req.body;
   try {
-    const updatingOwner = Owner.findByPk(ownerId)
+    const updatingOwner = await Owner.findByPk(ownerId)
     if (!updatingOwner){
       return errorResponse(
           req,
@@ -179,7 +179,7 @@ const activateOwner = async (req, res) => {
       );
     }
     // Check maximum active owners
-    const totalActiveOwners = Owner.Count({
+    const totalActiveOwners = Owner.count({
       where:{
         isActive: {[Op.eq]: true},
         bikeId: updatingOwner.bikeId
@@ -219,7 +219,8 @@ const deactivateOwner = async (req, res) => {
   const { ownerId } =
       req.body;
   try {
-    const updatingOwner = Owner.findByPk(ownerId)
+    const updatingOwner = await Owner.findByPk(ownerId)
+    console.log(updatingOwner)
     if (!updatingOwner){
       return errorResponse(
           req,
