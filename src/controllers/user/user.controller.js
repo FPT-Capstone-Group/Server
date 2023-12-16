@@ -1,8 +1,15 @@
 const jwt = require("jsonwebtoken");
 
-const {Role, User} = require( "../../models")
-const { errorResponse, formatToMoment, successResponse } = require("../../helpers");
-const { getOtpToken, verifyOtpToken } = require("../../middleware/otpVerification");
+const { Role, User, UserHistory } = require("../../models");
+const {
+  errorResponse,
+  formatToMoment,
+  successResponse,
+} = require("../../helpers");
+const {
+  getOtpToken,
+  verifyOtpToken,
+} = require("../../middleware/otpVerification");
 const crypto = require("crypto");
 
 // sub function
@@ -19,7 +26,14 @@ async function getRoleIdByName(roleName) {
     throw error;
   }
 }
-
+const createUserHistory = async (userId, eventName) => {
+  return UserHistory.create({
+    userId,
+    eventName,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+};
 const formatUser = (user) => {
   // Check if user is a Sequelize model instance
   const userInstance = user instanceof User ? user.toJSON() : user;
@@ -84,6 +98,7 @@ const register = async (req, res) => {
     return errorResponse(req, res, error.message);
   }
 };
+// 3 Login for 3 actor
 const login = async (req, res) => {
   try {
     const user = await User.findOne({
@@ -137,8 +152,6 @@ const login = async (req, res) => {
     return errorResponse(req, res, error.message);
   }
 };
-
-
 const loginSecurity = async (req, res) => {
   try {
     const user = await User.findOne({
@@ -150,8 +163,8 @@ const loginSecurity = async (req, res) => {
     }
 
     const isPasswordValid =
-        crypto.createHash("sha256").update(req.body.password).digest("hex") ===
-        user.password;
+      crypto.createHash("sha256").update(req.body.password).digest("hex") ===
+      user.password;
 
     if (!isPasswordValid) {
       throw new Error("Incorrect username Id/Password");
@@ -160,20 +173,20 @@ const loginSecurity = async (req, res) => {
     const userRole = await Role.findByPk(user.roleId);
     const roleName = userRole.name;
 
-    if(roleName !== 'security'){
+    if (roleName !== "security") {
       throw new Error("Unauthorized!");
     }
 
     const token = jwt.sign(
-        {
-          user: {
-            userId: user.userId,
-            username: user.username,
-            createdAt: new Date(),
-          },
+      {
+        user: {
+          userId: user.userId,
+          username: user.username,
+          createdAt: new Date(),
         },
-        // Only server knows, make sure not to expose
-        process.env.SECRET
+      },
+      // Only server knows, make sure not to expose
+      process.env.SECRET
     );
 
     return successResponse(req, res, {
@@ -192,7 +205,53 @@ const loginSecurity = async (req, res) => {
     return errorResponse(req, res, error.message);
   }
 };
+const loginAdmin = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { username: req.body.username },
+    });
+    if (!user) {
+      throw new Error("Incorrect username Id/Password");
+    }
+    const isPasswordValid =
+      crypto.createHash("sha256").update(req.body.password).digest("hex") ===
+      user.password;
+    if (!isPasswordValid) {
+      throw new Error("Incorrect username Id/Password");
+    }
+    const userRole = await Role.findByPk(user.roleId);
+    const roleName = userRole.name;
+    if (roleName !== "admin") {
+      throw new Error("Unauthorized!");
+    }
+    const token = jwt.sign(
+      {
+        user: {
+          userId: user.userId,
+          username: user.username,
+          createdAt: new Date(),
+        },
+      },
+      // Only server knows, make sure not to expose
+      process.env.SECRET
+    );
 
+    return successResponse(req, res, {
+      user: {
+        userId: user.userId,
+        fullName: user.fullName,
+        username: user.username,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        role: roleName,
+      },
+      token: token,
+    });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
 const profile = async (req, res) => {
   try {
     const { userId } = req.user;
@@ -265,7 +324,7 @@ const activateUser = async (req, res) => {
     await user.update({
       isActive: true,
     });
-
+    await createUserHistory(userId, "Active User");
     return successResponse(req, res, {
       message: "User has been activated successfully",
     });
@@ -274,6 +333,7 @@ const activateUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Only admin can access this route
 const deactivateUser = async (req, res) => {
   try {
     // Check if the logged-in user has admin privileges
@@ -286,6 +346,7 @@ const deactivateUser = async (req, res) => {
     await user.update({
       isActive: false,
     });
+    await createUserHistory(userId, "Deactivated User");
     return successResponse(req, res, {
       message: "User has been de-activated successfully",
     });
@@ -294,7 +355,7 @@ const deactivateUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-// Update current user's fullName
+// User Update current user's information
 const updateUser = async (req, res) => {
   const userId = req.user.userId;
   const { fullName, address, gender, age } = req.body;
@@ -395,7 +456,22 @@ const createSecurityAccount = async (req, res) => {
     return errorResponse(req, res, error.message);
   }
 };
+const getFirebaseTokenDevice = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { username: req.body.username },
+    });
 
+    return successResponse(req, res, {
+      user: {
+        username: user.username,
+        firebaseToken: user.firebaseToken,
+      },
+    });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
 module.exports = {
   activateUser,
   getUserInfo,
@@ -409,5 +485,7 @@ module.exports = {
   forgotPassword,
   getOtp,
   createSecurityAccount,
-  loginSecurity
+  getFirebaseTokenDevice,
+  loginSecurity,
+  loginAdmin,
 };
