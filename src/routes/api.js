@@ -3,7 +3,6 @@ const validate = require("express-validation");
 
 const uploadMiddleware = require("../middleware/uploadMiddleware");
 const userController = require("../controllers/user/user.controller");
-const userValidator = require("../controllers/user/user.validator");
 const registrationController = require("../controllers/registration/registration.controller");
 const paymentController = require("../controllers/payment/payment.controller");
 const feeController = require("../controllers/fee/fee.controller");
@@ -26,10 +25,10 @@ router.get("/fees/:feeId", feeController.getFeeById);
 router.get("/fees", feeController.getAllResidentFees);
 
 //User
-router.post("/forgotPassword", userController.forgotPassword);
 router.get("/me", userController.profile);
 router.post("/changePassword", userController.changePassword);
 router.put("/users/update", userController.updateUser);
+
 
 //Registration
 router.post(
@@ -56,6 +55,9 @@ router.get("/cards/userId", cardController.getAllUserCards);
 //Owner
 router.post("/owners/create", ownerController.createOwner);
 router.get("/owners", ownerController.getOwnersByUsersPlateNumber);
+router.post("/owners/activate", ownerController.activateOwner);
+router.post("/owners/deactivate", ownerController.deactivateOwner);
+
 
 //Parking Session
 router.get(

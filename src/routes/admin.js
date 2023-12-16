@@ -12,6 +12,9 @@ const notificationController = require("../controllers/notification/notification
 const registrationHistoryController = require("../controllers/registrationHistory/registrationHistory.controller");
 const feeHistoryController = require("../controllers/feeHistory/feeHistory.controller");
 const paymentController = require("../controllers/payment/payment.controller");
+const parkingTypeController = require("../controllers/parkingType/parkingType.controller");
+const reportController = require("../controllers/report/report.controller");
+
 const router = express.Router();
 
 //= ===============================
@@ -32,8 +35,8 @@ router.put(
   registrationController.activateRegistration
 );
 router.put(
-  "/registrations/deactive/:registrationId/",
-  registrationController.deactiveRegistration
+  "/registrations/deactivate/:registrationId/",
+  registrationController.temporaryDeactivateRegistration
 );
 router.put(
   "/registrations/verify/:registrationId",
@@ -44,17 +47,15 @@ router.put(
   registrationController.rejectRegistration
 );
 router.put(
-  "/registrations/disable/:registrationId",
-  registrationController.disableRegistration
-);
-router.put(
-  "/registrations/enable/:registrationId",
-  registrationController.enableRegistration
+  "/registrations/reactivate/:registrationId",
+  registrationController.reactivateRegistration
 );
 router.get(
   "/registrations/payment/:registrationId",
   paymentController.getPaymentsForRegistration
 );
+
+
 
 //Registration History
 router.get(
@@ -81,8 +82,9 @@ router.get("/cards", cardController.getAllCards);
 router.get("/cards/userId", cardController.getAllUserCards);
 router.get("/cards/:cardId", cardController.getCardDetails);
 router.put("/cards/:cardId", cardController.updateCard);
-router.delete("/cards/:cardId", cardController.deleteCard);
 router.get("/active-cards", cardController.getAllActiveCards);
+router.put("/cards/revoke", cardController.revokeCardByPlateNumber);
+
 
 //Notification
 router.post("/notifications/send", notificationController.sendNotification);
@@ -92,6 +94,22 @@ router.get("/sessions", parkingSessionController.getAllParkingSessions);
 router.get(
   "/sessions/:parkingSessionId",
   parkingSessionController.getParkingSessionById
+);
+
+// Parking Type
+router.get("/parkingTypes", parkingTypeController.getAllParkingTypes);
+router.post("/parkingTypes", parkingTypeController.createParkingType);
+router.get(
+  "/parkingTypes/:parkingTypeId",
+  parkingTypeController.getParkingTypeById
+);
+router.put(
+  "/parkingTypes/:parkingTypeId",
+  parkingTypeController.updateParkingTypeById
+);
+router.delete(
+  "/parkingTypes/delete/:parkingTypeId",
+  parkingTypeController.deleteParkingTypeById
 );
 
 //Fee
@@ -106,5 +124,11 @@ router.get("/fees/:feeId/history", feeHistoryController.getFeeHistory);
 
 // Payments
 router.get("/payments", paymentController.getAllPayments);
+
+// Reports
+router.get("/getTotalCheckin", reportController.getTotalCheckin);
+router.get("/getTotalCheckout", reportController.getTotalCheckout);
+router.get("/getTotalGuestIncome", reportController.getTotalGuestIncome);
+router.get("/getGuestIncomeGroupByDate", reportController.getGuestIncomeGroupByDate);
 
 module.exports = router;

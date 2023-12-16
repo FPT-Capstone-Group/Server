@@ -72,12 +72,17 @@ const getPlateNumberByCard = async (req, res) => {
   try {
     const { cardId } = req.query;
     const card = await Card.findByPk(cardId, {
-      include  : [{ model: Bike, attributes: ['plateNumber']}]
+      include  : [
+          {
+            model: Bike,
+            attributes: ['plateNumber', 'status']
+          }
+      ]
     })
-    console.log(card)
     if (!card || !card.plateNumber) {
       return errorResponse(req, res, "No plate number found for the card", 404);
     }
+    if(card.status === 'inactive') return errorResponse(req, res, "inactive bike", 404);
     return successResponse(req, res, card.plateNumber, 200);
   } catch (error) {
     return errorResponse(req, res, error.message);

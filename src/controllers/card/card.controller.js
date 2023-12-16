@@ -1,6 +1,6 @@
 // controllers/cardController.js
 
-const { Card, CardHistory, ParkingType } = require("../../models");
+const {Card, CardHistory, ParkingType, Bike} = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -30,7 +30,7 @@ const createCard = async (req, res) => {
         {
           cardId: cardId,
           startDate: currentDate,
-          currentStatus: "active",
+          status: "active",
           createdAt: currentDate,
           updatedAt: currentDate,
           parkingTypeId: parkingType.parkingTypeId,
@@ -80,7 +80,7 @@ const getAllActiveCards = async (req, res) => {
   try {
     const activeCards = await Card.findAll({
       where: {
-        currentStatus: "active",
+        status: "active",
       },
     });
 
@@ -121,10 +121,10 @@ const getAllUserCards = async (req, res) => {
   }
 };
 
-// Get details of a specific card
+// Admin get details of a specific card
 const getCardDetails = async (req, res) => {
   try {
-    const { cardId } = req.query;
+    const { cardId } = req.params;
     const card = await Card.findByPk(cardId);
     if (!card) {
       return errorResponse(req, res, "Card not found", 404);
@@ -136,7 +136,7 @@ const getCardDetails = async (req, res) => {
       res,
       {
         cardId: cardId,
-        currentStatus: card.currentStatus,
+        status: card.status,
         parkingTypeName: parkingType.name,
       },
       200
@@ -171,7 +171,7 @@ const updateCard = async (req, res) => {
         eventTime: new Date().toISOString(),
         details: "Card updated successfully",
         cardId: card.cardId,
-        status: card.CurrentStatus,
+        status: card.status,
       },
       { transaction: t }
     );
@@ -187,31 +187,45 @@ const updateCard = async (req, res) => {
 };
 
 // Delete a card
-const deleteCard = async (req, res) => {
-  try {
-    const { cardId } = req.params;
+const revokeCardByPlateNumber = async (req, res) => {
+    try {
+        const {plateNumber} = req.query;
+        const t = await sequelize.transaction();
 
-    const card = await Card.findByPk(cardId);
+        const bike = await Bike.findOne({
+            where: {plateNumber: plateNumber}
+        })
+        const parkingTypeGuest = await ParkingType.findOne({
+            where: {name: 'guest'}
+        });
 
-    if (!card) {
-      return errorResponse(req, res, "Card not found", 404);
+        const cards = await Card.findAll({
+            where: {bikeId: bike.bikeId}
+        });
+        if (!cards || cards.length === 0) {
+            return errorResponse(req, res, "No card not found", 404);
+        }
+
+        for (const card of cards) {
+            card.bikeId = null
+            card.parkingTypeId = parkingTypeGuest.parkingTypeId
+            await card.save({transaction: t});
+        }
+        await t.commit();
+
+        return successResponse(req, res, "Cards revoked successfully", 200);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
     }
-
-    await card.destroy();
-
-    return successResponse(req, res, "Card deleted successfully", 200);
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
 };
 
 module.exports = {
-  createCard,
-  getAllUserCards,
-  getCardDetails,
-  updateCard,
-  deleteCard,
-  getAllCards,
-  getAllActiveCards,
+    createCard,
+    getAllUserCards,
+    getCardDetails,
+    updateCard,
+    revokeCardByPlateNumber,
+    getAllCards,
+    getAllActiveCards,
 };

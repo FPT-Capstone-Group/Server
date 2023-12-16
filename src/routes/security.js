@@ -26,11 +26,11 @@ router.get("/owners", ownerController.getOwnersByPlateNumber);
 
 //Parking
 router.post("/parking/checkin", parkingController.checkIn);
-router.get(
+router.post(
     "/parking/getParkingDataForEvaluateGuest",
     parkingController.getParkingDataForEvaluateGuest
 );
-router.get(
+router.post(
     "/parking/getParkingDataForEvaluateNotGuest",
     parkingController.getParkingDataForEvaluateNotGuest
 );

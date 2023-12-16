@@ -6,7 +6,7 @@ function addHours(date, hours) {
 const calculateParkingFee = (checkinTime, checkoutTime, dayFee, nightFee) =>
 {
     // Convert input strings to Date objects
-    const checkinDate = new Date(`${checkinTime}`);
+    const checkinDate = new Date(checkinTime);
     const checkoutDate = new Date(checkoutTime);
 
     // Add 7 hours to GMT +7 VN Time
@@ -14,13 +14,13 @@ const calculateParkingFee = (checkinTime, checkoutTime, dayFee, nightFee) =>
     const checkoutDateLocale = addHours(checkoutDate, 7);
 
     // Calculate the date diff
-    const dateDiff = checkoutDate.getDate() - checkinDate.getDate();
+    const dateDiff = checkinDateLocale.getDate() - checkoutDateLocale.getDate();
 
     // Define time milestones
-    const nightStartTime = new Date(checkinDate);
+    const nightStartTime = new Date(checkinDateLocale);
     nightStartTime.setHours(21, 0, 0, 0); // 21:00
 
-    const dayStartTime = new Date(checkinDate);
+    const dayStartTime = new Date(checkinDateLocale);
     dayStartTime.setHours(6, 0, 0, 0); // 6:00
 
     // Initialize fee variables

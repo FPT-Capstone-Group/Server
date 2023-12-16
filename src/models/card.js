@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    currentStatus: {
+    status: {
       type: DataTypes.STRING,
       defaultValue: "active",
     },
