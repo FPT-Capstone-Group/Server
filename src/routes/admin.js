@@ -13,6 +13,7 @@ const registrationHistoryController = require("../controllers/registrationHistor
 const feeHistoryController = require("../controllers/feeHistory/feeHistory.controller");
 const paymentController = require("../controllers/payment/payment.controller");
 const parkingTypeController = require("../controllers/parkingType/parkingType.controller");
+const reportController = require("../controllers/report/report.controller");
 
 const router = express.Router();
 
@@ -123,5 +124,11 @@ router.get("/fees/:feeId/history", feeHistoryController.getFeeHistory);
 
 // Payments
 router.get("/payments", paymentController.getAllPayments);
+
+// Reports
+router.get("/getTotalCheckin", reportController.getTotalCheckin);
+router.get("/getTotalCheckout", reportController.getTotalCheckout);
+router.get("/getTotalGuestIncome", reportController.getTotalGuestIncome);
+router.get("/getGuestIncomeGroupByDate", reportController.getGuestIncomeGroupByDate);
 
 module.exports = router;

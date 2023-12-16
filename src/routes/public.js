@@ -12,7 +12,6 @@ const router = express.Router();
 
 router.post("/otp/send", userController.getOtp);
 
-router.post("/login", validate(userValidator.login), userController.login);
 
 router.post("/login", validate(userValidator.login), userController.login);
 router.post("/loginSecurity", userController.loginSecurity);
