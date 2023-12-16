@@ -5,6 +5,7 @@ const {
   errorResponse,
   formatToMoment,
 } = require("../../helpers");
+const {Op} = require("sequelize");
 // Sub function
 const formatOwner = (owner) => {
   const formattedOwner = {
@@ -33,6 +34,22 @@ const createOwner = async (req, res) => {
         400
       );
     }
+    // Check maximum active owners
+    const totalActiveOwners = Owner.Count({
+      where:{
+        isActive: {[Op.eq]: true},
+        bikeId: existingBike.bikeId
+      }
+    })
+
+    if (totalActiveOwners >= 4){
+      return errorResponse(
+          req,
+          res,
+          "Cannot create more owner. Total active owners has reached the limit (4)",
+          400
+      );
+    }
     // Check if the plateNumber is already associated with an owner
     let existingOwner = await Owner.findOne({
       where: { bikeId: existingBike.bikeId },
@@ -52,6 +69,7 @@ const createOwner = async (req, res) => {
         );
       }
     }
+
 
     // Create a new owner and associate it with the existing bike
     const newOwner = await Owner.create({
@@ -81,7 +99,10 @@ const getOwnersByPlateNumber = async (req, res) => {
       return errorResponse(req, res, "No Bike Found", 404);
     }
     const owners = await Owner.findAll({
-      where: { bikeId: bike.bikeId },
+      where: {
+        bikeId: bike.bikeId,
+        isActive: true
+      },
     });
     if (!owners || owners.length === 0) {
       return errorResponse(req, res, "No Owners found", 404);
@@ -132,8 +153,114 @@ const getOwnersByUsersPlateNumber = async (req, res) => {
   }
 };
 
+//User
+const activateOwner = async (req, res) => {
+  const { ownerId } =
+      req.body;
+  try {
+    const updatingOwner = Owner.findByPk(ownerId)
+    if (!updatingOwner){
+      return errorResponse(
+          req,
+          res,
+          `Cannot find ownerId: ${ownerId}`,
+          400
+      );
+    }
+
+    // Check if the plateNumber already exists in the Bike model
+    const existingBike = await Bike.findByPk(updatingOwner.bikeId);
+    if (!existingBike || existingBike.status !== "active") {
+      return errorResponse(
+          req,
+          res,
+          "Cannot active owner. Invalid plateNumber or bike is not active",
+          400
+      );
+    }
+    // Check maximum active owners
+    const totalActiveOwners = Owner.Count({
+      where:{
+        isActive: {[Op.eq]: true},
+        bikeId: updatingOwner.bikeId
+      }
+    })
+    if (totalActiveOwners >= 4){
+      return errorResponse(
+          req,
+          res,
+          "Cannot activate more owner. Total active owners has reached the limit (4)",
+          400
+      );
+    }
+
+    if(updatingOwner.isActive){
+      return successResponse(
+          req,
+          res,
+          `${ownerId} is already active`,
+          200
+      );
+    }
+    updatingOwner.isActive = true
+    await updatingOwner.save()
+
+    const formattedOwner = formatOwner(updatingOwner);
+
+    return successResponse(req, res, { owner: formattedOwner }, 201);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+
+
+const deactivateOwner = async (req, res) => {
+  const { ownerId } =
+      req.body;
+  try {
+    const updatingOwner = Owner.findByPk(ownerId)
+    if (!updatingOwner){
+      return errorResponse(
+          req,
+          res,
+          `Cannot find ownerId: ${ownerId}`,
+          400
+      );
+    }
+    if(updatingOwner.relationship === 'owner'){
+      return errorResponse(
+          req,
+          res,
+          `Cannot deactivate the bike's owner`,
+          400
+      );
+    }
+
+    if(!updatingOwner.isActive){
+      return successResponse(
+          req,
+          res,
+          `${ownerId} is already inactive`,
+          200
+      );
+    }
+    updatingOwner.isActive = false
+    await updatingOwner.save()
+
+    const formattedOwner = formatOwner(updatingOwner);
+
+    return successResponse(req, res, { owner: formattedOwner }, 201);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+
 module.exports = {
   createOwner,
   getOwnersByPlateNumber,
   getOwnersByUsersPlateNumber,
+  activateOwner,
+  deactivateOwner
 };

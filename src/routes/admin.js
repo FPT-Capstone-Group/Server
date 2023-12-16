@@ -34,8 +34,8 @@ router.put(
   registrationController.activateRegistration
 );
 router.put(
-  "/registrations/deactive/:registrationId/",
-  registrationController.deactiveRegistration
+  "/registrations/deactivate/:registrationId/",
+  registrationController.temporaryDeactivateRegistration
 );
 router.put(
   "/registrations/verify/:registrationId",
@@ -46,17 +46,15 @@ router.put(
   registrationController.rejectRegistration
 );
 router.put(
-  "/registrations/disable/:registrationId",
-  registrationController.disableRegistration
-);
-router.put(
-  "/registrations/enable/:registrationId",
-  registrationController.enableRegistration
+  "/registrations/reactivate/:registrationId",
+  registrationController.reactivateRegistration
 );
 router.get(
   "/registrations/payment/:registrationId",
   paymentController.getPaymentsForRegistration
 );
+
+
 
 //Registration History
 router.get(
@@ -83,8 +81,9 @@ router.get("/cards", cardController.getAllCards);
 router.get("/cards/userId", cardController.getAllUserCards);
 router.get("/cards/:cardId", cardController.getCardDetails);
 router.put("/cards/:cardId", cardController.updateCard);
-router.delete("/cards/:cardId", cardController.deleteCard);
 router.get("/active-cards", cardController.getAllActiveCards);
+router.put("/cards/revoke", cardController.revokeCardByPlateNumber);
+
 
 //Notification
 router.post("/notifications/send", notificationController.sendNotification);

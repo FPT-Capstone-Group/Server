@@ -25,7 +25,6 @@ router.get("/fees/:feeId", feeController.getFeeById);
 router.get("/fees", feeController.getAllResidentFees);
 
 //User
-router.post("/forgotPassword", userController.forgotPassword);
 router.get("/me", userController.profile);
 router.post("/changePassword", userController.changePassword);
 router.put("/users/update", userController.updateUser);
@@ -56,6 +55,9 @@ router.get("/cards/userId", cardController.getAllUserCards);
 //Owner
 router.post("/owners/create", ownerController.createOwner);
 router.get("/owners", ownerController.getOwnersByUsersPlateNumber);
+router.post("/owners/activate", ownerController.activateOwner);
+router.post("/owners/deactivate", ownerController.deactivateOwner);
+
 
 //Parking Session
 router.get(

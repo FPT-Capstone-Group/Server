@@ -31,6 +31,7 @@ const createCard = async (req, res) => {
           cardId: cardId,
           startDate: currentDate,
           status: "active",
+          status: "active",
           createdAt: currentDate,
           updatedAt: currentDate,
           parkingTypeId: parkingType.parkingTypeId,
@@ -85,6 +86,7 @@ const getAllActiveCards = async (req, res) => {
   try {
     const activeCards = await Card.findAll({
       where: {
+        status: "active",
         status: "active",
       },
     });
@@ -142,6 +144,7 @@ const getCardDetails = async (req, res) => {
       {
         cardId: cardId,
         status: card.status,
+        status: card.status,
         parkingTypeName: parkingType.name,
       },
       200
@@ -177,6 +180,7 @@ const updateCard = async (req, res) => {
         details: "Card updated successfully",
         cardId: card.cardId,
         status: card.status,
+        status: card.status,
       },
       { transaction: t }
     );
@@ -192,31 +196,45 @@ const updateCard = async (req, res) => {
 };
 
 // Delete a card
-const deleteCard = async (req, res) => {
-  try {
-    const { cardId } = req.params;
+const revokeCardByPlateNumber = async (req, res) => {
+    try {
+        const {plateNumber} = req.query;
+        const t = await sequelize.transaction();
 
-    const card = await Card.findByPk(cardId);
+        const bike = await Bike.findOne({
+            where: {plateNumber: plateNumber}
+        })
+        const parkingTypeGuest = await ParkingType.findOne({
+            where: {name: 'guest'}
+        });
 
-    if (!card) {
-      return errorResponse(req, res, "Card not found", 404);
+        const cards = await Card.findAll({
+            where: {bikeId: bike.bikeId}
+        });
+        if (!cards || cards.length === 0) {
+            return errorResponse(req, res, "No card not found", 404);
+        }
+
+        for (const card of cards) {
+            card.bikeId = null
+            card.parkingTypeId = parkingTypeGuest.parkingTypeId
+            await card.save({transaction: t});
+        }
+        await t.commit();
+
+        return successResponse(req, res, "Cards revoked successfully", 200);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
     }
-
-    await card.destroy();
-
-    return successResponse(req, res, "Card deleted successfully", 200);
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
 };
 
 module.exports = {
-  createCard,
-  getAllUserCards,
-  getCardDetails,
-  updateCard,
-  deleteCard,
-  getAllCards,
-  getAllActiveCards,
+    createCard,
+    getAllUserCards,
+    getCardDetails,
+    updateCard,
+    revokeCardByPlateNumber,
+    getAllCards,
+    getAllActiveCards,
 };

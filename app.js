@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const admin = require("firebase-admin");
 
+
 const publicRoutes = require("./src/routes/public");
 const apiRoutes = require("./src/routes/api");
 const adminRoutes = require("./src/routes/admin");
@@ -15,6 +16,9 @@ const errorHandler = require("./src/middleware/errorHandler");
 dotenv.config();
 require("./src/config/sequelize");
 
+const cron = require('node-cron');
+const {sendExpirationNotification} = require("./src/scheduler/ExpirationNotificationSchedule")
+
 // Initialize Firebase Admin
 // const serviceAccountPath = process.env.FIREBASE_ADMIN_CREDENTIALS;
 // const serviceAccountCredentials = process.env.FIREBASE_ADMIN_CREDENTIALS.replace(/\\"/g, '"')
@@ -23,6 +27,17 @@ require("./src/config/sequelize");
 const serviceAccount = require('./firebase-admin-credentials.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+});
+cron.schedule('0 9 * * *', async () => {
+    await sendExpirationNotification()
+
+    const gmtOffset = 7 * 60; // GMT+7
+    const now = new Date(new Date().getTime() + gmtOffset * 60000);
+
+    // Check if correct timezone GMT +7
+    if (now.getUTCHours() === 0 && now.getUTCMinutes() === 0) {
+        await sendExpirationNotification()
+    }
 });
 
 const app = express();
