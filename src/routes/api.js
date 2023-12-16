@@ -25,7 +25,6 @@ router.get("/fees/:feeId", feeController.getFeeById);
 router.get("/fees", feeController.getAllResidentFees);
 
 //User
-router.post("/forgotPassword", userController.forgotPassword);
 router.get("/me", userController.profile);
 router.post("/changePassword", userController.changePassword);
 router.put("/users/update", userController.updateUser);

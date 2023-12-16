@@ -796,9 +796,11 @@ const allRegistration = async (req, res) => {
     if (registrations.length === 0) {
       return successResponse(req, res, "No active registrations found");
     }
-    const formattedRegistrations = registrations.map((registration) =>
-      formatRegistration(registration)
-    );
+    const formattedRegistrations = registrations.map((registration) =>{
+
+          formatRegistration(registration)
+
+    });
     return successResponse(req, res, formattedRegistrations);
   } catch (error) {
     console.error(error);

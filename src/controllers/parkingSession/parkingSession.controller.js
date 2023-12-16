@@ -13,6 +13,7 @@ const {
     compareFaces,
 } = require("../../helpers");
 const moment = require("moment-timezone");
+const {Op} = require("sequelize");
 moment.tz.setDefault("Asia/Saigon");
 // Sub function
 const formatParkingSession = (parkingSession) => {
@@ -145,7 +146,11 @@ const getParkingDataForEvaluateNotGuest = async (req, res) => {
             return errorResponse(req, res, "No Bike Found", 404);
         }
         const owners = await Owner.findAll({
-            where: {bikeId: bike.bikeId},
+            where: {
+                isActive: true,
+                bikeId: bike.bikeId
+            },
+
         });
         if (!owners || owners.length === 0) {
             return errorResponse(req, res, "No Owners found", 404);
@@ -249,11 +254,14 @@ const checkOut = async (req, res) => {
 // Admin get parking Session by plateNumber
 const getParkingSessionsByPlateNumber = async (req, res) => {
     try {
-        const {plateNumber} = req.query;
+        const {plateNumber, dateStart, dateEnd} = req.query;
 
         // Fetch all parking sessions for the given plate number
         const parkingSessions = await ParkingSession.findAll({
-            where: {plateNumber},
+            where: {
+                plateNumber,
+                checkinTime: {[Op.between]: [dateStart, dateEnd]}
+            },
         });
 
         if (!parkingSessions || parkingSessions.length === 0) {
@@ -284,7 +292,8 @@ const getParkingSessionsByPlateNumber = async (req, res) => {
 // User get parking session by their plateNumber
 const getParkingSessionsByUsersPlateNumber = async (req, res) => {
     try {
-        const {plateNumber} = req.query;
+        const {plateNumber, dateStart, dateEnd} = req.query;
+
         const user = req.user;
 
         // Check if the user owns the bike with the provided plate number
@@ -303,7 +312,10 @@ const getParkingSessionsByUsersPlateNumber = async (req, res) => {
 
         // If the user owns the bike, fetch the parking sessions for that bike
         const parkingSessions = await ParkingSession.findAll({
-            where: {plateNumber},
+            where: {
+                plateNumber,
+                checkinTime: {[Op.between]: [dateStart, dateEnd]}
+            },
         });
 
         if (!parkingSessions || parkingSessions.length === 0) {

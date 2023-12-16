@@ -23,4 +23,6 @@ router.post(
   userController.register
 );
 router.post("/user/tokenDevice", userController.getFirebaseTokenDevice);
+router.post("/forgotPassword", userController.forgotPassword);
+
 module.exports = router;
