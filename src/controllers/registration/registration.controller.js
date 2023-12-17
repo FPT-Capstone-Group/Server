@@ -409,10 +409,17 @@ const activateRegistration = async (req, res) => {
     if (!card) {
       return errorResponse(req, res, "Card not found", 404);
     }
-
+    const parkingType = await ParkingType.findOne({
+      where: { name: "resident" },
+      attributes: ["parkingTypeId"],
+    });
     if (card.status === "active") {
       await card.update(
-        { status: "assigned", bikeId: newBike.bikeId },
+        {
+          status: "assigned",
+          bikeId: newBike.bikeId,
+          parkingTypeId: parkingType.parkingTypeId,
+        },
         { transaction: t }
       );
     } else {
