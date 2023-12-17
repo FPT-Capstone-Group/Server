@@ -235,7 +235,7 @@ const checkOut = async (req, res) => {
         checkoutCardId,
         checkoutFaceImage,
         checkoutPlateNumberImage,
-        fee,
+        parkingFee,
     } = req.body;
 
     try {
@@ -243,7 +243,7 @@ const checkOut = async (req, res) => {
         parkingSession.checkoutCardId = checkoutCardId;
         parkingSession.checkoutFaceImage = checkoutFaceImage;
         parkingSession.checkoutPlateNumberImage = checkoutPlateNumberImage;
-        parkingSession.parkingFee = fee;
+        parkingSession.parkingFee = parkingFee;
         parkingSession.checkoutTime = moment().format("YYYY-MM-DD:HH:mm:ss");
 
         await parkingSession.save();
