@@ -49,7 +49,7 @@ const uniqueId = (length = 13) => {
     return result;
 };
 
-const formatToMoment = (date) => moment(date).format("YYYY-MM-DD:HH:mm:ss");
+const formatToMoment = (date) => moment(date).format("YYYY-MM-DD HH:mm:ss");
 
 module.exports = {
     successResponse,

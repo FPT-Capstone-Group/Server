@@ -107,11 +107,11 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
         const nightFee = await Fee.findOne({
             where: {feeName: "guest_night"},
         });
-
+        const checkoutTime = moment().format("YYYY-MM-DD HH:mm:ss");
         // Calculate parking fee
         parkingSession.parkingFee = calculateParkingFee(
             parkingSession.checkinTime,
-            parkingSession.checkoutTime,
+            checkoutTime,
             dayFee.amount,
             nightFee.amount
         );
@@ -136,12 +136,11 @@ const getParkingDataForEvaluateNotGuest = async (req, res) => {
     const {cardId, riderFaceImage} = req.body;
 
     try {
-        const card = await Card.findByPk(cardId, {
-            include: [{model: Bike, attributes: ['plateNumber']}]
-        })
-        const bike = await Bike.findOne({
-            where: {plateNumber: card.plateNumber},
-        });
+        const card = await Card.findByPk(cardId)
+        if (!card) {
+            return errorResponse(req, res, "No Card Found", 404);
+        }
+        const bike = await Bike.findByPk(card.bikeId)
         if (!bike) {
             return errorResponse(req, res, "No Bike Found", 404);
         }
@@ -157,7 +156,7 @@ const getParkingDataForEvaluateNotGuest = async (req, res) => {
         }
 
         let parkingSession = await ParkingSession.findOne({
-            where: {plateNumber: card.plateNumber},
+            where: {plateNumber: bike.plateNumber},
             order: [["checkinTime", "DESC"]], // Get the latest checkin
         });
 
@@ -172,7 +171,7 @@ const getParkingDataForEvaluateNotGuest = async (req, res) => {
         parkingSession.parkingFee = 0
         let samePerson = null
         for (const owner of owners) {
-            samePerson = compareFaces(riderFaceImage, owner.ownerFaceImage)
+            samePerson = await compareFaces(riderFaceImage, owner.ownerFaceImage)
             if (samePerson === true) {
                 return successResponse(req, res, checkoutDataEvaluateResponseObject(parkingSession, owner.fullName), 200);
             }
@@ -193,7 +192,7 @@ const checkIn = async (req, res) => {
     plateNumber,
     parkingTypeName,
   } = req.body;
-  const checkinTime = moment().format("YYYY-MM-DD:HH:mm:ss");
+  const checkinTime = moment().format("YYYY-MM-DD HH:mm:ss");
   try {
     const security = req.user.fullName;
     const parkingType = await ParkingType.findOne({

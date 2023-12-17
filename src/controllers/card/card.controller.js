@@ -131,7 +131,7 @@ const getAllUserCards = async (req, res) => {
 // Admin get details of a specific card
 const getCardDetails = async (req, res) => {
   try {
-    const { cardId } = req.params;
+    const { cardId } = req.query;
     const card = await Card.findByPk(cardId);
     if (!card) {
       return errorResponse(req, res, "Card not found", 404);
