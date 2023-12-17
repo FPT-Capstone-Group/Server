@@ -35,31 +35,35 @@ const checkoutDataEvaluateResponseObject = (parkingSession, detectedRiderName) =
 
 // Admin get all parking sessions
 const getAllParkingSessions = async (req, res) => {
-  try {
-    const parkingSessions = await ParkingSession.findAll({
-      include: ParkingType,
-      attributes: {
-        exclude: [
-          "checkinFaceImage",
-          "checkinPlateNumberImage",
-          "checkoutFaceImage",
-          "checkoutPlateNumberImage",
-        ],
-      },
-    });
-    const formattedParkingSessions = parkingSessions.map((parkingSession) =>
-      formatParkingSession(parkingSession)
-    );
-    return successResponse(
-      req,
-      res,
-      { parkingSessions: formattedParkingSessions },
-      200
-    );
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
+    try {
+        const {dateStart, dateEnd} = req.query;
+        const parkingSessions = await ParkingSession.findAll({
+            where: {
+                updatedAt: {[Op.between]: [dateStart, dateEnd]}
+            },
+            include: ParkingType,
+            attributes: {
+                exclude: [
+                    "checkinFaceImage",
+                    "checkinPlateNumberImage",
+                    "checkoutFaceImage",
+                    "checkoutPlateNumberImage",
+                ],
+            },
+        });
+        const formattedParkingSessions = parkingSessions.map((parkingSession) =>
+            formatParkingSession(parkingSession)
+        );
+        return successResponse(
+            req,
+            res,
+            {parkingSessions: formattedParkingSessions},
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
 };
 
 // Get a specific parking session by ID
@@ -185,43 +189,43 @@ const getParkingDataForEvaluateNotGuest = async (req, res) => {
 
 // Create new parking session aka Checkin
 const checkIn = async (req, res) => {
-  const {
-    checkinCardId,
-    checkinFaceImage,
-    checkinPlateNumberImage,
-    plateNumber,
-    parkingTypeName,
-  } = req.body;
-  const checkinTime = moment().format("YYYY-MM-DD HH:mm:ss");
-  try {
-    const security = req.user.fullName;
-    const parkingType = await ParkingType.findOne({
-      where: { name: parkingTypeName },
-    });
-    const newParkingSession = await ParkingSession.create({
-      checkinCardId,
-      checkinTime,
-      checkinFaceImage,
-      checkinPlateNumberImage,
-      plateNumber,
-      approvedBy: security,
-      parkingTypeId: parkingType.parkingTypeId,
-    });
+    const {
+        checkinCardId,
+        checkinFaceImage,
+        checkinPlateNumberImage,
+        plateNumber,
+        parkingTypeName,
+    } = req.body;
+    const checkinTime = moment().format("YYYY-MM-DD HH:mm:ss");
+    try {
+        const security = req.user.fullName;
+        const parkingType = await ParkingType.findOne({
+            where: {name: parkingTypeName},
+        });
+        const newParkingSession = await ParkingSession.create({
+            checkinCardId,
+            checkinTime,
+            checkinFaceImage,
+            checkinPlateNumberImage,
+            plateNumber,
+            approvedBy: security,
+            parkingTypeId: parkingType.parkingTypeId,
+        });
 
-    return successResponse(
-      req,
-      res,
-      {
-        cardId: newParkingSession.checkinCardId,
-        plateNumber: newParkingSession.plateNumber,
-        parkingType: parkingType,
-      },
-      201
-    );
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
+        return successResponse(
+            req,
+            res,
+            {
+                cardId: newParkingSession.checkinCardId,
+                plateNumber: newParkingSession.plateNumber,
+                parkingType: parkingType,
+            },
+            201
+        );
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
 };
 
 // Checkout by session ID
@@ -259,7 +263,7 @@ const getParkingSessionsByPlateNumber = async (req, res) => {
         const parkingSessions = await ParkingSession.findAll({
             where: {
                 plateNumber,
-                checkinTime: {[Op.between]: [dateStart, dateEnd]}
+                updatedAt: {[Op.between]: [dateStart, dateEnd]}
             },
         });
 
@@ -313,7 +317,7 @@ const getParkingSessionsByUsersPlateNumber = async (req, res) => {
         const parkingSessions = await ParkingSession.findAll({
             where: {
                 plateNumber,
-                checkinTime: {[Op.between]: [dateStart, dateEnd]}
+                updatedAt: {[Op.between]: [dateStart, dateEnd]}
             },
         });
 

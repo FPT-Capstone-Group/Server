@@ -2,20 +2,21 @@
 
 const { Card, CardHistory, ParkingType, Bike } = require("../../models");
 const {
-  successResponse,
-  errorResponse,
-  formatToMoment,
+    successResponse,
+    errorResponse,
+    formatToMoment,
 } = require("../../helpers");
 const sequelize = require("../../config/sequelize");
 
 // Sub func
-const formatCard = (card) => {
-  const formattedCard = {
-    ...card.toJSON(),
-    createdAt: formatToMoment(card.createdAt),
-    updatedAt: formatToMoment(card.updatedAt),
-  };
-  return formattedCard;
+const formatCard = (card, plateNumber) => {
+    const formattedCard = {
+        ...card.toJSON(),
+        plateNumber: plateNumber,
+        createdAt: formatToMoment(card.createdAt),
+        updatedAt: formatToMoment(card.updatedAt),
+    };
+    return formattedCard;
 };
 // Create a new card
 const createCard = async (req, res) => {
@@ -52,13 +53,13 @@ const createCard = async (req, res) => {
       }
     }
 
-    await t.commit();
-    return successResponse(req, res, newCards.cardId, 201);
-  } catch (error) {
-    console.error(error);
-    await t.rollback();
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
+        await t.commit();
+        return successResponse(req, res, newCards.cardId, 201);
+    } catch (error) {
+        console.error(error);
+        await t.rollback();
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
 };
 
 // Get all cards
@@ -71,15 +72,24 @@ const getAllCards = async (req, res) => {
       },
     });
 
-    if (!allCards || allCards.length === 0) {
-      return errorResponse(req, res, "No Cards", 404);
+        if (!allCards || allCards.length === 0) {
+            return errorResponse(req, res, "No Cards", 404);
+        }
+        const formattedCards = []
+        for (const card of allCards){
+            let plateNumber = ''
+            if (card.bikeId) {
+                const bike = await Bike.findByPk(card.bikeId)
+                plateNumber = bike.plateNumber
+            }
+            const formattedCard = formatCard(card, plateNumber)
+            formattedCards.push(formattedCard)
+        }
+        return successResponse(req, res, {cards: formattedCards}, 200);
+    } catch (error) {
+        console.error("Internal Server Error:", error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
     }
-    const formattedCards = allCards.map((card) => formatCard(card));
-    return successResponse(req, res, { cards: formattedCards }, 200);
-  } catch (error) {
-    console.error("Internal Server Error:", error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
 };
 // Get all cards active
 const getAllActiveCards = async (req, res) => {
@@ -91,41 +101,41 @@ const getAllActiveCards = async (req, res) => {
       },
     });
 
-    if (!activeCards || activeCards.length === 0) {
-      return errorResponse(req, res, "No Active Cards", 404);
-    }
+        if (!activeCards || activeCards.length === 0) {
+            return errorResponse(req, res, "No Active Cards", 404);
+        }
 
-    const formattedActiveCards = activeCards.map((card) => formatCard(card));
-    return successResponse(
-      req,
-      res,
-      { activeCards: formattedActiveCards },
-      200
-    );
-  } catch (error) {
-    console.error("Internal Server Error:", error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
+        const formattedActiveCards = activeCards.map((card) => formatCard(card));
+        return successResponse(
+            req,
+            res,
+            {activeCards: formattedActiveCards},
+            200
+        );
+    } catch (error) {
+        console.error("Internal Server Error:", error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
 };
 
 // Get all cards for a user
 const getAllUserCards = async (req, res) => {
-  try {
-    const userId = req.user.userId;
+    try {
+        const userId = req.user.userId;
 
-    const userCards = await Card.findAll({
-      where: { userId },
-    });
+        const userCards = await Card.findAll({
+            where: {userId},
+        });
 
-    if (!userCards) {
-      return errorResponse(req, res, "Cards not found", 404);
+        if (!userCards) {
+            return errorResponse(req, res, "Cards not found", 404);
+        }
+        const formattedCards = userCards.map((card) => formatCard(card));
+        return successResponse(req, res, {cards: formattedCards}, 200);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
     }
-    const formattedCards = userCards.map((card) => formatCard(card));
-    return successResponse(req, res, { cards: formattedCards }, 200);
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
 };
 
 // Admin get details of a specific card
@@ -157,21 +167,21 @@ const getCardDetails = async (req, res) => {
 
 // Update card details
 const updateCard = async (req, res) => {
-  const t = await sequelize.transaction();
-  try {
-    const { cardId } = req.params;
-    const { expiredDate, cardType } = req.body;
+    const t = await sequelize.transaction();
+    try {
+        const {cardId} = req.params;
+        const {expiredDate, cardType} = req.body;
 
-    const card = await Card.findByPk(cardId);
+        const card = await Card.findByPk(cardId);
 
-    if (!card) {
-      return errorResponse(req, res, "Card not found", 404);
-    }
+        if (!card) {
+            return errorResponse(req, res, "Card not found", 404);
+        }
 
-    card.expiredDate = expiredDate;
-    card.cardType = cardType;
+        card.expiredDate = expiredDate;
+        card.cardType = cardType;
 
-    await card.save({ transaction: t });
+        await card.save({transaction: t});
 
     await CardHistory.create(
       {
@@ -185,14 +195,14 @@ const updateCard = async (req, res) => {
       { transaction: t }
     );
 
-    await t.commit();
-    const formattedCard = formatCard(card);
-    return successResponse(req, res, { card: formattedCard }, 200);
-  } catch (error) {
-    console.error(error);
-    await t.rollback();
-    return errorResponse(req, res, "Internal Server Error", 500, error);
-  }
+        await t.commit();
+        const formattedCard = formatCard(card);
+        return successResponse(req, res, {card: formattedCard}, 200);
+    } catch (error) {
+        console.error(error);
+        await t.rollback();
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
 };
 
 // Delete a card

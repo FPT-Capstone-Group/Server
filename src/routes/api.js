@@ -19,7 +19,8 @@ const router = express.Router();
 
 //Bike
 router.get("/bikes", bikeController.getAllBikesForUser);
-router.get("/bikes/:cardId", bikeController.getAllBikesByCard);
+router.get("/bikes/getAllBikesByCard", bikeController.getAllBikesByCard);
+router.get("/bikes/getAllCardsByBikeId", bikeController.getAllCardsByBikeId);
 //Fee
 router.get("/fees", feeController.getAllFees);
 router.get("/fees/:feeId", feeController.getFeeById);
@@ -44,6 +45,14 @@ router.get(
 router.put(
   "/registrations/cancel/:registrationId",
   registrationController.cancelRegistration
+);
+router.put(
+    "/registrations/deactivate/:registrationId/",
+    registrationController.temporaryDeactivateRegistration
+);
+router.put(
+    "/registrations/reactivate/:registrationId",
+    registrationController.reactivateRegistration
 );
 
 //Payment

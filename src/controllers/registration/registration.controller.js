@@ -465,7 +465,7 @@ const activateRegistration = async (req, res) => {
 const temporaryDeactivateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { registrationId } = req.params;
+    const { registrationId } = req.query;
     const registration = await Registration.findByPk(registrationId);
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
@@ -536,7 +536,7 @@ const temporaryDeactivateRegistration = async (req, res) => {
 const deactivateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { registrationId } = req.params;
+    const { registrationId } = req.query;
     const registration = await Registration.findByPk(registrationId);
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
@@ -590,7 +590,7 @@ const deactivateRegistration = async (req, res) => {
 const reactivateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { registrationId } = req.params;
+    const { registrationId } = req.query;
     const registration = await Registration.findByPk(registrationId);
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);

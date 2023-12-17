@@ -41,9 +41,30 @@ const getAllBikesForUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+const getAllCardsByBikeId = async (req, res) => {
+  try {
+    const { bikeId } = req.query;
+    console.log(`HERE ${bikeId}`)
+
+    const bike = await Bike.findByPk(bikeId);
+    if (!bike){
+      return errorResponse(req, res, `No bike id ${bikeId} found`, 404);
+    }
+    console.log("HERE")
+    const cards = await Card.findAll({
+      where: {bikeId},
+      attributes: ['cardId']
+    });
+
+    return successResponse(req, res, cards, 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 const getAllBikesByCard = async (req, res) => {
   try {
-    const { cardId } = req.params;
+    const { cardId } = req.query;
     const card = await Card.findOne({
       where: { cardId, userId: req.user.userId },
     });
@@ -88,4 +109,4 @@ const getPlateNumberByCard = async (req, res) => {
   }
 };
 
-module.exports = { getAllBikesForUser, createBike, getAllBikesByCard, getPlateNumberByCard };
+module.exports = { getAllBikesForUser, createBike, getAllBikesByCard, getPlateNumberByCard, getAllCardsByBikeId };
