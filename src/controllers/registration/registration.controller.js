@@ -7,7 +7,8 @@ const {
   Fee,
   User,
   Card,
-  Notification, ParkingType,
+  Notification,
+  ParkingType,
 } = require("../../models");
 const notificationController = require("../notification/notification.controller");
 const {
@@ -319,7 +320,7 @@ const getAllUserRegistration = async (req, res) => {
   }
 };
 
-// User cancels their registration
+// User cancels their registration *** MISSING if user already paid, but want to change bike
 const cancelRegistration = async (req, res) => {
   try {
     const { registrationId } = req.query;
@@ -366,7 +367,7 @@ const activateRegistration = async (req, res) => {
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
     }
-    if(registration.status !== 'paid'){
+    if (registration.status !== "paid") {
       return errorResponse(req, res, "Registration is not paid", 404);
     }
     const successfulPayment = await Payment.findOne({
@@ -453,8 +454,7 @@ const activateRegistration = async (req, res) => {
   }
 };
 
-
-// Admin disable a registration
+// Admin tempo deactive a registration
 const temporaryDeactivateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -465,7 +465,12 @@ const temporaryDeactivateRegistration = async (req, res) => {
     }
     // Check if the registration is already temporary inactive
     if (registration.status === "temporary_inactive") {
-      return errorResponse(req, res, "Registration is already temporary_inactive", 400);
+      return errorResponse(
+        req,
+        res,
+        "Registration is already temporary_inactive",
+        400
+      );
     }
     if (registration.status !== "active") {
       return errorResponse(
@@ -520,7 +525,7 @@ const temporaryDeactivateRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-
+// Admin perma deactivate Registration
 const deactivateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -531,7 +536,12 @@ const deactivateRegistration = async (req, res) => {
     }
     // Check if the registration is already disable
     if (registration.status !== "temporary_inactive") {
-      return errorResponse(req, res, "Registration is not temporary_inactive", 400);
+      return errorResponse(
+        req,
+        res,
+        "Registration is not temporary_inactive",
+        400
+      );
     }
 
     // Update the status to "Disable"
@@ -540,9 +550,9 @@ const deactivateRegistration = async (req, res) => {
 
     // Create Registration History
     await createRegistrationHistory(
-        "inactive",
-        req.user.fullName,
-        registration.registrationId
+      "inactive",
+      req.user.fullName,
+      registration.registrationId
     );
 
     // Send notification to user
@@ -551,15 +561,15 @@ const deactivateRegistration = async (req, res) => {
       const notificationTitle = "Registration Deactivated";
       const notificationBody = `Your registration with plate number: ${registration.plateNumber} has been deactivated`;
       await notificationController.sendNotificationMessage(
-          user.userId,
-          notificationTitle,
-          notificationBody
+        user.userId,
+        notificationTitle,
+        notificationBody
       );
       await createNotification(
-          user.userId,
-          notificationBody, //message
-          notificationTitle, //notiType
-          t
+        user.userId,
+        notificationBody, //message
+        notificationTitle, //notiType
+        t
       );
     }
     await t.commit();
@@ -569,7 +579,7 @@ const deactivateRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-
+// Admin reactivate Registration
 const reactivateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -811,6 +821,25 @@ const allRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+
+//Admin search Registration
+const searchRegistration = async (req, res) => {
+  const { plateNumber } = req.query;
+
+  try {
+    const registrations = await Registration.findAll({
+      where: {
+        plateNumber: {
+          [Op.like]: `%${String(plateNumber)}%`, // Convert to string explicitly
+        },
+      },
+    });
+    return successResponse(req, res, registrations);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 module.exports = {
   createRegistration,
   activateRegistration,
@@ -825,4 +854,5 @@ module.exports = {
   temporaryDeactivateRegistration,
   adminGetUserRegistration,
   reactivateRegistration,
+  searchRegistration,
 };

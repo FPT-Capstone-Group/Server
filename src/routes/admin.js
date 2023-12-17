@@ -53,8 +53,7 @@ router.get(
   "/registrations/payment/:registrationId",
   paymentController.getPaymentsForRegistration
 );
-
-
+router.get("/registrations/search", registrationController.searchRegistration);
 
 //Registration History
 router.get(
@@ -83,7 +82,6 @@ router.get("/cards/:cardId", cardController.getCardDetails);
 router.put("/cards/:cardId", cardController.updateCard);
 router.get("/active-cards", cardController.getAllActiveCards);
 router.put("/cards/revoke", cardController.revokeCardByPlateNumber);
-
 
 //Notification
 router.post("/notifications/send", notificationController.sendNotification);
