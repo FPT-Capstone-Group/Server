@@ -35,7 +35,7 @@ const createOwner = async (req, res) => {
       );
     }
     // Check maximum active owners
-    const totalActiveOwners = Owner.Count({
+    const totalActiveOwners = Owner.count({
       where:{
         isActive: {[Op.eq]: true},
         bikeId: existingBike.bikeId
@@ -108,8 +108,9 @@ const getOwnersByPlateNumber = async (req, res) => {
       return errorResponse(req, res, "No Owners found", 404);
     }
     // Format dates in each owner before sending the response
-    const formattedOwner = owners.map((owner) => formatOwner(owner));
-    return successResponse(req, res, { owners: formattedOwner }, 200);
+    const formattedOwners = owners.map((owner) => formatOwner(owner));
+    // return successResponse(req, res, { owners: formattedOwners }, 200);
+    return successResponse(req, res,  formattedOwners , 200);
   } catch (error) {
     console.error("Internal Server Error:", error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -158,7 +159,7 @@ const activateOwner = async (req, res) => {
   const { ownerId } =
       req.body;
   try {
-    const updatingOwner = Owner.findByPk(ownerId)
+    const updatingOwner = await Owner.findByPk(ownerId)
     if (!updatingOwner){
       return errorResponse(
           req,
@@ -179,7 +180,7 @@ const activateOwner = async (req, res) => {
       );
     }
     // Check maximum active owners
-    const totalActiveOwners = Owner.Count({
+    const totalActiveOwners = Owner.count({
       where:{
         isActive: {[Op.eq]: true},
         bikeId: updatingOwner.bikeId
@@ -219,7 +220,8 @@ const deactivateOwner = async (req, res) => {
   const { ownerId } =
       req.body;
   try {
-    const updatingOwner = Owner.findByPk(ownerId)
+    const updatingOwner = await Owner.findByPk(ownerId)
+    console.log(updatingOwner)
     if (!updatingOwner){
       return errorResponse(
           req,

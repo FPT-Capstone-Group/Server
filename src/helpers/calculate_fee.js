@@ -13,36 +13,39 @@ const calculateParkingFee = (checkinTime, checkoutTime, dayFee, nightFee) =>
     const checkinDateLocale = addHours(checkinDate, 7);
     const checkoutDateLocale = addHours(checkoutDate, 7);
 
+    console.log(`Checkin date locale: ${checkinDateLocale}`)
+    console.log(`Checkout date locale: ${checkoutDateLocale}`)
     // Calculate the date diff
-    const dateDiff = checkinDateLocale.getDate() - checkoutDateLocale.getDate();
+    const dateDiff = checkoutDateLocale.getDate() - checkinDateLocale.getDate();
+    console.log(`dateDiff: ${dateDiff}`)
 
     // Define time milestones
     const nightStartTime = new Date(checkinDateLocale);
     nightStartTime.setHours(21, 0, 0, 0); // 21:00
-
+    console.log(`nightStartTime: ${nightStartTime}`)
     const dayStartTime = new Date(checkinDateLocale);
     dayStartTime.setHours(6, 0, 0, 0); // 6:00
-
+    console.log(`dayStartTime: ${dayStartTime}`)
     // Initialize fee variables
     let dayFeeCalculation = 0;
     let nightFeeCalculation = 0;
 
     // Calculate night fee if checkout is after 21:00 on the same day
-    if (checkoutDate > nightStartTime) {
+    if (checkoutDateLocale > nightStartTime) {
         nightFeeCalculation = nightFee;
     }
 
     // Calculate night fee if checkin is before 6:00 on the same day
-    if (checkinDate < dayStartTime) {
+    if (checkinDateLocale < dayStartTime) {
         nightFeeCalculation = nightFee;
     }
 
-    if (checkinDate < nightStartTime) {
+    if (checkinDateLocale < nightStartTime) {
         dayFeeCalculation = dayFee;
     }
 
     // Calculate day fee if checkout is after 6:00 on the next day
-    if (checkoutDate > dayStartTime) {
+    if (checkoutDateLocale > dayStartTime) {
         dayFeeCalculation = dayFee;
     }
 
