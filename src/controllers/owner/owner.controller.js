@@ -108,8 +108,9 @@ const getOwnersByPlateNumber = async (req, res) => {
       return errorResponse(req, res, "No Owners found", 404);
     }
     // Format dates in each owner before sending the response
-    const formattedOwner = owners.map((owner) => formatOwner(owner));
-    return successResponse(req, res, { owners: formattedOwner }, 200);
+    const formattedOwners = owners.map((owner) => formatOwner(owner));
+    // return successResponse(req, res, { owners: formattedOwners }, 200);
+    return successResponse(req, res,  formattedOwners , 200);
   } catch (error) {
     console.error("Internal Server Error:", error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
