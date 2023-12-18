@@ -41,9 +41,30 @@ const getAllBikesForUser = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+const getAllCardsByBikeId = async (req, res) => {
+  try {
+    const { bikeId } = req.query;
+    console.log(`HERE ${bikeId}`);
+
+    const bike = await Bike.findByPk(bikeId);
+    if (!bike) {
+      return errorResponse(req, res, `No bike id ${bikeId} found`, 404);
+    }
+    console.log("HERE");
+    const cards = await Card.findAll({
+      where: { bikeId },
+      attributes: ["cardId"],
+    });
+
+    return successResponse(req, res, cards, 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 const getAllBikesByCard = async (req, res) => {
   try {
-    const { cardId } = req.params;
+    const { cardId } = req.query;
     const card = await Card.findOne({
       where: { cardId, userId: req.user.userId },
     });
@@ -72,20 +93,71 @@ const getPlateNumberByCard = async (req, res) => {
   try {
     const { cardId } = req.query;
     const card = await Card.findByPk(cardId);
-    console.log(card)
+    console.log(card);
     if (!card) {
       return errorResponse(req, res, `No card found with ID: ${cardId}`, 404);
     }
-    const bike = await Bike.findByPk(card.bikeId)
+    const bike = await Bike.findByPk(card.bikeId);
     if (!bike) {
-      return errorResponse(req, res, `No plate number found for the card ${cardId}`, 404);
+      return errorResponse(
+        req,
+        res,
+        `No plate number found for the card ${cardId}`,
+        404
+      );
     }
 
-    if(bike.status === 'inactive') return errorResponse(req, res, "inactive bike", 404);
+    if (bike.status === "inactive")
+      return errorResponse(req, res, "inactive bike", 404);
     return successResponse(req, res, bike.plateNumber, 200);
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
 };
 
-module.exports = { getAllBikesForUser, createBike, getAllBikesByCard, getPlateNumberByCard };
+// Admin get All cards
+const getAllBikes = async (req, res) => {
+  try {
+    // Retrieve all bikes
+    const allBikes = await Bike.findAll();
+
+    if (!allBikes || allBikes.length === 0) {
+      return errorResponse(req, res, "No bikes found", 404);
+    }
+
+    const formattedBikes = allBikes.map((bike) => formatBike(bike));
+    return successResponse(req, res, { bikes: formattedBikes }, 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+const getBikeInfo = async (req, res) => {
+  try {
+    const { bikeId } = req.params;
+
+    // Retrieve the bike
+    const bike = await Bike.findByPk(bikeId);
+
+    if (!bike) {
+      return errorResponse(req, res, `No bike found with ID: ${bikeId}`, 404);
+    }
+
+    const formattedBike = formatBike(bike);
+
+    return successResponse(req, res, { bike: formattedBike }, 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+
+module.exports = {
+  getAllBikesForUser,
+  createBike,
+  getAllBikesByCard,
+  getPlateNumberByCard,
+  getAllCardsByBikeId,
+  getAllBikes,
+  getBikeInfo,
+};

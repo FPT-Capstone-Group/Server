@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const { Role, User, UserHistory } = require("../../models");
+const { Role, User, UserHistory, Notification } = require("../../models");
 const {
   errorResponse,
   formatToMoment,
@@ -11,8 +11,18 @@ const {
   verifyOtpToken,
 } = require("../../middleware/otpVerification");
 const crypto = require("crypto");
-
+const notificationController = require("../notification/notification.controller");
+const Op = require("sequelize").Op;
 // sub function
+const createNotification = async (userId, message, notificationType) => {
+  return Notification.create({
+    userId,
+    message,
+    notificationType,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+};
 async function getRoleIdByName(roleName) {
   try {
     const role = await Role.findOne({ where: { name: roleName } });
@@ -50,11 +60,21 @@ const formatUser = (user) => {
 const allUsers = async (req, res) => {
   try {
     const users = await User.findAll({
+      where: {
+        "$Role.name$": {
+          [Op.ne]: "admin", // Exclude users with role name = "admin"
+        },
+      },
+      include: {
+        model: Role,
+        attributes: [], // Exclude role attributes from the result
+      },
       order: [
         ["createdAt", "DESC"],
         ["fullName", "ASC"],
       ],
     });
+
     const formattedUsers = users.map((user) => formatUser(user));
     return successResponse(req, res, { users: formattedUsers });
   } catch (error) {
@@ -324,10 +344,26 @@ const activateUser = async (req, res) => {
     await user.update({
       isActive: true,
     });
-    await createUserHistory(userId, "Active User");
-    return successResponse(req, res, {
-      message: "User has been activated successfully",
-    });
+    // Send noti
+    if (user) {
+      const notificationTitle = "Account Activated";
+      const notificationBody = "Your Account has been activated.";
+      await notificationController.sendNotificationMessage(
+        user.userId,
+        notificationTitle,
+        notificationBody
+      );
+      await createNotification(
+        user.userId,
+        notificationBody, //message
+        notificationTitle //notiType
+      );
+      // Create user history
+      await createUserHistory(userId, "User Activated");
+      return successResponse(req, res, {
+        message: "User has been activated successfully",
+      });
+    }
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -346,7 +382,23 @@ const deactivateUser = async (req, res) => {
     await user.update({
       isActive: false,
     });
-    await createUserHistory(userId, "Deactivated User");
+    // Send noti
+    if (user) {
+      const notificationTitle = "Account has been deactivated";
+      const notificationBody = "Your Account has been deactivated.";
+      await notificationController.sendNotificationMessage(
+        user.userId,
+        notificationTitle,
+        notificationBody
+      );
+      await createNotification(
+        user.userId,
+        notificationBody, //message
+        notificationTitle //notiType
+      );
+    }
+    // Create History
+    await createUserHistory(userId, "User Deactivated ");
     return successResponse(req, res, {
       message: "User has been de-activated successfully",
     });
@@ -374,7 +426,7 @@ const updateUser = async (req, res) => {
     user.age = age;
     // Save the changes
     await user.save();
-
+    await createUserHistory(userId, "User Updated");
     const formattedUser = formatUser(user);
     return successResponse(req, res, { user: formattedUser });
   } catch (error) {
@@ -429,6 +481,11 @@ const getOtp = async (req, res) => {
 const createSecurityAccount = async (req, res) => {
   try {
     const { username, password, fullName } = req.body;
+
+    // Check for whitespace in the username
+    if (/\s/.test(username)) {
+      throw new Error("Username cannot contain spaces");
+    }
     const user = await User.findOne({
       where: { username },
     });

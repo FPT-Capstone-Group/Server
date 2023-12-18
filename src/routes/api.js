@@ -10,6 +10,7 @@ const cardController = require("../controllers/card/card.controller");
 const ownerController = require("../controllers/owner/owner.controller");
 const bikeController = require("../controllers/bike/bike.controller");
 const parkingSessionController = require("../controllers/parkingSession/parkingSession.controller");
+const notificationController = require("../controllers/notification/notification.controller");
 const router = express.Router();
 
 //= ===============================
@@ -18,7 +19,8 @@ const router = express.Router();
 
 //Bike
 router.get("/bikes", bikeController.getAllBikesForUser);
-router.get("/bikes/:cardId", bikeController.getAllBikesByCard);
+router.get("/bikes/getAllBikesByCard", bikeController.getAllBikesByCard);
+router.get("/bikes/getAllCardsByBikeId", bikeController.getAllCardsByBikeId);
 //Fee
 router.get("/fees", feeController.getAllFees);
 router.get("/fees/:feeId", feeController.getFeeById);
@@ -28,7 +30,6 @@ router.get("/fees", feeController.getAllResidentFees);
 router.get("/me", userController.profile);
 router.post("/changePassword", userController.changePassword);
 router.put("/users/update", userController.updateUser);
-
 
 //Registration
 router.post(
@@ -45,6 +46,14 @@ router.put(
   "/registrations/cancel/:registrationId",
   registrationController.cancelRegistration
 );
+router.put(
+    "/registrations/deactivate/:registrationId/",
+    registrationController.temporaryDeactivateRegistration
+);
+router.put(
+    "/registrations/reactivate/:registrationId",
+    registrationController.reactivateRegistration
+);
 
 //Payment
 router.post("/payments", paymentController.processPayment);
@@ -58,6 +67,8 @@ router.get("/owners", ownerController.getOwnersByUsersPlateNumber);
 router.post("/owners/activate", ownerController.activateOwner);
 router.post("/owners/deactivate", ownerController.deactivateOwner);
 
+//Notification
+router.get("/notifi", notificationController.getUserAssociatedNotifications);
 
 //Parking Session
 router.get(

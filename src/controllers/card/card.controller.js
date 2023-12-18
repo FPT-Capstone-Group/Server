@@ -1,6 +1,6 @@
 // controllers/cardController.js
 
-const {Card, CardHistory, ParkingType, Bike} = require("../../models");
+const { Card, CardHistory, ParkingType, Bike } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -9,9 +9,10 @@ const {
 const sequelize = require("../../config/sequelize");
 
 // Sub func
-const formatCard = (card) => {
+const formatCard = (card, plateNumber) => {
   const formattedCard = {
     ...card.toJSON(),
+    plateNumber: plateNumber,
     createdAt: formatToMoment(card.createdAt),
     updatedAt: formatToMoment(card.updatedAt),
   };
@@ -63,12 +64,27 @@ const createCard = async (req, res) => {
 // Get all cards
 const getAllCards = async (req, res) => {
   try {
-    const allCards = await Card.findAll();
+    const allCards = await Card.findAll({
+      include: {
+        model: Bike,
+        attributes: ["plateNumber"],
+        order: [["updatedAt", "DESC"]],
+      },
+    });
 
     if (!allCards || allCards.length === 0) {
       return errorResponse(req, res, "No Cards", 404);
     }
-    const formattedCards = allCards.map((card) => formatCard(card));
+    const formattedCards = [];
+    for (const card of allCards) {
+      let plateNumber = "";
+      if (card.bikeId) {
+        const bike = await Bike.findByPk(card.bikeId);
+        plateNumber = bike.plateNumber;
+      }
+      const formattedCard = formatCard(card, plateNumber);
+      formattedCards.push(formattedCard);
+    }
     return successResponse(req, res, { cards: formattedCards }, 200);
   } catch (error) {
     console.error("Internal Server Error:", error);
@@ -188,44 +204,83 @@ const updateCard = async (req, res) => {
 
 // Delete a card
 const revokeCardByPlateNumber = async (req, res) => {
-    try {
-        const {plateNumber} = req.query;
-        const t = await sequelize.transaction();
+  try {
+    const { plateNumber } = req.query;
+    const t = await sequelize.transaction();
 
-        const bike = await Bike.findOne({
-            where: {plateNumber: plateNumber}
-        })
-        const parkingTypeGuest = await ParkingType.findOne({
-            where: {name: 'guest'}
-        });
+    const bike = await Bike.findOne({
+      where: { plateNumber: plateNumber },
+    });
+    const parkingTypeGuest = await ParkingType.findOne({
+      where: { name: "guest" },
+    });
 
-        const cards = await Card.findAll({
-            where: {bikeId: bike.bikeId}
-        });
-        if (!cards || cards.length === 0) {
-            return errorResponse(req, res, "No card not found", 404);
-        }
-
-        for (const card of cards) {
-            card.bikeId = null
-            card.parkingTypeId = parkingTypeGuest.parkingTypeId
-            await card.save({transaction: t});
-        }
-        await t.commit();
-
-        return successResponse(req, res, "Cards revoked successfully", 200);
-    } catch (error) {
-        console.error(error);
-        return errorResponse(req, res, "Internal Server Error", 500, error);
+    const cards = await Card.findAll({
+      where: { bikeId: bike.bikeId },
+    });
+    if (!cards || cards.length === 0) {
+      return errorResponse(req, res, "No card not found", 404);
     }
+
+    for (const card of cards) {
+      card.bikeId = null;
+      card.parkingTypeId = parkingTypeGuest.parkingTypeId;
+      await card.save({ transaction: t });
+    }
+    await t.commit();
+
+    return successResponse(req, res, "Cards revoked successfully", 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
+// Admin Assign Card - for user, list bike they own, then assign card
+const assignCardToBike = async (req, res) => {
+  try {
+    const { plateNumber, cardId } = req.body;
+
+    // Find the bike by plateNumber
+    const bike = await Bike.findOne({ where: { plateNumber } });
+    if (!bike) {
+      return errorResponse(req, res, "Bike not found", 404);
+    }
+
+    // Find the card by ID
+    const card = await Card.findByPk(cardId);
+    if (!card) {
+      return errorResponse(req, res, "Card not found", 404);
+    }
+
+    // Check if the card is already assigned to another bike
+    if (card.bikeId !== null) {
+      return errorResponse(
+        req,
+        res,
+        "Card is already assigned to another bike",
+        400
+      );
+    }
+
+    // Assign the card to the bike
+    card.bikeId = bike.bikeId;
+    card.status = "assigned";
+    await card.save();
+
+    return successResponse(req, res, "Card assigned to bike successfully", 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
 };
 
 module.exports = {
-    createCard,
-    getAllUserCards,
-    getCardDetails,
-    updateCard,
-    revokeCardByPlateNumber,
-    getAllCards,
-    getAllActiveCards,
+  createCard,
+  getAllUserCards,
+  getCardDetails,
+  updateCard,
+  revokeCardByPlateNumber,
+  getAllCards,
+  getAllActiveCards,
+  assignCardToBike,
 };
