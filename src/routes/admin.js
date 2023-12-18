@@ -14,6 +14,7 @@ const feeHistoryController = require("../controllers/feeHistory/feeHistory.contr
 const paymentController = require("../controllers/payment/payment.controller");
 const parkingTypeController = require("../controllers/parkingType/parkingType.controller");
 const reportController = require("../controllers/report/report.controller");
+const userHistoryController = require("../controllers/userHistory/userHistory.controller");
 
 const router = express.Router();
 
@@ -54,8 +55,7 @@ router.get(
   "/registrations/payment/:registrationId",
   paymentController.getPaymentsForRegistration
 );
-
-
+router.get("/registrations/search", registrationController.searchRegistration);
 
 //Registration History
 router.get(
@@ -64,7 +64,9 @@ router.get(
 );
 
 //Bike
-router.post("/bike", bikeController.createBike);
+router.post("/bikes", bikeController.createBike);
+router.get("/bikes", bikeController.getAllBikes);
+router.get("/bikes/:bikeId", bikeController.getBikeInfo);
 
 //User
 router.get("/users", userController.allUsers);
@@ -73,6 +75,11 @@ router.put("/users/active/:userId", userController.activateUser);
 router.put("/users/deactive/:userId", userController.deactivateUser);
 router.post("/users", userController.createSecurityAccount);
 
+//User History
+router.get(
+  "/users/:userId/history",
+  userHistoryController.getAllUserHistoryForUser
+);
 //Owner
 router.post("/owners/create", ownerController.createOwner);
 
@@ -84,7 +91,7 @@ router.get("/cards/:cardId", cardController.getCardDetails);
 router.put("/cards/:cardId", cardController.updateCard);
 router.get("/active-cards", cardController.getAllActiveCards);
 router.put("/cards/revoke", cardController.revokeCardByPlateNumber);
-
+router.post("/cards/assign", cardController.assignCardToBike);
 
 //Notification
 router.post("/notifications/send", notificationController.sendNotification);
@@ -118,6 +125,7 @@ router.get("/fees", feeController.getAllFees);
 router.get("/fees/:feeId", feeController.getFeeById);
 router.put("/fees/:feeId", feeController.updateFeeById);
 router.delete("/fees/:feeId", feeController.deleteFeeById);
+router.get("/fees-deleted", feeController.getAllFeesWithDeleted);
 
 // Fee History
 router.get("/fees/:feeId/history", feeHistoryController.getFeeHistory);
@@ -129,6 +137,9 @@ router.get("/payments", paymentController.getAllPayments);
 router.get("/getTotalCheckin", reportController.getTotalCheckin);
 router.get("/getTotalCheckout", reportController.getTotalCheckout);
 router.get("/getTotalGuestIncome", reportController.getTotalGuestIncome);
-router.get("/getGuestIncomeGroupByDate", reportController.getGuestIncomeGroupByDate);
+router.get(
+  "/getGuestIncomeGroupByDate",
+  reportController.getGuestIncomeGroupByDate
+);
 
 module.exports = router;

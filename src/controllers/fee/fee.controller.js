@@ -48,9 +48,6 @@ const createFee = async (req, res) => {
 const getAllFees = async (req, res) => {
   try {
     const fees = await Fee.findAll();
-    //const fees = await Fee.unscoped().findAll({
-    // paranoid: false, //find with fee deleted
-    //});
     if (!fees || fees.length === 0) {
       return successResponse(req, res, "No fees available");
     }
@@ -61,7 +58,21 @@ const getAllFees = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-
+const getAllFeesWithDeleted = async (req, res) => {
+  try {
+    const fees = await Fee.unscoped().findAll({
+      paranoid: false, //find with fee deleted
+    });
+    if (!fees || fees.length === 0) {
+      return successResponse(req, res, "No fees available");
+    }
+    const formattedFees = fees.map((fee) => formatFee(fee));
+    return successResponse(req, res, { fees: formattedFees }, 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 // Get a specific fee by ID
 const getFeeById = async (req, res) => {
   try {
@@ -152,4 +163,5 @@ module.exports = {
   updateFeeById,
   deleteFeeById,
   getAllResidentFees,
+  getAllFeesWithDeleted,
 };
