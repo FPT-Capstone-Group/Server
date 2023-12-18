@@ -68,6 +68,7 @@ const getAllCards = async (req, res) => {
       include: {
         model: Bike,
         attributes: ["plateNumber"],
+        order: [["updatedAt", "DESC"]],
       },
     });
 
@@ -234,6 +235,44 @@ const revokeCardByPlateNumber = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
+// Admin Assign Card - for user, list bike they own, then assign card
+const assignCardToBike = async (req, res) => {
+  try {
+    const { plateNumber, cardId } = req.body;
+
+    // Find the bike by plateNumber
+    const bike = await Bike.findOne({ where: { plateNumber } });
+    if (!bike) {
+      return errorResponse(req, res, "Bike not found", 404);
+    }
+
+    // Find the card by ID
+    const card = await Card.findByPk(cardId);
+    if (!card) {
+      return errorResponse(req, res, "Card not found", 404);
+    }
+
+    // Check if the card is already assigned to another bike
+    if (card.bikeId !== null) {
+      return errorResponse(
+        req,
+        res,
+        "Card is already assigned to another bike",
+        400
+      );
+    }
+
+    // Assign the card to the bike
+    card.bikeId = bike.bikeId;
+    card.status = "assigned";
+    await card.save();
+
+    return successResponse(req, res, "Card assigned to bike successfully", 200);
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "Internal Server Error", 500, error);
+  }
+};
 
 module.exports = {
   createCard,
@@ -243,4 +282,5 @@ module.exports = {
   revokeCardByPlateNumber,
   getAllCards,
   getAllActiveCards,
+  assignCardToBike,
 };

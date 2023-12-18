@@ -12,6 +12,7 @@ const {
 } = require("../../middleware/otpVerification");
 const crypto = require("crypto");
 const notificationController = require("../notification/notification.controller");
+const Op = require("sequelize").Op;
 // sub function
 const createNotification = async (userId, message, notificationType) => {
   return Notification.create({
@@ -59,11 +60,21 @@ const formatUser = (user) => {
 const allUsers = async (req, res) => {
   try {
     const users = await User.findAll({
+      where: {
+        "$Role.name$": {
+          [Op.ne]: "admin", // Exclude users with role name = "admin"
+        },
+      },
+      include: {
+        model: Role,
+        attributes: [], // Exclude role attributes from the result
+      },
       order: [
         ["createdAt", "DESC"],
         ["fullName", "ASC"],
       ],
     });
+
     const formattedUsers = users.map((user) => formatUser(user));
     return successResponse(req, res, { users: formattedUsers });
   } catch (error) {
@@ -348,7 +359,7 @@ const activateUser = async (req, res) => {
         notificationTitle //notiType
       );
       // Create user history
-      await createUserHistory(userId, "Activated User");
+      await createUserHistory(userId, "User Activated");
       return successResponse(req, res, {
         message: "User has been activated successfully",
       });
@@ -387,7 +398,7 @@ const deactivateUser = async (req, res) => {
       );
     }
     // Create History
-    await createUserHistory(userId, "Deactivated User");
+    await createUserHistory(userId, "User Deactivated ");
     return successResponse(req, res, {
       message: "User has been de-activated successfully",
     });
@@ -415,7 +426,7 @@ const updateUser = async (req, res) => {
     user.age = age;
     // Save the changes
     await user.save();
-
+    await createUserHistory(userId, "User Updated");
     const formattedUser = formatUser(user);
     return successResponse(req, res, { user: formattedUser });
   } catch (error) {
@@ -470,6 +481,11 @@ const getOtp = async (req, res) => {
 const createSecurityAccount = async (req, res) => {
   try {
     const { username, password, fullName } = req.body;
+
+    // Check for whitespace in the username
+    if (/\s/.test(username)) {
+      throw new Error("Username cannot contain spaces");
+    }
     const user = await User.findOne({
       where: { username },
     });

@@ -93,7 +93,7 @@ const createOwnerFromRegistration = async (
 
 // Main func
 
-// User create
+// User create regis
 const createRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -114,7 +114,7 @@ const createRegistration = async (req, res) => {
       where: {
         plateNumber,
         status: {
-          [Op.notIn]: ["rejected", "canceled"],
+          [Op.notIn]: ["rejected", "canceled", "inactive"],
         },
       },
     });
@@ -320,7 +320,7 @@ const getAllUserRegistration = async (req, res) => {
   }
 };
 
-// User cancels their registration *** MISSING if user already paid, but want to change bike
+// User cancels their registration *** MISSING if user already paid, but want to change bike || Alternative contact admin pernament deactive registration
 const cancelRegistration = async (req, res) => {
   try {
     const { registrationId } = req.query;
@@ -479,7 +479,7 @@ const temporaryDeactivateRegistration = async (req, res) => {
         400
       );
     }
-    if (registration.status !== "active") {
+    if (registration.status !== "active" && registration.status !== "expired") {
       return errorResponse(
         req,
         res,
@@ -532,7 +532,7 @@ const temporaryDeactivateRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-// Admin perma deactivate Registration
+// Admin perma deactivate Registration - status to inactive
 const deactivateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -541,7 +541,7 @@ const deactivateRegistration = async (req, res) => {
     if (!registration) {
       return errorResponse(req, res, "Registration not found", 404);
     }
-    // Check if the registration is already disable
+    // Check if the registration is already temporary_inactive
     if (registration.status !== "temporary_inactive") {
       return errorResponse(
         req,
@@ -550,11 +550,27 @@ const deactivateRegistration = async (req, res) => {
         400
       );
     }
+    const bike = await Bike.findByPk(registration.bikeId);
 
-    // Update the status to "Disable"
+    // Check if the bike is found
+    if (!bike) {
+      await t.rollback();
+      return errorResponse(req, res, "Bike not found", 404);
+    }
+    const card = await Card.findByPk(bike.cardId);
+    if (!card) {
+      await t.rollback();
+      return errorResponse(req, res, "Card not found", 404);
+    }
+    // reset bike for card
+    bike.cardId = null;
+    await bike.save({ transaction: t });
+    // Update the card status to "active"
+    card.status = "active";
+    await card.save({ transaction: t });
+    // Update the status to "Inactive"
     registration.status = "inactive";
     await registration.save({ transaction: t });
-
     // Create Registration History
     await createRegistrationHistory(
       "inactive",
@@ -586,7 +602,7 @@ const deactivateRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-// Admin reactivate Registration
+// Admin reactivate Registration - tempo inactive to active
 const reactivateRegistration = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -649,7 +665,7 @@ const reactivateRegistration = async (req, res) => {
     return errorResponse(req, res, "Internal Server Error", 500, error);
   }
 };
-// Admin rejects a user registration with message in UI
+// Admin rejects a user registration with message in UI , reject when user want to registration
 const rejectRegistration = async (req, res) => {
   try {
     const { registrationId } = req.params;
@@ -662,8 +678,13 @@ const rejectRegistration = async (req, res) => {
       return errorResponse(req, res, "Registration not found", 404);
     }
     // Check if the registration is already rejected
-    if (registration.status === "rejected") {
-      return errorResponse(req, res, "Registration is already rejected", 400);
+    if (registration.status !== "created" && registration.status !== "paid") {
+      return errorResponse(
+        req,
+        res,
+        "Registration is can not be rejected if not created or paid",
+        400
+      );
     }
     // Update the registration status to "rejected"
     registration.status = "rejected";
