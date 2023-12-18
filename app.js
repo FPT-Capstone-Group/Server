@@ -47,7 +47,7 @@ app.use(
   })
 );
 app.get("/", (req, res) => {
-    res.json({ message: `SmartParking Server is running on ${process.env.NODE_ENV}!` });
+    res.json({ message: `SmartParking Server is running on ${process.env.NODE_ENV}! Current time in timezone: ${new Date()}` });
 });
 app.use(cors());
 app.use(bodyParser.json());
