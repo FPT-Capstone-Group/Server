@@ -1,5 +1,5 @@
 // owner.controller.js
-const { Owner, Bike } = require("../../models");
+const { Owner, Bike, UserHistory } = require("../../models");
 const {
   successResponse,
   errorResponse,
@@ -166,6 +166,7 @@ const getOwnersByUsersPlateNumber = async (req, res) => {
 //User
 const activateOwner = async (req, res) => {
   const { ownerId } = req.body;
+  const userId = req.user.userId;
   try {
     const updatingOwner = await Owner.findByPk(ownerId);
     if (!updatingOwner) {
