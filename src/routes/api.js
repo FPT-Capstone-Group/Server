@@ -10,6 +10,7 @@ const cardController = require("../controllers/card/card.controller");
 const ownerController = require("../controllers/owner/owner.controller");
 const bikeController = require("../controllers/bike/bike.controller");
 const parkingSessionController = require("../controllers/parkingSession/parkingSession.controller");
+const notificationController = require("../controllers/notification/notification.controller");
 const router = express.Router();
 
 //= ===============================
@@ -29,7 +30,6 @@ router.get("/fees", feeController.getAllResidentFees);
 router.get("/me", userController.profile);
 router.post("/changePassword", userController.changePassword);
 router.put("/users/update", userController.updateUser);
-
 
 //Registration
 router.post(
@@ -67,6 +67,8 @@ router.get("/owners", ownerController.getOwnersByUsersPlateNumber);
 router.post("/owners/activate", ownerController.activateOwner);
 router.post("/owners/deactivate", ownerController.deactivateOwner);
 
+//Notification
+router.get("/notifi", notificationController.getUserAssociatedNotifications);
 
 //Parking Session
 router.get(
