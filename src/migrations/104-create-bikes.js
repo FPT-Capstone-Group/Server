@@ -1,42 +1,45 @@
 "use strict";
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Owners", {
-      ownerId: {
+    await queryInterface.createTable("Bikes", {
+      bikeId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      fullName: {
+      model: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      isActive:{
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-      },
-      gender: {
+      registrationNumber: {
         type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
       },
-      relationship: {
+      plateNumber: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
+      },
+      manufacturer: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      ownerFaceImage: {
-        type: Sequelize.TEXT,
+      bikeStatus: {
+        type: Sequelize.STRING,
         allowNull: false,
+        defaultValue: "active",
       },
-      bikeId: {
+      registrationId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
-          model: "Bikes",
-          key: "bikeId",
+          model: "Registrations", // Adjust the table name if needed
+          key: "registrationId",
         },
         onUpdate: "CASCADE",
-        onDelete: "SET NULL", // or 'CASCADE' depending on your use case
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
@@ -48,8 +51,7 @@ module.exports = {
       },
     });
   },
-
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Owners");
+    await queryInterface.dropTable("Bikes");
   },
 };

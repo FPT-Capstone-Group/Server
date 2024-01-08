@@ -1,45 +1,30 @@
 "use strict";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Bikes", {
-      bikeId: {
+    await queryInterface.createTable("Registrations", {
+      registrationId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      model: {
+      registrationStatus: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
-      registrationNumber: {
+      approvedBy: {
         type: Sequelize.STRING,
-        unique: true,
-        allowNull: false,
       },
       plateNumber: {
         type: Sequelize.STRING,
-        unique: true,
-        allowNull: false,
       },
-      manufacture: {
+      model: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
-      status: {
+      registrationNumber: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: "active",
       },
-      userId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Users", // Adjust the table name if needed
-          key: "userId",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+      manufacturer: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
@@ -49,9 +34,18 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      userId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "userId",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Bikes");
+    await queryInterface.dropTable("Registrations");
   },
 };

@@ -8,14 +8,27 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      description: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+      parkingTypeName: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        },
+        parkingTypeStatus: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            defaultValue: 'active',
+        },
+        parkingTypeGroup: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
+        parkingTypeFee: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        },
+        description: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

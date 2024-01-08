@@ -8,17 +8,11 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    status: {
+    registrationStatus: {
       type: DataTypes.STRING,
     },
     approvedBy: {
       type: DataTypes.STRING,
-    },
-    expiredDate: {
-      type: DataTypes.DATE,
-    },
-    faceImage: {
-      type: DataTypes.TEXT,
     },
     plateNumber: {
       type: DataTypes.STRING,
@@ -29,11 +23,14 @@ module.exports = (sequelize, DataTypes) => {
     registrationNumber: {
       type: DataTypes.STRING,
     },
-    manufacture: {
+    manufacturer: {
       type: DataTypes.STRING,
     },
-    gender: {
-      type: DataTypes.STRING,
+        createdAt: {
+      type: DataTypes.DATE,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
     },
   });
 
@@ -42,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     Registration.hasMany(models.RegistrationHistory, {
       foreignKey: "registrationId",
     });
+    Registration.hasOne(models.Card, { foreignKey: "registrationId" });
   };
 
   return Registration;

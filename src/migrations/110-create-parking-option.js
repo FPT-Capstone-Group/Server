@@ -2,22 +2,18 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Configurations", {
-      configurationId: {
+    await queryInterface.createTable("ParkingOptions", {
+      parkingOptionKey: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      SettingName: {
+      parkingOptionValue: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      SettingValue: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      Notes: {
+      notes: {
         type: Sequelize.STRING,
       },
       createdAt: {
@@ -32,6 +28,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Configurations");
+    await queryInterface.dropTable("ParkingOptions");
   },
 };

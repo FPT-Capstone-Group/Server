@@ -7,14 +7,14 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             allowNull: false,
         },
-        fullName: {
+        ownerFullName: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        isActive: {
-            type: DataTypes.BOOLEAN,
+        ownerStatus: {
+            type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: true
+            defaultValue: 'active'
         },
         gender: {
             type: DataTypes.STRING,

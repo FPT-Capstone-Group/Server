@@ -2,29 +2,20 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("FeeHistories", {
-      feeHistoryId: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+    await queryInterface.createTable("CardHistories", {
+      cardHistoryId: {
         allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
       },
-      eventType: {
+      event: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       approvedBy: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      feeId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Fees",
-          key: "feeId",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -34,10 +25,19 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
+      cardId: {
+        type: Sequelize.STRING,
+        references: {
+          model: "Cards",
+          key: "cardId",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("FeeHistories");
+    await queryInterface.dropTable("CardHistories");
   },
 };

@@ -1,17 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
-  const Configuration = sequelize.define("Configuration", {
-    // Define attributes for Configuration
-    configurationId: {
+  const ParkingOption = sequelize.define("ParkingOption", {
+    // Define attributes for ParkingOption
+    parkingOptionKey: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    settingName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    settingValue: {
+    parkingOptionValue: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -25,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
   });
-  Configuration.associate = function (models) {
+  ParkingOption.associate = function (models) {
     // Define associations here, if any
   };
-  return Configuration;
+  return ParkingOption;
 };
