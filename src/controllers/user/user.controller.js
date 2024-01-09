@@ -39,7 +39,7 @@ async function getRoleIdByName(roleName) {
 const createUserHistory = async (userId, eventName) => {
   return UserHistory.create({
     userId,
-    eventName,
+    event,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -61,7 +61,7 @@ const allUsers = async (req, res) => {
   try {
     const users = await User.findAll({
       where: {
-        "$Role.name$": {
+        "$Role.roleName": {
           [Op.ne]: "admin", // Exclude users with role name = "admin"
         },
       },
@@ -71,7 +71,7 @@ const allUsers = async (req, res) => {
       },
       order: [
         ["createdAt", "DESC"],
-        ["fullName", "ASC"],
+        ["userFullName", "ASC"],
       ],
     });
 
@@ -106,7 +106,7 @@ const register = async (req, res) => {
       .digest("hex");
     const payload = {
       username,
-      fullName,
+      userFullName,
       password: hashedPassword,
       roleId: roleId,
     };
@@ -141,7 +141,7 @@ const login = async (req, res) => {
     user.firebaseToken = req.body.firebaseToken;
     await user.save();
     const userRole = await Role.findByPk(user.roleId);
-    const roleName = userRole.name;
+    const roleName = userRole.roleName;
 
     const token = jwt.sign(
       {
@@ -158,13 +158,13 @@ const login = async (req, res) => {
     return successResponse(req, res, {
       user: {
         userId: user.userId,
-        fullName: user.fullName,
+        userFullName: user.userFullName,
         username: user.username,
-        isActive: user.isActive,
+        userStatus: user.userStatus,
         firebaseToken: user.firebaseToken,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        role: roleName,
+        roleName: roleName,
       },
       token: token,
     });
@@ -191,7 +191,7 @@ const loginSecurity = async (req, res) => {
     }
 
     const userRole = await Role.findByPk(user.roleId);
-    const roleName = userRole.name;
+    const roleName = userRole.roleName;
 
     if (roleName !== "security") {
       throw new Error("Unauthorized!");
@@ -212,12 +212,12 @@ const loginSecurity = async (req, res) => {
     return successResponse(req, res, {
       user: {
         userId: user.userId,
-        fullName: user.fullName,
+        userFullName: user.userFullName,
         username: user.username,
-        isActive: user.isActive,
+        userStatus: user.userStatus,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        role: roleName,
+        roleName: roleName,
       },
       token: token,
     });
@@ -240,7 +240,7 @@ const loginAdmin = async (req, res) => {
       throw new Error("Incorrect username Id/Password");
     }
     const userRole = await Role.findByPk(user.roleId);
-    const roleName = userRole.name;
+    const roleName = userRole.roleName;
     if (roleName !== "admin") {
       throw new Error("Unauthorized!");
     }
@@ -259,12 +259,12 @@ const loginAdmin = async (req, res) => {
     return successResponse(req, res, {
       user: {
         userId: user.userId,
-        fullName: user.fullName,
+        userFullName: user.userFullName,
         username: user.username,
-        isActive: user.isActive,
+        userStatus: user.userStatus,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        role: roleName,
+        roleName: roleName,
       },
       token: token,
     });
@@ -342,7 +342,7 @@ const activateUser = async (req, res) => {
 
     // Activate the user by setting isActive to true
     await user.update({
-      isActive: true,
+      userStatus: "active",
     });
     // Send noti
     if (user) {
@@ -380,7 +380,7 @@ const deactivateUser = async (req, res) => {
     }
     // Deactivate the user by setting isActive to false
     await user.update({
-      isActive: false,
+      userStatus: "inactive",
     });
     // Send noti
     if (user) {
@@ -410,7 +410,7 @@ const deactivateUser = async (req, res) => {
 // User Update current user's information
 const updateUser = async (req, res) => {
   const userId = req.user.userId;
-  const { fullName, address, gender, age } = req.body;
+  const { userFullName, address, gender, age } = req.body;
 
   try {
     const user = await User.findByPk(userId);
@@ -420,7 +420,7 @@ const updateUser = async (req, res) => {
     }
 
     // Update only the specified fields
-    user.fullName = fullName;
+    user.userFullName = userFullName;
     user.address = address;
     user.gender = gender;
     user.age = age;
@@ -500,7 +500,7 @@ const createSecurityAccount = async (req, res) => {
 
     const payload = {
       username,
-      fullName,
+      userFullName,
       password: hashedPassword,
       roleId: 2, // security role is 2
     };
