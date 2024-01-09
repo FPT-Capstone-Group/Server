@@ -56,7 +56,7 @@ const createBikeFromRegistration = async (registration, transaction) => {
         {
             plateNumber: registration.plateNumber,
             model: registration.model,
-            manufacture: registration.manufacturer,
+            manufacturer: registration.manufacturer,
             registrationNumber: registration.registrationNumber,
             registrationId: registration.registrationId,
             userId: registration.userId,
