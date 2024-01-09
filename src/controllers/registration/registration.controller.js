@@ -163,7 +163,7 @@ const verifyRegistration = async (req, res) => {
 
         // Check if the registration is already verified
         // Need to check more like rejected status,...
-        if (registration.status === "verified") {
+        if (registration.registrationStatus === "verified") {
             return errorResponse(req, res, "Registration is already verified", 400);
         }
 
@@ -271,7 +271,7 @@ const cancelRegistration = async (req, res) => {
         }
 
         // Check if the registration is in a cancellable state
-        if (registration.status !== "pending") {
+        if (registration.registrationStatus !== "pending") {
             return errorResponse(
                 req,
                 res,
@@ -281,7 +281,7 @@ const cancelRegistration = async (req, res) => {
         }
 
         // Update the registration status to "Canceled"
-        registration.status = "canceled";
+        registration.registrationStatus = "canceled";
         await registration.save();
         
         // Create Registration History
@@ -315,7 +315,7 @@ const rejectRegistration = async (req, res) => {
             return errorResponse(req, res, "Registration not found", 404);
         }
         // Check if the registration is already rejected
-        if (registration.status !== "pending") {
+        if (registration.registrationStatus !== "pending") {
             return errorResponse(
                 req,
                 res,
@@ -324,7 +324,7 @@ const rejectRegistration = async (req, res) => {
             );
         }
         // Update the registration status to "rejected"
-        registration.status = "rejected";
+        registration.registrationStatus = "rejected";
         await registration.save();
         // Create Registration History
         await createRegistrationHistory(
