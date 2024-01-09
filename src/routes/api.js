@@ -10,6 +10,7 @@ const ownerController = require("../controllers/owner/owner.controller");
 const bikeController = require("../controllers/bike/bike.controller");
 const parkingSessionController = require("../controllers/parkingSession/parkingSession.controller");
 const notificationController = require("../controllers/notification/notification.controller");
+const parkingTypeController = require("../controllers/parkingType/parkingType.controller");
 const router = express.Router();
 
 //= ===============================
@@ -78,5 +79,8 @@ router.get(
   "/parkingSessions",
   parkingSessionController.getParkingSessionsByUsersPlateNumber
 );
+
+router.get("/parkingTypes", parkingTypeController.getAllParkingTypes);
+
 
 module.exports = router;

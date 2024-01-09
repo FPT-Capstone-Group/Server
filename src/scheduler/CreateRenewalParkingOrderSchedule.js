@@ -41,6 +41,7 @@ const createRenewalParkingOrder = async () => {
                     parkingOrderStatus: 'pending'
                 }
             })
+            // Already create renewal parking order
             if (renewalParkingOrder) {
                 return;
             }
