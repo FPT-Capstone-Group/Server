@@ -1,5 +1,5 @@
 // bike.controller.js
-const {Bike, Card} = require("../../models");
+const {Bike, Card, Registration} = require("../../models");
 const {
     successResponse,
     errorResponse,
