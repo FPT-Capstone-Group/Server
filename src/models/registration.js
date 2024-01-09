@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     Registration.hasMany(models.RegistrationHistory, {
       foreignKey: "registrationId",
     });
-    Registration.hasOne(models.Card, { foreignKey: "registrationId" });
+    Registration.hasOne(models.Bike, { foreignKey: "registrationId" });
   };
 
   return Registration;
