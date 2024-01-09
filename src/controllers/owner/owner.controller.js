@@ -46,7 +46,7 @@ const createOwner = async (req, res) => {
         // Check maximum active owners
         const totalActiveOwners = await Owner.count({
             where: {
-                isActive: {[Op.eq]: true},
+                ownerStatus: "active",
                 bikeId: existingBike.bikeId,
             },
         });
@@ -186,7 +186,7 @@ const activateOwner = async (req, res) => {
         // Check maximum active owners
         const totalActiveOwners = await Owner.count({
             where: {
-                isActive: {[Op.eq]: true},
+                ownerStatus: "active",
                 bikeId: existingBike.bikeId,
             },
         });
