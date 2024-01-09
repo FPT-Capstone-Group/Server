@@ -35,7 +35,10 @@ const getAllBikesForUser = async (req, res) => {
             include: {
                 model: Bike,
             },
-            where: {userId},
+            where: {
+                userId,
+                registrationStatus: "verified",
+            },
         });
         const formattedBikes = userRegistrations.map((registration) => formatBike(registration.Bike));
         return successResponse(req, res, {bikes: formattedBikes}, 200);
