@@ -35,7 +35,7 @@ const apiAuth = async (req, res, next) => {
       return next();
     }
 
-    if (!user.isActive) {
+    if (user.userStatus !== "active") {
       return errorResponse(req, res, "User account is not active", 403);
     }
     const reqUser = { ...user.get() };

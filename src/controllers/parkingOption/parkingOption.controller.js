@@ -92,7 +92,9 @@ const removeParkingOption = async (req, res) => {
         if (!existingParkingOption) {
             return errorResponse(req, res, "Parking option not found", 400);
         }
-
+        if (mandatoryOptions.includes(parkingOptionKey)) {
+            return errorResponse(req, res, "Cannot remove mandatory parking option", 400);
+        }
         const removedParkingOption = await ParkingOption.destroy({
             where: {
                 parkingOptionKey,

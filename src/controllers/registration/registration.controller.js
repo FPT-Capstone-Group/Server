@@ -122,7 +122,7 @@ const createRegistration = async (req, res) => {
 
         // Create Registration History
         await createRegistrationHistory(
-            "new",
+            "pending",
             "none",
             newRegistration.registrationId,
             t

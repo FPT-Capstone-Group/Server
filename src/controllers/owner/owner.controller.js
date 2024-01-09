@@ -35,7 +35,7 @@ const createOwner = async (req, res) => {
         const existingBike = await Bike.findOne({
             where: {plateNumber},
         });
-        if (!existingBike || existingBike.status !== "active") {
+        if (!existingBike || existingBike.bikeStatus !== "active") {
             return errorResponse(
                 req,
                 res,

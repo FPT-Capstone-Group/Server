@@ -2,9 +2,8 @@ module.exports = (sequelize, DataTypes) => {
   const ParkingOption = sequelize.define("ParkingOption", {
     // Define attributes for ParkingOption
     parkingOptionKey: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       primaryKey: true,
-      autoIncrement: true,
       allowNull: false,
     },
     parkingOptionValue: {

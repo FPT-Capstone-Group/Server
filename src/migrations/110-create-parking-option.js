@@ -5,9 +5,8 @@ module.exports = {
     await queryInterface.createTable("ParkingOptions", {
       parkingOptionKey: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       parkingOptionValue: {
         type: Sequelize.STRING,
