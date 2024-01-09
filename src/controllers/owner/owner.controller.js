@@ -1,5 +1,5 @@
 // owner.controller.js
-const {Owner, Bike, UserHistory, ParkingOption} = require("../../models");
+const {Owner, Bike, UserHistory, ParkingOption, Registration} = require("../../models");
 const {
     successResponse,
     errorResponse,
@@ -131,9 +131,23 @@ const getOwnersByUsersPlateNumber = async (req, res) => {
         const {plateNumber} = req.query;
         const user = req.user;
 
+        const registration = await Registration.findOne({
+            where: {
+                userId: user.userId,
+                plateNumber,
+            },
+        });
+        if (!registration) {
+            return errorResponse(
+                req,
+                res,
+                `No registration found with the provided plate number: ${plateNumber} for user: ${user.userFullName}`,
+                404
+            );
+        }
         // Check if the user owns the bike with the provided plate number
         const bike = await Bike.findOne({
-            where: {plateNumber, userId: user.userId},
+            where: {plateNumber, registrationId: registration.registrationId},
         });
 
         if (!bike) {

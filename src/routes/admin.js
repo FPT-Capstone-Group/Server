@@ -76,7 +76,6 @@ router.get("/owners", ownerController.getOwnersByPlateNumber);
 router.get("/parkingOptions", parkingOptionController.getAllParkingOptions);
 router.post("/parkingOptions", parkingOptionController.createParkingOption);
 router.put("/parkingOptions", parkingOptionController.updateParkingOption);
-router.delete("/parkingOptions", parkingOptionController.removeParkingOption);
 
 
 //Card

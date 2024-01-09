@@ -84,39 +84,11 @@ const updateParkingOption = async (req, res) => {
     }
 }
 
-const removeParkingOption = async (req, res) => {
-    try {
-        const {parkingOptionKey} = req.query;
-
-        const existingParkingOption = await ParkingOption.findByPk(parkingOptionKey);
-        if (!existingParkingOption) {
-            return errorResponse(req, res, "Parking option not found", 400);
-        }
-        if (mandatoryOptions.includes(parkingOptionKey)) {
-            return errorResponse(req, res, "Cannot remove mandatory parking option", 400);
-        }
-        const removedParkingOption = await ParkingOption.destroy({
-            where: {
-                parkingOptionKey,
-            }
-        });
-
-        return successResponse(
-            req,
-            res,
-            formattedParkingOption(removedParkingOption),
-            201
-        );
-    } catch (error) {
-        console.error(error);
-        return errorResponse(req, res, "Internal Server Error", 500, error);
-    }
-}
 
 
 module.exports = {
     getAllParkingOptions,
     createParkingOption,
     updateParkingOption,
-    removeParkingOption,
+
 };
