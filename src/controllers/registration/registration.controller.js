@@ -86,7 +86,7 @@ const createRegistration = async (req, res) => {
         const existingRegistration = await Registration.findOne({
             where: {
                 plateNumber,
-                status: {
+                registrationStatus: {
                     [Op.notIn]: ["rejected", "canceled"],
                 },
             },
