@@ -6,6 +6,7 @@ const {
     formatToMoment,
 } = require("../../helpers");
 const sequelize = require("../../config/sequelize");
+const {Op} = require("sequelize");
 
 // Sub function
 const formatParkingType = (parkingType) => {
@@ -56,6 +57,38 @@ const createParkingType = async (req, res) => {
 const getAllParkingTypes = async (req, res) => {
     try {
         const parkingTypes = await ParkingType.findAll();
+
+        if (!parkingTypes || parkingTypes.length === 0) {
+            return successResponse(req, res, "No parking types available");
+        }
+
+        const formattedParkingTypes = parkingTypes.map((parkingType) =>
+            formatParkingType(parkingType)
+        );
+
+        return successResponse(
+            req,
+            res,
+            {parkingTypes: formattedParkingTypes},
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
+};
+
+const getNonGuestParkingTypes = async (req, res) => {
+    try {
+        const parkingTypes = await ParkingType.findAll(
+            {
+                where: {
+                    parkingTypeGroup: {
+                        [Op.ne]: 'guest'
+                    }
+                }
+            }
+        );
 
         if (!parkingTypes || parkingTypes.length === 0) {
             return successResponse(req, res, "No parking types available");
@@ -180,4 +213,5 @@ module.exports = {
     getParkingTypeById,
     updateParkingTypeById,
     deleteParkingTypeById,
+    getNonGuestParkingTypes
 };

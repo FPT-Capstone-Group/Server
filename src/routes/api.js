@@ -80,7 +80,7 @@ router.get(
   parkingSessionController.getParkingSessionsByUsersPlateNumber
 );
 
-router.get("/parkingTypes", parkingTypeController.getAllParkingTypes);
+router.get("/parkingTypes", parkingTypeController.getNonGuestParkingTypes);
 
 
 module.exports = router;
