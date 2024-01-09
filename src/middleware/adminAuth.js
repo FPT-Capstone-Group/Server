@@ -7,7 +7,7 @@ const adminAuth = async (req, res, next) => {
 
     // Check if the user has the 'Admin' role directly
     const isAdmin = await Role.findOne({
-      where: { name: "admin" },
+      where: { roleName: "admin" },
       include: [
         {
           model: User,
