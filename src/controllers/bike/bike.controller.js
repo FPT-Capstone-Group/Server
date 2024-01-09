@@ -31,10 +31,13 @@ const getAllBikesForUser = async (req, res) => {
     try {
         const userId = req.user.userId;
         // Retrieve all bikes associated with the user
-        const userBikes = await Bike.findAll({
+        const userRegistrations = await Registration.findAll({
+            include: {
+                model: Bike,
+            },
             where: {userId},
         });
-        const formattedBikes = userBikes.map((bike) => formatBike(bike));
+        const formattedBikes = userRegistrations.map((registration) => formatBike(registration.Bike));
         return successResponse(req, res, {bikes: formattedBikes}, 200);
     } catch (error) {
         console.error(error);
