@@ -58,6 +58,7 @@ const createBikeFromRegistration = async (registration, transaction) => {
             model: registration.model,
             manufacture: registration.manufacturer,
             registrationNumber: registration.registrationNumber,
+            registrationId: registration.registrationId,
             userId: registration.userId,
         },
         {transaction}
@@ -108,7 +109,7 @@ const createRegistration = async (req, res) => {
         // Create a new registration
         const newRegistration = await Registration.create(
             {
-                registrationStatus: "new",
+                registrationStatus: "pending",
                 approvedBy: "none",
                 plateNumber,
                 model,
@@ -127,7 +128,6 @@ const createRegistration = async (req, res) => {
             t
         );
 
-        await createBikeFromRegistration(newRegistration, t);
         // Commit the transaction
         await t.commit();
 
@@ -169,13 +169,14 @@ const verifyRegistration = async (req, res) => {
 
         // Update registration status to "verified"
         registration.registrationStatus = "verified";
-        registration.approvedBy = `${req.user.fullName}`;
+        registration.approvedBy = `${req.user.userFullName}`;
         await registration.save({transaction: t});
+        await createBikeFromRegistration(registration, t);
 
         // Create Registration History
         await createRegistrationHistory(
             "verified",
-            req.user.fullName,
+            req.user.userFullName,
             registrationId,
             t
         );
@@ -199,6 +200,7 @@ const verifyRegistration = async (req, res) => {
                 t
             );
         }
+        
         await t.commit();
         const formattedRegistration = formatRegistration(registration);
         return successResponse(
@@ -269,11 +271,11 @@ const cancelRegistration = async (req, res) => {
         }
 
         // Check if the registration is in a cancellable state
-        if (registration.status === "verified") {
+        if (registration.status !== "pending") {
             return errorResponse(
                 req,
                 res,
-                "Registration cannot be canceled after verified",
+                "Registration cannot be canceled",
                 400
             );
         }
@@ -281,6 +283,14 @@ const cancelRegistration = async (req, res) => {
         // Update the registration status to "Canceled"
         registration.status = "canceled";
         await registration.save();
+        
+        // Create Registration History
+        await createRegistrationHistory(
+            "canceled",
+            req.user.userFullName,
+            registrationId,
+            t
+        );
 
         return successResponse(req, res, {
             message: "Registration canceled successfully",
@@ -305,18 +315,24 @@ const rejectRegistration = async (req, res) => {
             return errorResponse(req, res, "Registration not found", 404);
         }
         // Check if the registration is already rejected
-        if (registration.status !== "new") {
+        if (registration.status !== "pending") {
             return errorResponse(
                 req,
                 res,
-                "Registration is can not be rejected if not new",
+                "Registration is can not be rejected if not pending for action",
                 400
             );
         }
         // Update the registration status to "rejected"
         registration.status = "rejected";
         await registration.save();
-
+        // Create Registration History
+        await createRegistrationHistory(
+            "canceled",
+            req.user.userFullName,
+            registrationId,
+            t
+        );
         // Store the rejection message in a variable
         const rejectionMessage = message || `Your registration for the bike ${registration.model} - Plate Number: ${registration.plateNumber} - has been rejected!`;
         // Send notification to user
