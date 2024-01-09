@@ -17,7 +17,7 @@ dotenv.config();
 require("./src/config/sequelize");
 
 const cron = require('node-cron');
-const {sendExpirationNotification} = require("./src/scheduler/ExpirationNotificationSchedule")
+const {sendExpirationNotification, sendExpirationNotificationSchedule} = require("./src/scheduler/ExpirationNotificationSchedule")
 
 // Initialize Firebase Admin
 // const serviceAccountPath = process.env.FIREBASE_ADMIN_CREDENTIALS;
@@ -25,10 +25,12 @@ const {sendExpirationNotification} = require("./src/scheduler/ExpirationNotifica
 // const serviceAccountCredentials = process.env.FIREBASE_ADMIN_CREDENTIALS
 // const serviceAccount = JSON.parse(serviceAccountCredentials);
 const serviceAccount = require('./firebase-admin-credentials.json');
+const {createRenewalParkingOrderSchedule} = require("./src/scheduler/CreateRenewalParkingOrderSchedule");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
-
+sendExpirationNotificationSchedule.start();
+createRenewalParkingOrderSchedule.start();
 
 const app = express();
 app.use(

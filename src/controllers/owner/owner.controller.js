@@ -189,7 +189,7 @@ const activateOwner = async (req, res) => {
 
         // Check if the plateNumber already exists in the Bike model
         const existingBike = await Bike.findByPk(updatingOwner.bikeId);
-        if (!existingBike || existingBike.status !== "active") {
+        if (!existingBike) {
             return errorResponse(
                 req,
                 res,
