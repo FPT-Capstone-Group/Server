@@ -14,10 +14,10 @@ const formatOwner = (owner) => {
         updatedAt: formatToMoment(owner.updatedAt),
     };
 };
-const createUserHistory = async (userId, eventName) => {
+const createUserHistory = async (userId, event) => {
     return UserHistory.create({
         userId,
-        eventName,
+        event,
         createdAt: new Date(),
         updatedAt: new Date(),
     });

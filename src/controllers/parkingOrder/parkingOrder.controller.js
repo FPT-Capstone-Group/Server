@@ -99,7 +99,7 @@ const createParkingOrder = async (req, res) => {
     }
 };
 
-const autoCreateRenewalParkingOrder = async (parkingOrderId) => {
+const createRenewalParkingOrder = async (parkingOrderId) => {
     try {
         const parkingOrder = await ParkingOrder.findByPk(parkingOrderId);
         if (!parkingOrder) {
@@ -244,5 +244,5 @@ module.exports = {
     getAllParkingOrders,
     getAllParkingOrdersByBike,
     getCurrentPendingParkingOrder,
-    autoCreateRenewalParkingOrder,
+    createRenewalParkingOrder,
 };

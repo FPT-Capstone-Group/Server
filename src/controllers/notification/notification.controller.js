@@ -8,12 +8,24 @@ const {
 
 // Sub function
 const formatNotification = (notification) => {
-  const formattedNotification = {
+  return {
     ...notification.toJSON(),
     createdAt: formatToMoment(notification.createdAt),
     updatedAt: formatToMoment(notification.updatedAt),
   };
-  return formattedNotification;
+};
+
+const createNotification = async (userId, message, notificationType, t) => {
+    return Notification.create(
+        {
+            userId,
+            message,
+            notificationType,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        },
+        {transaction: t}
+    );
 };
 
 const sendNotificationMessage = async (userId, title, body) => {
@@ -160,4 +172,5 @@ module.exports = {
   getUserNotifications,
   getUserAssociatedNotifications,
   getSpecificUserNotification,
+  createNotification
 };

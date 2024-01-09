@@ -28,17 +28,7 @@ const serviceAccount = require('./firebase-admin-credentials.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
-cron.schedule('0 9 * * *', async () => {
-    await sendExpirationNotification()
 
-    const gmtOffset = 7 * 60; // GMT+7
-    const now = new Date(new Date().getTime() + gmtOffset * 60000);
-
-    // Check if correct timezone GMT +7
-    if (now.getUTCHours() === 0 && now.getUTCMinutes() === 0) {
-        await sendExpirationNotification()
-    }
-});
 
 const app = express();
 app.use(
