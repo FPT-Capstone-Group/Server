@@ -58,8 +58,7 @@ const getParkingOrderInfo = async (req, res) => {
             parkingTypeName: parkingType.parkingTypeName,
             expiredDate: expiredDate,
             parkingOrderAmount: parkingType.parkingTypeFee,
-            createdAt: formatToMoment(parkingOrderInfo.createdAt),
-            updatedAt: formatToMoment(parkingOrderInfo.updatedAt),
+            createdAt: formatToMoment(new Date()),
         }
 
         return successResponse(req, res, parkingOrderInfo, 200);
