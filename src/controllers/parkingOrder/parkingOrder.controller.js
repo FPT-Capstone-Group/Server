@@ -6,6 +6,7 @@ const {
     formatToMoment,
 } = require("../../helpers");
 const {Op} = require("sequelize");
+const moment = require("moment/moment");
 // Sub function
 const formattedParkingOrderInfo = (parkingOrderInfo) => {
     return {
@@ -56,7 +57,7 @@ const getParkingOrderInfo = async (req, res) => {
             parkingTypeId,
             plateNumber: bike.plateNumber,
             parkingTypeName: parkingType.parkingTypeName,
-            expiredDate: expiredDate,
+            expiredDate: moment(expiredDate).format("YYYY-MM-DD"),
             parkingOrderAmount: parkingType.parkingTypeFee,
             createdAt: formatToMoment(new Date()),
         }
