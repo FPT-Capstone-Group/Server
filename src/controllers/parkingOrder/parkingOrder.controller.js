@@ -48,6 +48,7 @@ const getParkingOrderInfo = async (req, res) => {
         if (!parkingType) {
             return errorResponse(req, res, "Invalid parkingTypeId", 400);
         }
+        const bike = await Bike.findByPk(bikeId);
         let expiredDate = new Date();
         updateExpiredDate(parkingType.parkingTypeName, expiredDate);
         const parkingOrderInfo = {
