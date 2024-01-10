@@ -59,7 +59,9 @@ const getParkingOrderInfo = async (req, res) => {
             expiredDate: expiredDate,
             parkingOrderAmount: parkingType.parkingTypeFee,
         }
-        return successResponse(req, res, formattedParkingOrderInfo(parkingOrderInfo), 200);
+        const formattedParkingOrder = formattedParkingOrderInfo(parkingOrderInfo);
+
+        return successResponse(req, res, formattedParkingOrder, 200);
 
     } catch (error) {
         console.error(error);
@@ -93,7 +95,7 @@ const createParkingOrder = async (req, res) => {
         });
         const formattedParkingOrder = formattedParkingOrderInfo(newParkingOrder);
 
-        return successResponse(req, res, {parkingOrder: formattedParkingOrder}, 201);
+        return successResponse(req, res, formattedParkingOrder, 201);
     } catch (error) {
         console.error("Internal Server Error:", error);
         return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -172,7 +174,7 @@ const getAllParkingOrders = async (req, res) => {
         }
         const formattedParkingOrders = parkingOrders.map((parkingOrder) => formattedParkingOrderInfo(parkingOrder));
 
-        return successResponse(req, res, {parkingOrders: formattedParkingOrders}, 200);
+        return successResponse(req, res,  formattedParkingOrders, 200);
 
 
     } catch (error) {
@@ -202,7 +204,7 @@ const getAllParkingOrdersByBike = async (req, res) => {
 
         const formattedParkingOrders = parkingOrders.map((parkingOrder) => formattedParkingOrderInfo(parkingOrder));
 
-        return successResponse(req, res, {parkingOrders: formattedParkingOrders}, 200);
+        return successResponse(req, res, formattedParkingOrders, 200);
 
 
     } catch (error) {
@@ -228,7 +230,7 @@ const getCurrentPendingParkingOrder = async (req, res) => {
 
         const formattedParkingOrders = pendingParkingOrders.map((parkingOrder) => formattedParkingOrderInfo(parkingOrder));
 
-        return successResponse(req, res, {parkingOrders: formattedParkingOrders}, 200);
+        return successResponse(req, res, formattedParkingOrders, 200);
 
 
     } catch (error) {
