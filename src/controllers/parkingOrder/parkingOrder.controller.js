@@ -58,10 +58,11 @@ const getParkingOrderInfo = async (req, res) => {
             parkingTypeName: parkingType.parkingTypeName,
             expiredDate: expiredDate,
             parkingOrderAmount: parkingType.parkingTypeFee,
+            createdAt: formatToMoment(parkingOrderInfo.createdAt),
+            updatedAt: formatToMoment(parkingOrderInfo.updatedAt),
         }
-        const formattedParkingOrder = formattedParkingOrderInfo(parkingOrderInfo);
 
-        return successResponse(req, res, formattedParkingOrder, 200);
+        return successResponse(req, res, parkingOrderInfo, 200);
 
     } catch (error) {
         console.error(error);
@@ -174,7 +175,7 @@ const getAllParkingOrders = async (req, res) => {
         }
         const formattedParkingOrders = parkingOrders.map((parkingOrder) => formattedParkingOrderInfo(parkingOrder));
 
-        return successResponse(req, res,  formattedParkingOrders, 200);
+        return successResponse(req, res, formattedParkingOrders, 200);
 
 
     } catch (error) {

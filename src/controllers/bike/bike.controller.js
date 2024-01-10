@@ -8,12 +8,11 @@ const {
 
 // Sub func
 const formatBike = (bike) => {
-    const formattedBike = {
+    return {
         ...bike.toJSON(),
         createdAt: formatToMoment(bike.createdAt),
         updatedAt: formatToMoment(bike.updatedAt),
     };
-    return formattedBike;
 };
 const createBike = async (req, res) => {
     try {
