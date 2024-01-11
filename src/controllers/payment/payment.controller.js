@@ -37,7 +37,7 @@ const processParkingOrderPayment = async (req, res) => {
     }
 
     // Parking Order is already completed, do not allow new payment
-    if (parkingOrder.status !== "pending") {
+    if (parkingOrder.parkingOrderStatus !== "pending") {
       return errorResponse(req, res, "Parking Order is already completed", 400);
     }
 
