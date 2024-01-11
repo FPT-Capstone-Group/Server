@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         },
     });
     Payment.associate = function (models) {
-        Payment.belongsTo(models.Registration, {foreignKey: "registrationId"});
+        Payment.belongsTo(models.ParkingOrder, {foreignKey: "parkingOrderId"});
     };
     return Payment;
 };
