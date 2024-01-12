@@ -200,7 +200,7 @@ const verifyRegistration = async (req, res) => {
                 t
             );
         }
-        
+
         await t.commit();
         const formattedRegistration = formatRegistration(registration);
         return successResponse(
@@ -283,7 +283,7 @@ const cancelRegistration = async (req, res) => {
         // Update the registration status to "Canceled"
         registration.registrationStatus = "canceled";
         await registration.save();
-        
+
         // Create Registration History
         await createRegistrationHistory(
             "canceled",
@@ -304,6 +304,8 @@ const cancelRegistration = async (req, res) => {
 
 // Admin rejects a user registration with message in UI
 const rejectRegistration = async (req, res) => {
+    const t = await sequelize.transaction();
+
     try {
         const {registrationId} = req.params;
         const {message} = req.body;
@@ -325,7 +327,7 @@ const rejectRegistration = async (req, res) => {
         }
         // Update the registration status to "rejected"
         registration.registrationStatus = "rejected";
-        await registration.save();
+        await registration.save({transaction: t});
         // Create Registration History
         await createRegistrationHistory(
             "canceled",
@@ -352,11 +354,15 @@ const rejectRegistration = async (req, res) => {
                 t
             );
         }
+        await t.commit();
+
         return successResponse(req, res, {
             message: rejectionMessage,
         });
+
     } catch (error) {
         console.error(error);
+        await t.rollback();
         return errorResponse(req, res, "Internal Server Error", 500, error);
     }
 };
