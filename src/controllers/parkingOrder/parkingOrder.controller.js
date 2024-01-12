@@ -168,6 +168,16 @@ const getAllParkingOrders = async (req, res) => {
         if (parkingOrderStatus) conditions.parkingOrderStatus = parkingOrderStatus;
         if (dateStart && dateEnd) conditions.createdAt = {[Op.between]: [dateStart, dateEnd]};
         const parkingOrders = await ParkingOrder.findAll({
+            include: [
+                {
+                    model: Bike,
+                    attributes: ["plateNumber"],
+                },
+                {
+                    model: ParkingType,
+                    attributes: ["parkingTypeName"],
+                },
+            ],
             where: conditions,
         });
         if (!parkingOrders || parkingOrders.length === 0) {
