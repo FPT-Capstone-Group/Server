@@ -88,7 +88,7 @@ const allUsers = async (req, res) => {
 
 const register = async (req, res) => {
     try {
-        const {username, password, fullName, otpToken} = req.body;
+        const {username, password, userFullName, otpToken} = req.body;
 
         const user = await User.findOne({
             where: {username},

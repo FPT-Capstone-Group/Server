@@ -3,6 +3,7 @@ const {ParkingOrder, Bike, User, ParkingOption} = require("../models");
 const notificationController = require("../controllers/notification/notification.controller");
 const cron = require("node-cron");
 const {Op} = require("sequelize");
+const {createRenewalParkingOrder} = require("../controllers/parkingOrder/parkingOrder.controller");
 
 
 const createRenewalParkingOrderSchedule =
@@ -18,7 +19,7 @@ const createRenewalParkingOrderSchedule =
     });
 
 
-const createRenewalParkingOrder = async () => {
+const autoCreateRenewalParkingOrder = async () => {
     try {
         const t = await sequelize.transaction();
         const currentDate = new Date().setHours(0, 0, 0, 0);
@@ -46,9 +47,11 @@ const createRenewalParkingOrder = async () => {
                 return;
             }
 
-            let notificationBody;
+            await createRenewalParkingOrder(parkingOrder.parkingOrderId)
 
-            const notificationTitle = "Parking Order Expired";
+            const notificationBody = `The renewal parking order of plate number: ${bike.plateNumber} is created. Please proceed your renewal order for continue parking!`
+
+            const notificationTitle = "Parking Order Renewal Created";
             await notificationController.sendNotificationMessage(
                 user.userId,
                 notificationTitle,
@@ -64,5 +67,6 @@ const createRenewalParkingOrder = async () => {
 
 
 module.exports = {
+    autoCreateRenewalParkingOrder,
     createRenewalParkingOrderSchedule
 }

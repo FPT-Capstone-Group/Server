@@ -25,7 +25,6 @@ const sendExpirationNotification = async () => {
         const daysBeforeExpired = await ParkingOption.findByPk('daysBeforeExpired')
         const expiredParkingOrders = await ParkingOrder.findAll({
             where: {
-                parkingOrderStatus: 'expired',
                 expiredDate: {
                     [Op.lt]: [currentDate, new Date(currentDate.getTime() - daysAfterExpired.parkingOptionValue * 24 * 60 * 60 * 1000)]
                 }
@@ -33,7 +32,6 @@ const sendExpirationNotification = async () => {
         })
         const nearExpiredParkingOrders = await ParkingOrder.findAll({
             where: {
-                parkingOrderStatus: 'active',
                 expiredDate: {
                     [Op.between]: [currentDate, new Date(currentDate.getTime() + daysBeforeExpired.parkingOptionValue * 24 * 60 * 60 * 1000) ]
                 }
