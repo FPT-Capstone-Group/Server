@@ -175,7 +175,7 @@ const getAllParkingOrders = async (req, res) => {
         }
         const formattedParkingOrders = parkingOrders.map((parkingOrder) => formattedParkingOrderInfo(parkingOrder));
 
-        return successResponse(req, res, formattedParkingOrders, 200);
+        return successResponse(req, res, {parkingOrders: formattedParkingOrders}, 200);
 
 
     } catch (error) {
@@ -205,7 +205,7 @@ const getAllParkingOrdersByBike = async (req, res) => {
 
         const formattedParkingOrders = parkingOrders.map((parkingOrder) => formattedParkingOrderInfo(parkingOrder));
 
-        return successResponse(req, res, formattedParkingOrders, 200);
+        return successResponse(req, res, {parkingOrders: formattedParkingOrders}, 200);
 
 
     } catch (error) {
@@ -231,7 +231,7 @@ const getCurrentPendingParkingOrder = async (req, res) => {
 
         const formattedParkingOrders = pendingParkingOrders.map((parkingOrder) => formattedParkingOrderInfo(parkingOrder));
 
-        return successResponse(req, res, formattedParkingOrders, 200);
+        return successResponse(req, res, {parkingOrders: formattedParkingOrders}, 200);
 
 
     } catch (error) {
