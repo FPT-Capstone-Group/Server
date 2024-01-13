@@ -11,6 +11,7 @@ const moment = require("moment/moment");
 const formattedParkingOrderInfo = (parkingOrderInfo) => {
     return {
         ...parkingOrderInfo.toJSON(),
+        expiredDate: moment(parkingOrderInfo.expiredDate).format("YYYY-MM-DD"),
         createdAt: formatToMoment(parkingOrderInfo.createdAt),
         updatedAt: formatToMoment(parkingOrderInfo.updatedAt),
     };
