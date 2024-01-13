@@ -327,6 +327,8 @@ const rejectRegistration = async (req, res) => {
         }
         // Update the registration status to "rejected"
         registration.registrationStatus = "rejected";
+        registration.approvedBy = `${req.user.userFullName}`;
+
         await registration.save({transaction: t});
         // Create Registration History
         await createRegistrationHistory(
