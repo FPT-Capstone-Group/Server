@@ -126,7 +126,7 @@ router.delete(
 
 // Payments
 router.get("/payments", paymentController.getAllPayments);
-router.get("/payments/parkingOrder", paymentController.getPaymentsForParkingOrder);
+router.get("/payments/:parkingOrderId", paymentController.getPaymentsForParkingOrder);
 
 // Reports
 router.get("/getTotalCheckin", reportController.getTotalCheckin);
