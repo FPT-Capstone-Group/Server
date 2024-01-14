@@ -253,6 +253,16 @@ const autoAssignCard = async (bikeId) => {
     try {
         const t = await sequelize.transaction();
 
+        const existingAssignedCard = await Card.findOne({
+            where: {
+                bikeId: bikeId
+            },
+        });
+
+        if (existingAssignedCard) {
+            return;
+        }
+
         const card = await Card.findOne({
             where: {
                 cardStatus: "active",
