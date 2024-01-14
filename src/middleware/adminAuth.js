@@ -16,6 +16,7 @@ const adminAuth = async (req, res, next) => {
       ],
     });
 
+
     if (isAdmin) {
       return next(); // Call the next middleware
     }

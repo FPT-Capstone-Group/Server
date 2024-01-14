@@ -237,7 +237,7 @@ const revokeCardByPlateNumber = async (req, res) => {
             where: {bikeId: bike.bikeId},
         });
         if (!cards || cards.length === 0) {
-            return errorResponse(req, res, "No card not found", 404);
+            return errorResponse(req, res, "No cards found", 404);
         }
 
         for (const card of cards) {
@@ -350,13 +350,12 @@ const assignCardToBike = async (req, res) => {
 const getAllCardsByBikeId = async (req, res) => {
     try {
         const {bikeId} = req.query;
-
         const bike = await Bike.findByPk(bikeId);
         if (!bike) {
             return errorResponse(req, res, `No bike id ${bikeId} found`, 404);
         }
         const cards = await Card.findAll({
-            where: {bikeId},
+            where: {bikeId: bikeId},
             attributes: ["cardId"],
         });
 
