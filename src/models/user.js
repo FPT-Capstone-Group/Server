@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             allowNull: false,
         },
-        fullName: {
+        userFullName: {
             type: DataTypes.STRING,
         },
         username: {
@@ -17,9 +17,9 @@ module.exports = (sequelize, DataTypes) => {
         password: {
             type: DataTypes.STRING,
         },
-        isActive: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
+        userStatus: {
+            type: DataTypes.STRING,
+            defaultValue: 'active',
         },
         age: {
             type: DataTypes.INTEGER,
@@ -46,7 +46,6 @@ module.exports = (sequelize, DataTypes) => {
     });
     User.associate = function (models) {
         User.belongsTo(models.Role, {foreignKey: "roleId"});
-        User.hasMany(models.Bike, {foreignKey: "userId"});
         User.hasMany(models.UserHistory, {foreignKey: "userId"});
         User.hasMany(models.Notification, {foreignKey: "userId"});
         User.hasMany(models.Registration, {foreignKey: "userId"});

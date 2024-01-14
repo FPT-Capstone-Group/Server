@@ -9,7 +9,7 @@ module.exports = {
         autoIncrement: true,
         allowNull: false,
       },
-      eventName: {
+      event: {
         type: Sequelize.TEXT,
         allowNull: false,
       },

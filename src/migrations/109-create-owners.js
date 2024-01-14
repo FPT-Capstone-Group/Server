@@ -1,39 +1,42 @@
 "use strict";
+
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable("Payments", {
-            paymentId: {
+        await queryInterface.createTable("Owners", {
+            ownerId: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER,
             },
-            transactionId: {
+            ownerFullName: {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
-            paymentAmount: {
-                type: Sequelize.FLOAT,
-                allowNull: false,
-            },
-            paymentStatus: {
-                type: Sequelize.STRING,
-                defaultValue: "processing",
-                allowNull: false,
-            },
-            paymentMethod: {
+            ownerStatus: {
                 type: Sequelize.STRING,
                 allowNull: false,
+                defaultValue: 'active'
             },
-            parkingOrderId: {
+            gender: {
+                type: Sequelize.STRING,
+            },
+            relationship: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            ownerFaceImage: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
+            bikeId: {
                 type: Sequelize.INTEGER,
-                allowNull: false,
                 references: {
-                    model: "ParkingOrders",
-                    key: "parkingOrderId",
+                    model: "Bikes",
+                    key: "bikeId",
                 },
                 onUpdate: "CASCADE",
-                onDelete: "CASCADE",
+                onDelete: "SET NULL", // or 'CASCADE' depending on your use case
             },
             createdAt: {
                 allowNull: false,
@@ -45,7 +48,8 @@ module.exports = {
             },
         });
     },
+
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable("Payments");
+        await queryInterface.dropTable("Owners");
     },
 };

@@ -7,7 +7,7 @@ const securityAuth = async (req, res, next) => {
 
     // Check if the user has the 'Admin' role directly
     const isSecurity = await Role.findOne({
-      where: { name: "security" },
+      where: { roleName: "security" },
       include: [
         {
           model: User,

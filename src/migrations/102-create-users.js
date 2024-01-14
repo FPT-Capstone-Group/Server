@@ -9,7 +9,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      fullName: {
+      userFullName: {
         type: Sequelize.STRING,
       },
       username: {
@@ -18,9 +18,9 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
       },
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
+      userStatus: {
+        type: Sequelize.STRING,
+        defaultValue: 'active',
       },
       age: {
         type: Sequelize.INTEGER,

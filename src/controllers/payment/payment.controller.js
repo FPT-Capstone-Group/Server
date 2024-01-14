@@ -1,4 +1,5 @@
-const { Payment, Registration } = require("../../models");
+const { Payment, Registration, ParkingOrder } = require("../../models");
+const {autoAssignCard} = require("../../controllers/card/card.controller");
 const {
   successResponse,
   errorResponse,
@@ -8,55 +9,54 @@ const sequelize = require("../../config/sequelize");
 
 // Sub function
 const formatPayment = (payment) => {
-  const formattedPayment = {
+  return {
     ...payment.toJSON(),
     createdAt: formatToMoment(payment.createdAt),
     updatedAt: formatToMoment(payment.updatedAt),
   };
-  return formattedPayment;
 };
 
 // Main function
-const processPayment = async (req, res) => {
+const processParkingOrderPayment = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    const { paymentMethod, registrationId, amount } = req.body;
-    if (!registrationId || !amount) {
+    const { transactionId, paymentMethod, parkingOrderId, paymentAmount } = req.body;
+    if (!parkingOrderId || !paymentAmount) {
       return errorResponse(
         req,
         res,
-        "registrationId and amount are required",
+        "parkingOrderId and amount are required",
         400
       );
     }
 
-    // Check if the registration is already completed
-    const registration = await Registration.findByPk(registrationId);
-    // Registration is already completed, do not allow new payment
-    if (registration.status === "active") {
-      return errorResponse(req, res, "Registration is already completed", 400);
+    const parkingOrder = await ParkingOrder.findByPk(parkingOrderId);
+    if (!parkingOrder) {
+      return errorResponse(req, res, "Invalid parkingOrderId", 400);
     }
 
-    // Set feeId appropriately based on the amount for now
-    let feeId = null;
-    if (amount === 300000) {
-      feeId = 1; // Set the appropriate feeId based on the amount
+    // Parking Order is already completed, do not allow new payment
+    if (parkingOrder.parkingOrderStatus !== "pending") {
+      return errorResponse(req, res, "Parking Order is already completed", 400);
     }
 
     // Create a payment associated with the current user's registration
     const newPayment = await Payment.create(
       {
-        amount,
-        status: "success", // Assuming it's successful since it's a third-party payment
+        transactionId,
+        paymentAmount,
+        paymentStatus: "success", // Assuming it's successful since it's a third-party payment
         paymentMethod,
-        registrationId,
+        parkingOrderId,
       },
       { transaction: t }
     );
 
-    registration.status = "paid";
-    await registration.save({ transaction: t });
+    parkingOrder.parkingOrderStatus = "active";
+    await autoAssignCard(parkingOrder.bikeId);
+
+    await parkingOrder.save({ transaction: t });
     await t.commit();
 
     const formattedPayment = formatPayment(newPayment);
@@ -86,11 +86,11 @@ const getAllPayments = async (req, res) => {
 };
 
 // Function to get payments for a specific registration ID
-const getPaymentsForRegistration = async (req, res) => {
+const getPaymentsForParkingOrder = async (req, res) => {
   try {
-    const { registrationId } = req.params;
+    const { parkingOrderId } = req.params;
     const payments = await Payment.findAll({
-      where: { registrationId },
+      where: { parkingOrderId },
       order: [["createdAt", "DESC"]],
     });
 
@@ -107,7 +107,7 @@ const getPaymentsForRegistration = async (req, res) => {
 };
 
 module.exports = {
-  processPayment,
+  processParkingOrderPayment,
   getAllPayments,
-  getPaymentsForRegistration,
+  getPaymentsForParkingOrder,
 };

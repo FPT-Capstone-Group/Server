@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         allowNull: false,
       },
-      name: {
+      roleName: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
