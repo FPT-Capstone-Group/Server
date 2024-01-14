@@ -1,12 +1,13 @@
 // controllers/cardController.js
 
-const {Card, CardHistory, ParkingType, Bike} = require("../../models");
+const {Card, CardHistory, ParkingType, Bike, ParkingOrder} = require("../../models");
 const {
     successResponse,
     errorResponse,
     formatToMoment,
 } = require("../../helpers");
 const sequelize = require("../../config/sequelize");
+const {Op} = require("sequelize");
 
 // Sub func
 const formatCard = (card, plateNumber) => {
@@ -93,7 +94,7 @@ const getAllActiveCards = async (req, res) => {
     try {
         const activeCards = await Card.findAll({
             where: {
-                status: "active",
+                cardStatus: "active",
             },
         });
 
@@ -142,15 +143,40 @@ const getCardDetails = async (req, res) => {
         if (!card) {
             return errorResponse(req, res, "Card not found", 404);
         }
-        const parkingType = await ParkingType.findByPk(card.parkingTypeId);
+
+        if (card.cardStatus === "assigned") {
+            const bike = await Bike.findByPk(card.bikeId);
+            const parkingOrder = await ParkingOrder.findOne({
+                where: {
+                    bikeId: bike.bikeId,
+                    parkingOrderStatus: {
+                        [Op.or]: ["active", "pending"]
+                    },
+                },
+            });
+
+            const parkingType = await ParkingType.findByPk(parkingOrder.parkingTypeId);
+            return successResponse(
+                req,
+                res,
+                {
+                    cardId: cardId,
+                    status: card.cardStatus,
+                    parkingTypeName: parkingType.parkingTypeName,
+                },
+                200
+            );
+
+        }
+
         // const formattedCard = formatCard(card);
         return successResponse(
             req,
             res,
             {
                 cardId: cardId,
-                status: card.status,
-                parkingTypeName: parkingType.name,
+                status: card.cardStatus,
+                parkingTypeName: "guest",
             },
             200
         );
@@ -180,11 +206,9 @@ const updateCard = async (req, res) => {
 
         await CardHistory.create(
             {
-                eventType: "Card Updated",
-                eventTime: new Date().toISOString(),
-                details: "Card updated successfully",
+                event: "Card Updated",
                 cardId: card.cardId,
-                status: card.status,
+                approvedBy: req.user.userFullName,
             },
             {transaction: t}
         );
@@ -326,7 +350,6 @@ const assignCardToBike = async (req, res) => {
 const getAllCardsByBikeId = async (req, res) => {
     try {
         const {bikeId} = req.query;
-        console.log(`HERE ${bikeId}`);
 
         const bike = await Bike.findByPk(bikeId);
         if (!bike) {
