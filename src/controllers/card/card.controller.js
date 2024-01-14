@@ -161,7 +161,7 @@ const getCardDetails = async (req, res) => {
                 res,
                 {
                     cardId: cardId,
-                    status: card.cardStatus,
+                    cardStatus: card.cardStatus,
                     parkingTypeGroup: parkingType.parkingTypeGroup,
                 },
                 200
@@ -175,7 +175,7 @@ const getCardDetails = async (req, res) => {
             res,
             {
                 cardId: cardId,
-                status: card.cardStatus,
+                cardStatus: card.cardStatus,
                 parkingTypeGroup: "guest",
             },
             200

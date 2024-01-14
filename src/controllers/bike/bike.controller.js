@@ -78,7 +78,6 @@ const getPlateNumberByCard = async (req, res) => {
     try {
         const {cardId} = req.query;
         const card = await Card.findByPk(cardId);
-        console.log(card);
         if (!card) {
             return errorResponse(req, res, `No card found with ID: ${cardId}`, 404);
         }
