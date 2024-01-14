@@ -170,6 +170,7 @@ const updateParkingTypeById = async (req, res) => {
         );
     } catch (error) {
         console.error(error);
+        t.rollback();
         return errorResponse(req, res, "Internal Server Error", 500, error);
     }
 };

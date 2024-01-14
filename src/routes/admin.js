@@ -54,7 +54,8 @@ router.post("/bikes", bikeController.createBike);
 router.get("/bikes", bikeController.getAllBikes);
 router.get("/bikes/:bikeId", bikeController.getBikeInfo);
 router.put("/bikes/:bikeId", bikeController.updateBike);
-
+router.put("/bike/active/:bikeId", bikeController.activateBike);
+router.put("/bike/deactive/:bikeId", bikeController.deactivateBike);
 
 //User
 router.get("/users", userController.allUsers);
