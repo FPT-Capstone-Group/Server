@@ -1,5 +1,4 @@
 const {
-    Fee,
     ParkingSession,
     ParkingType,
     Bike,
@@ -41,11 +40,12 @@ const checkoutDataEvaluateResponseObject = (
 const getAllParkingSessions = async (req, res) => {
     try {
         const {dateStart, dateEnd} = req.query;
+        const limit = parseInt(req.query.limit) || 10; // number of records per page
+        const offset = parseInt(req.query.offset) || 0; // number of records to skip
         const parkingSessions = await ParkingSession.findAll({
             where: {
                 updatedAt: {[Op.between]: [dateStart, dateEnd]},
             },
-            include: ParkingType,
             attributes: {
                 exclude: [
                     "checkinFaceImage",
@@ -54,6 +54,8 @@ const getAllParkingSessions = async (req, res) => {
                     "checkoutPlateNumberImage",
                 ],
             },
+            limit: limit,
+            offset: offset
         });
         if (parkingSessions.length === 0) {
             return successResponse(req, res, {parkingSessions: []}, 204); // Avoid dateStart, dateEnd return 500 when nothing in range
@@ -78,8 +80,11 @@ const getParkingSessionById = async (req, res) => {
     const {parkingSessionId} = req.params;
 
     try {
+        const limit = parseInt(req.query.limit) || 10; // number of records per page
+        const offset = parseInt(req.query.offset) || 0; // number of records to skip
         const parkingSession = await ParkingSession.findByPk(parkingSessionId, {
-            include: ParkingType,
+            limit: limit,
+            offset: offset
         });
         if (!parkingSession) {
             return errorResponse(req, res, "Parking Session not found", 404);
@@ -231,14 +236,11 @@ const checkIn = async (req, res) => {
         checkinFaceImage,
         checkinPlateNumberImage,
         plateNumber,
-        parkingTypeName,
+        parkingTypeGroup,
     } = req.body;
     const checkinTime = moment().format("YYYY-MM-DD HH:mm:ss");
     try {
         const security = req.user.fullName;
-        const parkingType = await ParkingType.findOne({
-            where: {name: parkingTypeName},
-        });
         const newParkingSession = await ParkingSession.create({
             checkinCardId,
             checkinTime,
@@ -246,7 +248,7 @@ const checkIn = async (req, res) => {
             checkinPlateNumberImage,
             plateNumber,
             approvedBy: security,
-            parkingTypeId: parkingType.parkingTypeId,
+            parkingTypeGroup: parkingTypeGroup
         });
 
         return successResponse(
@@ -255,7 +257,6 @@ const checkIn = async (req, res) => {
             {
                 cardId: newParkingSession.checkinCardId,
                 plateNumber: newParkingSession.plateNumber,
-                parkingType: parkingType,
             },
             201
         );
@@ -295,13 +296,16 @@ const checkOut = async (req, res) => {
 const getParkingSessionsByPlateNumber = async (req, res) => {
     try {
         const {plateNumber, dateStart, dateEnd} = req.query;
-
+        const limit = parseInt(req.query.limit) || 10; // number of records per page
+        const offset = parseInt(req.query.offset) || 0; // number of records to skip
         // Fetch all parking sessions for the given plate number
         const parkingSessions = await ParkingSession.findAll({
             where: {
                 plateNumber,
                 updatedAt: {[Op.between]: [dateStart, dateEnd]},
             },
+            limit: limit,
+            offset: offset
         });
 
         if (!parkingSessions || parkingSessions.length === 0) {
@@ -333,7 +337,8 @@ const getParkingSessionsByPlateNumber = async (req, res) => {
 const getParkingSessionsByUsersPlateNumber = async (req, res) => {
     try {
         const {plateNumber, dateStart, dateEnd} = req.query;
-
+        const limit = parseInt(req.query.limit) || 10; // number of records per page
+        const offset = parseInt(req.query.offset) || 0; // number of records to skip
         const user = req.user;
 
         // Check if the user owns the bike with the provided plate number
@@ -356,6 +361,8 @@ const getParkingSessionsByUsersPlateNumber = async (req, res) => {
                 plateNumber,
                 updatedAt: {[Op.between]: [dateStart, dateEnd]},
             },
+            limit: limit,
+            offset: offset
         });
 
         if (!parkingSessions || parkingSessions.length === 0) {

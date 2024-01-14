@@ -71,6 +71,38 @@ const getParkingOrderInfo = async (req, res) => {
     }
 };
 
+const getParkingOrderDetail = async (req, res) => {
+    const {bikeId, parkingTypeId} = req.query;
+    try {
+        const existingParkingOrder = await checkExistingParkingOrder(bikeId);
+        if (existingParkingOrder) {
+            return errorResponse(req, res, "Cannot create parking order. The bike already has an active or pending parking order", 400);
+        }
+        const parkingType = await ParkingType.findByPk(parkingTypeId);
+        if (!parkingType) {
+            return errorResponse(req, res, "Invalid parkingTypeId", 400);
+        }
+        const bike = await Bike.findByPk(bikeId);
+        let expiredDate = new Date();
+        updateExpiredDate(parkingType.parkingTypeName, expiredDate);
+        const parkingOrderInfo = {
+            bikeId,
+            parkingTypeId,
+            plateNumber: bike.plateNumber,
+            parkingTypeName: parkingType.parkingTypeName,
+            expiredDate: moment(expiredDate).format("YYYY-MM-DD"),
+            parkingOrderAmount: parkingType.parkingTypeFee,
+            createdAt: formatToMoment(new Date()),
+        }
+
+        return successResponse(req, res, parkingOrderInfo, 200);
+
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
+};
+
 const createParkingOrder = async (req, res) => {
     try {
         const {bikeId, parkingTypeId, expiredDate, parkingOrderAmount} = req.body;
@@ -209,6 +241,16 @@ const getAllParkingOrdersByBike = async (req, res) => {
             where: {
                 bikeId
             },
+            include: [
+                {
+                    model: ParkingType,
+                    attributes: ["parkingTypeName"],
+                },
+                {
+                    model: Bike,
+                    attributes: ["plateNumber"],
+                }
+            ],
         });
         if (!parkingOrders || parkingOrders.length === 0) {
             return errorResponse(req, res, "No parking orders found", 404);

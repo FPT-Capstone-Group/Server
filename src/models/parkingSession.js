@@ -37,6 +37,9 @@ module.exports = (sequelize, DataTypes) => {
         plateNumber: {
             type: DataTypes.STRING,
         },
+        parkingTypeGroup: {
+            type: DataTypes.STRING,
+        },
         parkingFee: {
             type: DataTypes.FLOAT,
         },
@@ -49,9 +52,6 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     ParkingSession.associate = function (models) {
-        ParkingSession.belongsTo(models.ParkingType, {
-            foreignKey: "parkingTypeId",
-        });
     };
 
     return ParkingSession;

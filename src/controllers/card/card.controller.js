@@ -162,7 +162,7 @@ const getCardDetails = async (req, res) => {
                 {
                     cardId: cardId,
                     status: card.cardStatus,
-                    parkingTypeName: parkingType.parkingTypeName,
+                    parkingTypeGroup: parkingType.parkingTypeGroup,
                 },
                 200
             );
@@ -176,7 +176,7 @@ const getCardDetails = async (req, res) => {
             {
                 cardId: cardId,
                 status: card.cardStatus,
-                parkingTypeName: "guest",
+                parkingTypeGroup: "guest",
             },
             200
         );
@@ -356,7 +356,6 @@ const getAllCardsByBikeId = async (req, res) => {
         }
         const cards = await Card.findAll({
             where: {bikeId: bikeId},
-            attributes: ["cardId"],
         });
 
         return successResponse(req, res, cards, 200);
