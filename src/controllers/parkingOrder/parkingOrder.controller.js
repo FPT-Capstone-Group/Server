@@ -71,31 +71,18 @@ const getParkingOrderInfo = async (req, res) => {
     }
 };
 
-const getParkingOrderDetail = async (req, res) => {
-    const {bikeId, parkingTypeId} = req.query;
-    try {
-        const existingParkingOrder = await checkExistingParkingOrder(bikeId);
-        if (existingParkingOrder) {
-            return errorResponse(req, res, "Cannot create parking order. The bike already has an active or pending parking order", 400);
-        }
-        const parkingType = await ParkingType.findByPk(parkingTypeId);
-        if (!parkingType) {
-            return errorResponse(req, res, "Invalid parkingTypeId", 400);
-        }
-        const bike = await Bike.findByPk(bikeId);
-        let expiredDate = new Date();
-        updateExpiredDate(parkingType.parkingTypeName, expiredDate);
-        const parkingOrderInfo = {
-            bikeId,
-            parkingTypeId,
-            plateNumber: bike.plateNumber,
-            parkingTypeName: parkingType.parkingTypeName,
-            expiredDate: moment(expiredDate).format("YYYY-MM-DD"),
-            parkingOrderAmount: parkingType.parkingTypeFee,
-            createdAt: formatToMoment(new Date()),
-        }
 
-        return successResponse(req, res, parkingOrderInfo, 200);
+
+const getParkingOrderDetail = async (req, res) => {
+    const {parkingOrderId} = req.params;
+    try {
+        const parkingOrder = await ParkingOrder.findByPk(parkingOrderId);
+
+        if (!parkingOrder) {
+            return errorResponse(req, res, "Invalid parkingOrderId", 400);
+        }
+        const formattedParkingOrder = formattedParkingOrderInfo(parkingOrder);
+        return successResponse(req, res, formattedParkingOrder, 200);
 
     } catch (error) {
         console.error(error);
@@ -298,6 +285,7 @@ const getCurrentPendingParkingOrder = async (req, res) => {
 
 module.exports = {
     getParkingOrderInfo,
+    getParkingOrderDetail,
     createParkingOrder,
     cancelParkingOrder,
     getAllParkingOrders,

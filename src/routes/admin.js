@@ -97,6 +97,7 @@ router.post("/notifications/send", notificationController.sendNotification);
 
 //Parking Order
 router.get("/parkingOrders", parkingOrderController.getAllParkingOrders);
+router.get("/parkingOrders/:parkingOrderId", parkingOrderController.getParkingOrderDetail);
 
 
 // Parking Session
