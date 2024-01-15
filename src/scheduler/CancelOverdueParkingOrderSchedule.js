@@ -35,7 +35,7 @@ const autoCancelOverdueParkingOrder = async () => {
             }
         });
         for (const parkingOrder of overdueParkingOrders) {
-            parkingOrder.parkingOrderStatus = 'expired'
+            parkingOrder.parkingOrderStatus = 'canceled'
             await parkingOrder.save({transaction: t});
             await t.commit();
         }
