@@ -50,7 +50,7 @@ const sendExpirationNotification = async () => {
             if (diffInDays < 0 && diffInDays >= -daysBeforeExpired.parkingOptionValue) {
                 notificationBody = `Your parking order of plate number: ${bike.plateNumber} has been expired for ${diffInDays} day(s). Please proceed your renewal order for continue parking!`;
             } else if (diffInDays === 0) {
-                notificationBody = `Your parking order of plate number: ${bike.plateNumber} is expired today. Please proceed your renewal order for continue parking!`;
+                notificationBody = `Your parking order of plate number: ${bike.plateNumber} is expired by the end of today. Please proceed your renewal order for continue parking!`;
             }
             const notificationTitle = "Parking Order Expired";
 

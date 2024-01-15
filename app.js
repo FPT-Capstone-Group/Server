@@ -26,11 +26,13 @@ const {sendExpirationNotification, sendExpirationNotificationSchedule} = require
 // const serviceAccount = JSON.parse(serviceAccountCredentials);
 const serviceAccount = require('./firebase-admin-credentials.json');
 const {createRenewalParkingOrderSchedule} = require("./src/scheduler/CreateRenewalParkingOrderSchedule");
+const {cancelOverdueParkingOrderSchedule} = require("./src/scheduler/CancelOverdueParkingOrderSchedule");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 sendExpirationNotificationSchedule.start();
 createRenewalParkingOrderSchedule.start();
+cancelOverdueParkingOrderSchedule.start();
 
 const app = express();
 app.use(

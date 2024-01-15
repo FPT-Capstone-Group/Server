@@ -6,7 +6,7 @@ const {Op} = require("sequelize");
 const {createRenewalParkingOrder} = require("../controllers/parkingOrder/parkingOrder.controller");
 
 
-const createRenewalParkingOrderSchedule =
+const cancelOverdueParkingOrderSchedule =
     cron.schedule('0 9 * * *', async () => {
 
         const gmtOffset = 7 * 60; // GMT+7
@@ -19,54 +19,35 @@ const createRenewalParkingOrderSchedule =
     });
 
 
-const autoCreateRenewalParkingOrder = async () => {
+const autoCancelOverdueParkingOrder = async () => {
+    const t = await sequelize.transaction();
+
     try {
-        const t = await sequelize.transaction();
         const currentDate = new Date().setHours(0, 0, 0, 0);
-        const daysBeforeExpired = await ParkingOption.findByPk('daysBeforeExpired')
-        const nearExpiredParkingOrders = await ParkingOrder.findAll({
+        const daysAfterExpired = await ParkingOption.findByPk('daysAfterExpired')
+        const overdueParkingOrders = await ParkingOrder.findAll({
             where: {
-                parkingOrderStatus: 'active',
+                parkingOrderStatus: 'pending',
+                parkingOrderType: 'auto_renewal',
                 expiredDate: {
-                    [Op.between]: [currentDate, new Date(currentDate.getTime() + daysBeforeExpired.parkingOptionValue * 24 * 60 * 60 * 1000) ]
+                    [Op.eq]: [currentDate, new Date(currentDate.getTime() - daysAfterExpired.parkingOptionValue * 24 * 60 * 60 * 1000)]
                 }
             }
         });
-        for (const parkingOrder of nearExpiredParkingOrders) {
-            const bike = await Bike.findByPk(parkingOrder.bikeId);
-            const user = await User.findByPk(bike.userId);
-
-            const renewalParkingOrder = await ParkingOrder.findOne({
-                where: {
-                    bikeId: parkingOrder.bikeId,
-                    parkingOrderStatus: 'pending'
-                }
-            })
-            // Already create renewal parking order
-            if (renewalParkingOrder) {
-                return;
-            }
-
-            await createRenewalParkingOrder(parkingOrder.parkingOrderId)
-
-            const notificationBody = `The renewal parking order of plate number: ${bike.plateNumber} is created. Please proceed your renewal order for continue parking!`
-
-            const notificationTitle = "Parking Order Renewal Created";
-            await notificationController.sendNotificationMessage(
-                user.userId,
-                notificationTitle,
-                notificationBody
-            );
+        for (const parkingOrder of overdueParkingOrders) {
+            parkingOrder.parkingOrderStatus = 'expired'
+            await parkingOrder.save({transaction: t});
+            await t.commit();
         }
 
-    } catch
-        (error) {
+    } catch (error) {
+        t.rollback();
         console.error(error);
     }
 }
 
 
 module.exports = {
-    autoCreateRenewalParkingOrder,
-    createRenewalParkingOrderSchedule
+    autoCancelOverdueParkingOrder,
+    cancelOverdueParkingOrderSchedule
 }

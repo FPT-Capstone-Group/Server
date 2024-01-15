@@ -124,6 +124,7 @@ const createParkingOrder = async (req, res) => {
             bikeId,
             parkingTypeId,
             parkingOrderStatus: "pending",
+            parkingOrderType: "user_created",
             expiredDate,
             parkingOrderAmount,
         });
@@ -152,10 +153,11 @@ const createRenewalParkingOrder = async (parkingOrderId) => {
         let expiredDate = parkingOrder.expiredDate;
         updateExpiredDate(parkingType.parkingTypeName, expiredDate);
         const parkingOrderAmount = parkingType.parkingTypeFee;
-        const newRenewalParkingOrder = await ParkingOrder.create({
+        await ParkingOrder.create({
             bikeId: parkingOrder.bikeId,
             parkingTypeId: parkingOrder.parkingTypeId,
             parkingOrderStatus: "pending",
+            parkingOrderType: "auto_renewal",
             expiredDate,
             parkingOrderAmount,
         });

@@ -14,7 +14,7 @@ const createRenewalParkingOrderSchedule =
 
         // Check if correct timezone GMT +7
         if (now.getUTCHours() === 0 && now.getUTCMinutes() === 0) {
-            await createRenewalParkingOrder()
+            await autoCreateRenewalParkingOrder()
         }
     });
 

@@ -14,6 +14,10 @@ module.exports = {
                     type: Sequelize.STRING,
                     allowNull: false,
                 },
+                parkingOrderType: {
+                    type: Sequelize.STRING,
+                    allowNull: false,
+                },
                 parkingOrderAmount: {
                     type: Sequelize.FLOAT,
                     allowNull: false,
