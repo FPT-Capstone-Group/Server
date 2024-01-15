@@ -283,6 +283,7 @@ const getCurrentPendingParkingOrder = async (req, res) => {
 
 module.exports = {
     getParkingOrderInfo,
+    getParkingOrderDetail,
     createParkingOrder,
     cancelParkingOrder,
     getAllParkingOrders,
