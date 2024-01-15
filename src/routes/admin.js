@@ -16,6 +16,10 @@ const parkingTypeController = require("../controllers/parkingType/parkingType.co
 const reportController = require("../controllers/report/report.controller");
 const userHistoryController = require("../controllers/userHistory/userHistory.controller");
 
+const sendExpirationNotificationSchedule = require("../scheduler/ExpirationNotificationSchedule");
+const createRenewalParkingOrderSchedule = require("../scheduler/CreateRenewalParkingOrderSchedule");
+const cancelOverdueParkingOrderSchedule = require("../scheduler/CancelOverdueParkingOrderSchedule");
+
 const router = express.Router();
 
 //= ===============================
@@ -24,29 +28,29 @@ const router = express.Router();
 
 //Registration
 router.get(
-  "/registrations/allRegistrations",
-  registrationController.allRegistration
+    "/registrations/allRegistrations",
+    registrationController.allRegistration
 );
 router.get(
-  "/registrations/:registrationId",
-  registrationController.adminGetUserRegistration
+    "/registrations/:registrationId",
+    registrationController.adminGetUserRegistration
 );
 
 router.put(
-  "/registrations/verify/:registrationId",
-  registrationController.verifyRegistration
+    "/registrations/verify/:registrationId",
+    registrationController.verifyRegistration
 );
 router.put(
-  "/registrations/reject/:registrationId",
-  registrationController.rejectRegistration
+    "/registrations/reject/:registrationId",
+    registrationController.rejectRegistration
 );
 
 router.get("/registrations/search", registrationController.searchRegistration);
 
 //Registration History
 router.get(
-  "/registrations/history/:registrationId",
-  registrationHistoryController.getRegistrationHistory
+    "/registrations/history/:registrationId",
+    registrationHistoryController.getRegistrationHistory
 );
 
 //Bike
@@ -66,8 +70,8 @@ router.post("/users", userController.createSecurityAccount);
 
 //User History
 router.get(
-  "/users/:userId/history",
-  userHistoryController.getAllUserHistoryForUser
+    "/users/:userId/history",
+    userHistoryController.getAllUserHistoryForUser
 );
 //Owner
 router.post("/owners/create", ownerController.createOwner);
@@ -103,26 +107,25 @@ router.get("/parkingOrders/:parkingOrderId", parkingOrderController.getParkingOr
 // Parking Session
 router.get("/sessions", parkingSessionController.getAllParkingSessions);
 router.get(
-  "/sessions/:parkingSessionId",
-  parkingSessionController.getParkingSessionById
+    "/sessions/:parkingSessionId",
+    parkingSessionController.getParkingSessionById
 );
 
 // Parking Type
 router.get("/parkingTypes", parkingTypeController.getAllParkingTypes);
 router.post("/parkingTypes", parkingTypeController.createParkingType);
 router.get(
-  "/parkingTypes/:parkingTypeId",
-  parkingTypeController.getParkingTypeById
+    "/parkingTypes/:parkingTypeId",
+    parkingTypeController.getParkingTypeById
 );
 router.put(
-  "/parkingTypes/:parkingTypeId",
-  parkingTypeController.updateParkingTypeById
+    "/parkingTypes/:parkingTypeId",
+    parkingTypeController.updateParkingTypeById
 );
 router.delete(
-  "/parkingTypes/delete/:parkingTypeId",
-  parkingTypeController.deleteParkingTypeById
+    "/parkingTypes/delete/:parkingTypeId",
+    parkingTypeController.deleteParkingTypeById
 );
-
 
 
 // Payments
@@ -132,10 +135,17 @@ router.get("/payments/:parkingOrderId", paymentController.getPaymentsForParkingO
 // Reports
 router.get("/getTotalCheckin", reportController.getTotalCheckin);
 router.get("/getTotalCheckout", reportController.getTotalCheckout);
-router.get("/getTotalGuestIncome", reportController.getTotalGuestIncome);
+router.get("/getTotalGuestIncome", reportController.getTotalCheckout);
 router.get(
-  "/getGuestIncomeGroupByDate",
-  reportController.getGuestIncomeGroupByDate
+    "/getGuestIncomeGroupByDate",
+    reportController.getGuestIncomeGroupByDate
 );
+
+
+// Manually trigger scheduler
+router.get("/schedule/sendExpirationNotification", sendExpirationNotificationSchedule.triggerSendExpirationNotification);
+router.get("/schedule/autoCreateRenewalParkingOrder", createRenewalParkingOrderSchedule.triggerCreateRenewalParkingOrder);
+router.get("/schedule/autoCancelOverdueParkingOrder", cancelOverdueParkingOrderSchedule.triggerCancelOverdueParkingOrder);
+
 
 module.exports = router;

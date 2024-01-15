@@ -164,15 +164,15 @@ const cancelParkingOrder = async (req, res) => {
         if (!parkingOrder) {
             return errorResponse(req, res, "Invalid parkingOrderId", 400);
         }
-        if (parkingOrder.parkingOrderStatus === "cancelled") {
-            return errorResponse(req, res, "Parking order is already cancelled", 400);
+        if (parkingOrder.parkingOrderStatus === "canceled") {
+            return errorResponse(req, res, "Parking order is already canceled", 400);
         }
         if (parkingOrder.parkingOrderStatus === "active") {
             return errorResponse(req, res, "Parking order is already active", 400);
         }
-        parkingOrder.parkingOrderStatus = "cancelled";
+        parkingOrder.parkingOrderStatus = "canceled";
         await parkingOrder.save();
-        return successResponse(req, res, `Parking order ${parkingOrderId} cancelled successfully`, 200);
+        return successResponse(req, res, `Parking order ${parkingOrderId} canceled successfully`, 200);
     } catch (error) {
         console.error("Internal Server Error:", error);
         return errorResponse(req, res, "Internal Server Error", 500, error);
