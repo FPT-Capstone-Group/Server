@@ -18,6 +18,14 @@ const formatCard = (card, plateNumber) => {
         updatedAt: formatToMoment(card.updatedAt),
     };
 };
+
+const formatCardHitory = (cardHistory) => {
+    return {
+        ...cardHistory.toJSON(),
+        createdAt: formatToMoment(cardHistory.createdAt),
+        updatedAt: formatToMoment(cardHistory.updatedAt),
+    };
+};
 // Create a new card
 const createCard = async (req, res) => {
     const t = await sequelize.transaction();
@@ -225,10 +233,9 @@ const updateCard = async (req, res) => {
 
 // Delete a card
 const revokeCardByPlateNumber = async (req, res) => {
+    const t = await sequelize.transaction();
     try {
         const {plateNumber} = req.query;
-        const t = await sequelize.transaction();
-
         const bike = await Bike.findOne({
             where: {plateNumber: plateNumber},
         });
@@ -243,7 +250,17 @@ const revokeCardByPlateNumber = async (req, res) => {
         for (const card of cards) {
             card.bikeId = null;
             await card.save({transaction: t});
+
+            await CardHistory.create(
+                {
+                    event: "Card Revoked",
+                    cardId: card.cardId,
+                    approvedBy: req.user.userFullName,
+                },
+                {transaction: t}
+            );
         }
+
         await t.commit();
 
         return successResponse(req, res, "Cards revoked successfully", 200);
@@ -254,9 +271,11 @@ const revokeCardByPlateNumber = async (req, res) => {
 };
 
 const revokeCardByCardId = async (req, res) => {
+
+    const t = await sequelize.transaction();
+
     try {
         const {cardId} = req.query;
-        const t = await sequelize.transaction();
 
         const card = await Card.findByPk(cardId);
         if (!card) {
@@ -264,6 +283,16 @@ const revokeCardByCardId = async (req, res) => {
         }
         card.bikeId = null;
         await card.save({transaction: t});
+
+        await CardHistory.create(
+            {
+                event: "Card Revoked",
+                cardId: card.cardId,
+                approvedBy: req.user.userFullName,
+            },
+            {transaction: t}
+        );
+
         await t.commit();
 
         return successResponse(req, res, "Cards revoked successfully", 200);
@@ -274,8 +303,9 @@ const revokeCardByCardId = async (req, res) => {
 };
 
 const autoAssignCard = async (bikeId) => {
+    const t = await sequelize.transaction();
+
     try {
-        const t = await sequelize.transaction();
 
         const existingAssignedCard = await Card.findOne({
             where: {
@@ -301,6 +331,17 @@ const autoAssignCard = async (bikeId) => {
         card.cardStatus = "assigned";
 
         await card.save({transaction: t});
+
+        const bike = await Bike.findByPk(bikeId);
+
+        await CardHistory.create(
+            {
+                event: "Card Assigned to Bike with Plate Number: " + bike.plateNumber,
+                cardId: card.cardId,
+                approvedBy: "auto",
+            },
+            {transaction: t}
+        );
         await t.commit();
 
     } catch (error) {
@@ -310,6 +351,7 @@ const autoAssignCard = async (bikeId) => {
 
 // Admin Assign Card - for user, list bike they own, then assign card
 const assignCardToBike = async (req, res) => {
+    const t = await sequelize.transaction();
     try {
         const {plateNumber, cardId} = req.body;
 
@@ -338,11 +380,22 @@ const assignCardToBike = async (req, res) => {
         // Assign the card to the bike
         card.bikeId = bike.bikeId;
         card.cardStatus = "assigned";
-        await card.save();
+        await card.save({transaction: t});
+        await CardHistory.create(
+            {
+                event: "Card assigned to Bike with Plate Number: " + bike.plateNumber,
+                cardId: card.cardId,
+                approvedBy: req.user.userFullName,
+            },
+            {transaction: t}
+        );
+
+        t.commit();
 
         return successResponse(req, res, "Card assigned to bike successfully", 200);
     } catch (error) {
         console.error(error);
+        t.rollback();
         return errorResponse(req, res, "Internal Server Error", 500, error);
     }
 };
@@ -365,6 +418,26 @@ const getAllCardsByBikeId = async (req, res) => {
     }
 };
 
+const getCardHistory = async (req, res) => {
+    try {
+        const {cardId} = req.params;
+        const card = await Card.findByPk(cardId);
+        if (!card) {
+            return errorResponse(req, res, `No card id ${cardId} found`, 404);
+        }
+        const cardHistories = await CardHistory.findAll({
+            where: {cardId: cardId},
+        });
+        const formattedCardHistories = cardHistories.map((cardHistory) => formatCardHitory(cardHistory));
+
+        return successResponse(req, res, formattedCardHistories, 200);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
+};
+
+
 module.exports = {
     createCard,
     getAllUserCards,
@@ -376,5 +449,6 @@ module.exports = {
     getAllCards,
     getAllActiveCards,
     assignCardToBike,
-    autoAssignCard
+    autoAssignCard,
+    getCardHistory
 };
