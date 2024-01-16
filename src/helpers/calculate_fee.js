@@ -36,28 +36,36 @@ const calculateParkingFee = (checkinTime, checkoutTime, dayFee, nightFee) =>
     // Calculate night fee if checkin is before 6:00 on the same day
     if (checkinDate < dayStartTime) {
         nightFeeCalculation = nightFee;
+        console.log(`Night checkin - nightFeeCalculation: ${nightFeeCalculation}`)
     }
 
     if (checkinDate < nightStartTime) {
         dayFeeCalculation = dayFee;
+        console.log(`Day checkin - dayFeeCalculation: ${dayFeeCalculation}`)
+
     }
 
     // Calculate day fee if checkout is after 6:00 on the next day
     if (checkoutDate > dayStartTime) {
         dayFeeCalculation = dayFee;
+        console.log(`Day checkout - dayFeeCalculation: ${dayFeeCalculation}`)
+
     }
+    console.log(`Final dayFeeCalculation: ${dayFeeCalculation}`)
+    console.log(`Final nightFeeCalculation: ${nightFeeCalculation}`)
 
     // Calculate the total fee
     let totalFee = dayFeeCalculation + nightFeeCalculation;
-
+    console.log(`Total fee: ${totalFee}`)
     if (dateDiff < 1 && totalFee > dayFee){
         totalFee = totalFee - dayFee;
+        console.log(`Total fee when parked <1 day: ${totalFee}`)
     }
     if (dateDiff > 1){
         totalFee = totalFee * dateDiff;
+        console.log(`Total fee when parked >1 day: ${totalFee}`)
     }
 
-    console.log(totalFee)
     return totalFee;
 }
 

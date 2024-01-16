@@ -72,11 +72,21 @@ const getParkingOrderInfo = async (req, res) => {
 };
 
 
-
 const getParkingOrderDetail = async (req, res) => {
     const {parkingOrderId} = req.params;
     try {
-        const parkingOrder = await ParkingOrder.findByPk(parkingOrderId);
+        const parkingOrder = await ParkingOrder.findByPk(parkingOrderId, {
+            include: [
+                {
+                    model: Bike,
+                    attributes: ["plateNumber"],
+                },
+                {
+                    model: ParkingType,
+                    attributes: ["parkingTypeName"],
+                },
+            ]
+        });
 
         if (!parkingOrder) {
             return errorResponse(req, res, "Invalid parkingOrderId", 400);

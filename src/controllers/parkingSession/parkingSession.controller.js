@@ -143,8 +143,8 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
             parkingSession.parkingFee = calculateParkingFee(
                 parkingSession.checkinTime,
                 checkoutTime,
-                dayFee.parkingTypeFee,
-                nightFee.parkingTypeFee
+                parseInt(dayFee.parkingTypeFee) ,
+                parseInt(nightFee.parkingTypeFee),
             );
 
 
