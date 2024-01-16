@@ -31,8 +31,6 @@ const createCard = async (req, res) => {
     const t = await sequelize.transaction();
     const newCards = [];
     try {
-        const parkingType = await ParkingType.findOne({where: {name: "guest"}});
-        console.log(parkingType);
         for (const {cardId} of req.body) {
             const currentDate = new Date();
             const newCard = await Card.create(
@@ -51,7 +49,7 @@ const createCard = async (req, res) => {
                         event: "Card Created",
                         cardId: newCard.cardId,
                         updatedAt: currentDate,
-                        approvedBy: "auto",
+                        approvedBy: req.user.userFullName,
                     },
                     {transaction: t}
                 );
@@ -248,6 +246,7 @@ const revokeCardByPlateNumber = async (req, res) => {
 
         for (const card of cards) {
             card.bikeId = null;
+            card.cardStatus = "active";
             await card.save({transaction: t});
 
             await CardHistory.create(
@@ -281,6 +280,8 @@ const revokeCardByCardId = async (req, res) => {
             return errorResponse(req, res, "Card not found", 404);
         }
         card.bikeId = null;
+        card.cardStatus = "active";
+
         await card.save({transaction: t});
 
         await CardHistory.create(

@@ -124,7 +124,7 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
                     parkingTypeStatus: "active"
                 },
             });
-
+            console.log(dayFee.parkingTypeFee)
             const nightFee = await ParkingType.findOne({
                 attributes: ["parkingTypeFee"],
                 where: {
@@ -132,8 +132,13 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
                     parkingTypeStatus: "active"
                 },
             });
+            console.log(nightFee.parkingTypeFee)
 
             const checkoutTime = moment().format("YYYY-MM-DD HH:mm:ss");
+
+            console.log(`Checkin: ${parkingSession.checkinTime}`)
+            console.log(`Checkout: ${checkoutTime}`)
+
             // Calculate parking fee
             parkingSession.parkingFee = calculateParkingFee(
                 parkingSession.checkinTime,
@@ -141,6 +146,7 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
                 dayFee.parkingTypeFee,
                 nightFee.parkingTypeFee
             );
+
 
             const candidateFaceImage = riderFaceImage;
             const targetFaceImage = parkingSession.checkinFaceImage;
