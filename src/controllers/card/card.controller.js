@@ -146,7 +146,7 @@ const getAllUserCards = async (req, res) => {
 // Admin get details of a specific card
 const getCardDetails = async (req, res) => {
     try {
-        const {cardId} = req.query;
+        const {cardId} = req.params;
         const card = await Card.findByPk(cardId);
         if (!card) {
             return errorResponse(req, res, "Card not found", 404);
@@ -155,6 +155,12 @@ const getCardDetails = async (req, res) => {
         if (card.cardStatus === "assigned") {
             const bike = await Bike.findByPk(card.bikeId);
             const parkingOrder = await ParkingOrder.findOne({
+                include: [
+                    {
+                        model: ParkingType,
+                        attributes: ["parkingTypeGroup"],
+                    },
+                ],
                 where: {
                     bikeId: bike.bikeId,
                     parkingOrderStatus: {
@@ -163,14 +169,13 @@ const getCardDetails = async (req, res) => {
                 },
             });
 
-            const parkingType = await ParkingType.findByPk(parkingOrder.parkingTypeId);
             return successResponse(
                 req,
                 res,
                 {
                     cardId: cardId,
                     cardStatus: card.cardStatus,
-                    parkingTypeGroup: parkingType.parkingTypeGroup,
+                    parkingTypeGroup: parkingOrder.ParkingType.parkingTypeGroup,
                 },
                 200
             );
