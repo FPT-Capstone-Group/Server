@@ -85,7 +85,8 @@ const getNonGuestParkingTypes = async (req, res) => {
                 where: {
                     parkingTypeGroup: {
                         [Op.ne]: 'guest'
-                    }
+                    },
+                    parkingTypeStatus: 'active'
                 }
             }
         );

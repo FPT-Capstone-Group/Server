@@ -246,7 +246,7 @@ const checkIn = async (req, res) => {
     } = req.body;
     const checkinTime = moment().format("YYYY-MM-DD HH:mm:ss");
     try {
-        const security = req.user.fullName;
+        const security = req.user.userFullName;
         const newParkingSession = await ParkingSession.create({
             checkinCardId,
             checkinTime,
