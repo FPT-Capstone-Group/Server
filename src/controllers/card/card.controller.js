@@ -146,7 +146,7 @@ const getAllUserCards = async (req, res) => {
 // Admin get details of a specific card
 const getCardDetails = async (req, res) => {
     try {
-        const {cardId} = req.params;
+        const {cardId} = req.query;
         const card = await Card.findByPk(cardId);
         if (!card) {
             return errorResponse(req, res, "Card not found", 404);
@@ -155,12 +155,6 @@ const getCardDetails = async (req, res) => {
         if (card.cardStatus === "assigned") {
             const bike = await Bike.findByPk(card.bikeId);
             const parkingOrder = await ParkingOrder.findOne({
-                include: [
-                    {
-                        model: ParkingType,
-                        attributes: ["parkingTypeGroup"],
-                    },
-                ],
                 where: {
                     bikeId: bike.bikeId,
                     parkingOrderStatus: {
@@ -169,13 +163,14 @@ const getCardDetails = async (req, res) => {
                 },
             });
 
+            const parkingType = await ParkingType.findByPk(parkingOrder.parkingTypeId);
             return successResponse(
                 req,
                 res,
                 {
                     cardId: cardId,
                     cardStatus: card.cardStatus,
-                    parkingTypeGroup: parkingOrder.ParkingType.parkingTypeGroup,
+                    parkingTypeGroup: parkingType.parkingTypeGroup,
                 },
                 200
             );
@@ -204,7 +199,7 @@ const updateCard = async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const {cardId} = req.params;
-        const {expiredDate, cardType} = req.body;
+        const {cardStatus} = req.body;
 
         const card = await Card.findByPk(cardId);
 
@@ -212,14 +207,13 @@ const updateCard = async (req, res) => {
             return errorResponse(req, res, "Card not found", 404);
         }
 
-        card.expiredDate = expiredDate;
-        card.cardType = cardType;
+        card.cardStatus = cardStatus
 
         await card.save({transaction: t});
 
         await CardHistory.create(
             {
-                event: "Card Updated",
+                event: "Card status updated to : " + cardStatus,
                 cardId: card.cardId,
                 approvedBy: req.user.userFullName,
             },
@@ -364,6 +358,16 @@ const assignCardToBike = async (req, res) => {
         const bike = await Bike.findOne({where: {plateNumber}});
         if (!bike) {
             return errorResponse(req, res, "Bike not found", 404);
+        }
+
+        const parkingOrder = await ParkingOrder.findOne({
+            where: {
+                bikeId: bike.bikeId,
+            },
+        });
+
+        if (!parkingOrder) {
+            return errorResponse(req, res, "Can not assign card. Bike has no parking order", 404);
         }
 
         // Find the card by ID
