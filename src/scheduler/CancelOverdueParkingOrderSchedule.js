@@ -31,7 +31,7 @@ const autoCancelOverdueParkingOrder = async () => {
                 parkingOrderStatus: 'pending',
                 parkingOrderType: 'auto_renewal',
                 expiredDate: {
-                    [Op.between]: [currentDate, new Date(currentDate.getTime() - daysAfterExpired.parkingOptionValue * 24 * 60 * 60 * 1000)]
+                    [Op.lte]: new Date(currentDate.getTime() - daysAfterExpired.parkingOptionValue * 24 * 60 * 60 * 1000)
                 }
             }
         });
@@ -52,11 +52,11 @@ const autoCancelOverdueParkingOrder = async () => {
             const notificationBody = `The auto renewal parking order of plate number: ${bike.plateNumber} is canceled due to overdue. Please create the new parking order for using parking service!`
 
             const notificationTitle = "Parking Order Auto Renewal Canceled";
-            await notificationController.sendNotificationMessage(
-                user.userId,
-                notificationTitle,
-                notificationBody
-            );
+            // await notificationController.sendNotificationMessage(
+            //     user.userId,
+            //     notificationTitle,
+            //     notificationBody
+            // );
         }
 
     } catch (error) {
