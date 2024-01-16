@@ -130,6 +130,14 @@ router.delete(
     "/parkingTypes/delete/:parkingTypeId",
     parkingTypeController.deleteParkingTypeById
 );
+router.put(
+    "/parkingTypes/activate/:parkingTypeId",
+    parkingTypeController.activateParkingType
+);
+router.put(
+    "/parkingTypes/deactivate/:parkingTypeId",
+    parkingTypeController.deactivateParkingType
+);
 
 
 // Payments
