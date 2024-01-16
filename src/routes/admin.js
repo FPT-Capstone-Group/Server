@@ -84,14 +84,15 @@ router.put("/parkingOptions", parkingOptionController.updateParkingOption);
 
 
 //Card
+router.put("/cards/revokeByPlateNumber", cardController.revokeCardByPlateNumber);
+router.put("/cards/revokeByCardId", cardController.revokeCardByCardId);
 router.post("/cards/assign", cardController.assignCardToBike);
 router.get("/cards/getAllCardsByBikeId", cardController.getAllCardsByBikeId);
 router.get("/cards/userId", cardController.getAllUserCards);
-router.get("/cards/:cardId", cardController.getCardDetails);
+router.get("/cards/detail/:cardId", cardController.getCardDetails);
 router.put("/cards/:cardId", cardController.updateCard);
 router.get("/active-cards", cardController.getAllActiveCards);
-router.put("/cards/revokeByPlateNumber", cardController.revokeCardByPlateNumber);
-router.put("/cards/revokeByCardId", cardController.revokeCardByCardId);
+
 router.post("/cards", cardController.createCard);
 router.get("/cards", cardController.getAllCards);
 
