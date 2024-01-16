@@ -337,7 +337,7 @@ const assignCardToBike = async (req, res) => {
 
         // Assign the card to the bike
         card.bikeId = bike.bikeId;
-        card.status = "assigned";
+        card.cardStatus = "assigned";
         await card.save();
 
         return successResponse(req, res, "Card assigned to bike successfully", 200);
