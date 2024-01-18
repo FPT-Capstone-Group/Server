@@ -149,7 +149,7 @@ router.get("/report/getTotalCheckin", reportController.getTotalCheckin);
 router.get("/report/getTotalCheckout", reportController.getTotalCheckout);
 router.get("/report/getTotalGuestIncome", reportController.getTotalGuestIncome);
 router.get(
-    "/getGuestIncomeGroupByDate",
+    "/report/getGuestIncomeGroupByDate",
     reportController.getGuestIncomeGroupByDate
 );
 
