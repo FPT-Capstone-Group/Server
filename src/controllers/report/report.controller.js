@@ -75,7 +75,7 @@ const getGuestIncomeGroupByDate = async (req, res) => {
                 [sequelize.literal(`DATE("checkoutTime")`), 'date'],
             ],
             where: {
-                parkingTypeGroup: 'guest',
+                parkingTypeGroup: "guest",
                 checkoutTime: {
                     [Op.between]: [dateStart, dateEnd],
                 },

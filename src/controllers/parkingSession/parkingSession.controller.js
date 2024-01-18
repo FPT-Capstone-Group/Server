@@ -4,6 +4,7 @@ const {
     Bike,
     Card,
     Owner,
+    Registration
 } = require("../../models");
 const {
     successResponse,
@@ -350,8 +351,19 @@ const getParkingSessionsByUsersPlateNumber = async (req, res) => {
         const user = req.user;
 
         // Check if the user owns the bike with the provided plate number
-        const bike = await Bike.findOne({
+        const registration = await Registration.findOne({
             where: {plateNumber, userId: user.userId},
+        });
+        if (!registration) {
+            return errorResponse(
+                req,
+                res,
+                "The bike is invalid or is not associated with the user",
+                404
+            );
+        }
+        const bike = await Bike.findOne({
+            where: {registrationId: registration.registrationId},
         });
 
         if (!bike) {
