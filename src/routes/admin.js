@@ -145,9 +145,9 @@ router.get("/payments", paymentController.getAllPayments);
 router.get("/payments/:parkingOrderId", paymentController.getPaymentsForParkingOrder);
 
 // Reports
-router.get("/getTotalCheckin", reportController.getTotalCheckin);
-router.get("/getTotalCheckout", reportController.getTotalCheckout);
-router.get("/getTotalGuestIncome", reportController.getTotalCheckout);
+router.get("/report/getTotalCheckin", reportController.getTotalCheckin);
+router.get("/report/getTotalCheckout", reportController.getTotalCheckout);
+router.get("/report/getTotalGuestIncome", reportController.getTotalGuestIncome);
 router.get(
     "/getGuestIncomeGroupByDate",
     reportController.getGuestIncomeGroupByDate

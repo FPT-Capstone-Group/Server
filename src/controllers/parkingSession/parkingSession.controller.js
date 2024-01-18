@@ -284,10 +284,12 @@ const checkOut = async (req, res) => {
 
     try {
         let parkingSession = await ParkingSession.findByPk(parkingSessionId);
+        const security = req.user.userFullName;
         parkingSession.checkoutCardId = checkoutCardId;
         parkingSession.checkoutFaceImage = checkoutFaceImage;
         parkingSession.checkoutPlateNumberImage = checkoutPlateNumberImage;
         parkingSession.parkingFee = parkingFee;
+        parkingSession.approvedBy = security;
         parkingSession.checkoutTime = moment().format("YYYY-MM-DD:HH:mm:ss");
 
         await parkingSession.save();

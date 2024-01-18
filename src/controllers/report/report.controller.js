@@ -14,7 +14,6 @@ const getTotalCheckin = async (req, res) => {
     try {
         const {parkingTypeGroup, dateStart, dateEnd} = req.query
 
-
         const parkingSessionCount = await ParkingSession.count({
             where: {
                 parkingTypeGroup: parkingTypeGroup,
@@ -32,8 +31,6 @@ const getTotalCheckin = async (req, res) => {
 const getTotalCheckout = async (req, res) => {
     try {
         const {parkingTypeGroup, dateStart, dateEnd} = req.query
-
-        const parkingType = await ParkingType.findOne({where: {parkingTypeGroup: parkingTypeGroup}});
 
         const parkingSessionCount = await ParkingSession.count({
             where: {
@@ -54,7 +51,7 @@ const getTotalGuestIncome = async (req, res) => {
 
         const guestIncome = await ParkingSession.sum('parkingFee', {
             where: {
-                parkingTypeGroup: 'guest',
+                parkingTypeGroup: "guest",
                 checkoutTime: {[Op.between]: [dateStart, dateEnd]}
             },
         });
