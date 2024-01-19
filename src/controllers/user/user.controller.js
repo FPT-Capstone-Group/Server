@@ -484,7 +484,7 @@ const getOtp = async (req, res) => {
 // Only admin can create security
 const createSecurityAccount = async (req, res) => {
     try {
-        const {username, password, fullName} = req.body;
+        const {username, password, userFullName} = req.body;
 
         // Check for whitespace in the username
         if (/\s/.test(username)) {
