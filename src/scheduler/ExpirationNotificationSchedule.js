@@ -6,7 +6,7 @@ const {Op} = require("sequelize");
 const {errorResponse, successResponse} = require("../helpers");
 
 const sendExpirationNotificationSchedule =
-    cron.schedule('0 9 * * *', async () => {
+    cron.schedule('0 0 * * *', async () => {
         const gmtOffset = 7 * 60; // GMT+7
         const now = new Date(new Date().getTime() + gmtOffset * 60000);
 
