@@ -257,6 +257,7 @@ const getAllUserRegistration = async (req, res) => {
 
 // User cancels their registration
 const cancelRegistration = async (req, res) => {
+    const t = await sequelize.transaction();
     try {
         const {registrationId} = req.query;
         const userId = req.user.userId;
@@ -282,7 +283,7 @@ const cancelRegistration = async (req, res) => {
 
         // Update the registration status to "Canceled"
         registration.registrationStatus = "canceled";
-        await registration.save();
+        await registration.save({transaction: t});
 
         // Create Registration History
         await createRegistrationHistory(

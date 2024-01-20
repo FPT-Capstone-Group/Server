@@ -85,7 +85,8 @@ const getNonGuestParkingTypes = async (req, res) => {
                 where: {
                     parkingTypeGroup: {
                         [Op.ne]: 'guest'
-                    }
+                    },
+                    parkingTypeStatus: 'active'
                 }
             }
         );
@@ -130,6 +131,75 @@ const getParkingTypeById = async (req, res) => {
         );
     } catch (error) {
         console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
+};
+
+
+const deactivateParkingType = async (req, res) => {
+    try {
+        const t = await sequelize.transaction();
+
+        const {parkingTypeId} = req.params;
+
+        const parkingType = await ParkingType.findByPk(parkingTypeId);
+
+        if (!parkingType) {
+            return errorResponse(req, res, "Parking type not found", 404);
+        }
+
+        parkingType.parkingTypeStatus = 'inactive';
+        await parkingType.save({transaction: t});
+
+        await t.commit();
+        const formattedParkingType = formatParkingType(parkingType);
+
+        return successResponse(
+            req,
+            res,
+            {parkingType: formattedParkingType},
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        t.rollback();
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
+};
+
+const activateParkingType = async (req, res) => {
+    try {
+        const t = await sequelize.transaction();
+
+        const {parkingTypeId} = req.params;
+
+        const parkingType = await ParkingType.findByPk(parkingTypeId);
+
+        const existingActiveParkingType = await ParkingType.findOne({
+            where: {
+                parkingTypeName: parkingType.parkingTypeName,
+                parkingTypeStatus: 'active'
+            },
+        });
+        if (existingActiveParkingType) {
+            return errorResponse(req, res, "Parking type name already exists and active", 400);
+        }
+
+        parkingType.parkingTypeStatus = 'active';
+        await parkingType.save({transaction: t});
+
+        await t.commit();
+        const formattedParkingType = formatParkingType(parkingType);
+
+        return successResponse(
+            req,
+            res,
+            {parkingType: formattedParkingType},
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        t.rollback();
         return errorResponse(req, res, "Internal Server Error", 500, error);
     }
 };
@@ -214,5 +284,7 @@ module.exports = {
     getParkingTypeById,
     updateParkingTypeById,
     deleteParkingTypeById,
-    getNonGuestParkingTypes
+    getNonGuestParkingTypes,
+    deactivateParkingType,
+    activateParkingType
 };

@@ -4,6 +4,7 @@ const {
     Bike,
     Card,
     Owner,
+    Registration
 } = require("../../models");
 const {
     successResponse,
@@ -124,7 +125,7 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
                     parkingTypeStatus: "active"
                 },
             });
-
+            console.log(dayFee.parkingTypeFee)
             const nightFee = await ParkingType.findOne({
                 attributes: ["parkingTypeFee"],
                 where: {
@@ -132,15 +133,21 @@ const getParkingDataForEvaluateGuest = async (req, res) => {
                     parkingTypeStatus: "active"
                 },
             });
+            console.log(nightFee.parkingTypeFee)
 
             const checkoutTime = moment().format("YYYY-MM-DD HH:mm:ss");
+
+            console.log(`Checkin: ${parkingSession.checkinTime}`)
+            console.log(`Checkout: ${checkoutTime}`)
+
             // Calculate parking fee
             parkingSession.parkingFee = calculateParkingFee(
                 parkingSession.checkinTime,
                 checkoutTime,
-                dayFee.parkingTypeFee,
-                nightFee.parkingTypeFee
+                parseInt(dayFee.parkingTypeFee) ,
+                parseInt(nightFee.parkingTypeFee),
             );
+
 
             const candidateFaceImage = riderFaceImage;
             const targetFaceImage = parkingSession.checkinFaceImage;
@@ -240,7 +247,7 @@ const checkIn = async (req, res) => {
     } = req.body;
     const checkinTime = moment().format("YYYY-MM-DD HH:mm:ss");
     try {
-        const security = req.user.fullName;
+        const security = req.user.userFullName;
         const newParkingSession = await ParkingSession.create({
             checkinCardId,
             checkinTime,
@@ -278,10 +285,12 @@ const checkOut = async (req, res) => {
 
     try {
         let parkingSession = await ParkingSession.findByPk(parkingSessionId);
+        const security = req.user.userFullName;
         parkingSession.checkoutCardId = checkoutCardId;
         parkingSession.checkoutFaceImage = checkoutFaceImage;
         parkingSession.checkoutPlateNumberImage = checkoutPlateNumberImage;
         parkingSession.parkingFee = parkingFee;
+        parkingSession.approvedBy = security;
         parkingSession.checkoutTime = moment().format("YYYY-MM-DD:HH:mm:ss");
 
         await parkingSession.save();
@@ -342,8 +351,19 @@ const getParkingSessionsByUsersPlateNumber = async (req, res) => {
         const user = req.user;
 
         // Check if the user owns the bike with the provided plate number
-        const bike = await Bike.findOne({
+        const registration = await Registration.findOne({
             where: {plateNumber, userId: user.userId},
+        });
+        if (!registration) {
+            return errorResponse(
+                req,
+                res,
+                "The bike is invalid or is not associated with the user",
+                404
+            );
+        }
+        const bike = await Bike.findOne({
+            where: {registrationId: registration.registrationId},
         });
 
         if (!bike) {

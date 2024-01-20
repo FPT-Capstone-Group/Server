@@ -72,11 +72,21 @@ const getParkingOrderInfo = async (req, res) => {
 };
 
 
-
 const getParkingOrderDetail = async (req, res) => {
     const {parkingOrderId} = req.params;
     try {
-        const parkingOrder = await ParkingOrder.findByPk(parkingOrderId);
+        const parkingOrder = await ParkingOrder.findByPk(parkingOrderId, {
+            include: [
+                {
+                    model: Bike,
+                    attributes: ["plateNumber"],
+                },
+                {
+                    model: ParkingType,
+                    attributes: ["parkingTypeName"],
+                },
+            ]
+        });
 
         if (!parkingOrder) {
             return errorResponse(req, res, "Invalid parkingOrderId", 400);
@@ -111,6 +121,7 @@ const createParkingOrder = async (req, res) => {
             bikeId,
             parkingTypeId,
             parkingOrderStatus: "pending",
+            parkingOrderType: "user_created",
             expiredDate,
             parkingOrderAmount,
         });
@@ -139,10 +150,11 @@ const createRenewalParkingOrder = async (parkingOrderId) => {
         let expiredDate = parkingOrder.expiredDate;
         updateExpiredDate(parkingType.parkingTypeName, expiredDate);
         const parkingOrderAmount = parkingType.parkingTypeFee;
-        const newRenewalParkingOrder = await ParkingOrder.create({
+        await ParkingOrder.create({
             bikeId: parkingOrder.bikeId,
             parkingTypeId: parkingOrder.parkingTypeId,
             parkingOrderStatus: "pending",
+            parkingOrderType: "auto_renewal",
             expiredDate,
             parkingOrderAmount,
         });
@@ -162,15 +174,15 @@ const cancelParkingOrder = async (req, res) => {
         if (!parkingOrder) {
             return errorResponse(req, res, "Invalid parkingOrderId", 400);
         }
-        if (parkingOrder.parkingOrderStatus === "cancelled") {
-            return errorResponse(req, res, "Parking order is already cancelled", 400);
+        if (parkingOrder.parkingOrderStatus === "canceled") {
+            return errorResponse(req, res, "Parking order is already canceled", 400);
         }
         if (parkingOrder.parkingOrderStatus === "active") {
             return errorResponse(req, res, "Parking order is already active", 400);
         }
-        parkingOrder.parkingOrderStatus = "cancelled";
+        parkingOrder.parkingOrderStatus = "canceled";
         await parkingOrder.save();
-        return successResponse(req, res, `Parking order ${parkingOrderId} cancelled successfully`, 200);
+        return successResponse(req, res, `Parking order ${parkingOrderId} canceled successfully`, 200);
     } catch (error) {
         console.error("Internal Server Error:", error);
         return errorResponse(req, res, "Internal Server Error", 500, error);

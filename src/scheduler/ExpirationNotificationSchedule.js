@@ -1,11 +1,12 @@
 const sequelize = require("../config/sequelize");
-const {ParkingOrder, Bike, User, ParkingOption} = require("../models");
+const {ParkingOrder, Bike, User, ParkingOption, Registration} = require("../models");
 const notificationController = require("../controllers/notification/notification.controller");
 const cron = require("node-cron");
 const {Op} = require("sequelize");
+const {errorResponse, successResponse} = require("../helpers");
 
 const sendExpirationNotificationSchedule =
-    cron.schedule('0 9 * * *', async () => {
+    cron.schedule('0 0 * * *', async () => {
         const gmtOffset = 7 * 60; // GMT+7
         const now = new Date(new Date().getTime() + gmtOffset * 60000);
 
@@ -33,15 +34,23 @@ const sendExpirationNotification = async () => {
         const nearExpiredParkingOrders = await ParkingOrder.findAll({
             where: {
                 expiredDate: {
-                    [Op.between]: [currentDate, new Date(currentDate.getTime() + daysBeforeExpired.parkingOptionValue * 24 * 60 * 60 * 1000) ]
+                    [Op.between]: [currentDate, new Date(currentDate.getTime() + daysBeforeExpired.parkingOptionValue * 24 * 60 * 60 * 1000)]
                 }
             }
         });
 
 
         for (const parkingOrder of expiredParkingOrders) {
-            const bike = await Bike.findByPk(parkingOrder.bikeId);
-            const user = await User.findByPk(bike.userId);
+             const bike = await Bike.findByPk(parkingOrder.bikeId,
+                {
+                    include: [
+                        {
+                            model: Registration,
+                            attributes: ["userId"],
+                        },
+                    ],
+                });
+            const user = await User.findByPk(bike.Registration.userId);
             const expiredDate = new Date(parkingOrder.expiredDate).setHours(0, 0, 0, 0);
 
             const diffInMs = expiredDate - currentDate;
@@ -50,7 +59,7 @@ const sendExpirationNotification = async () => {
             if (diffInDays < 0 && diffInDays >= -daysBeforeExpired.parkingOptionValue) {
                 notificationBody = `Your parking order of plate number: ${bike.plateNumber} has been expired for ${diffInDays} day(s). Please proceed your renewal order for continue parking!`;
             } else if (diffInDays === 0) {
-                notificationBody = `Your parking order of plate number: ${bike.plateNumber} is expired today. Please proceed your renewal order for continue parking!`;
+                notificationBody = `Your parking order of plate number: ${bike.plateNumber} is expired by the end of today. Please proceed your renewal order for continue parking!`;
             }
             const notificationTitle = "Parking Order Expired";
 
@@ -70,8 +79,16 @@ const sendExpirationNotification = async () => {
         }
 
         for (const parkingOrder of nearExpiredParkingOrders) {
-            const bike = await Bike.findByPk(parkingOrder.bikeId);
-            const user = await User.findByPk(bike.userId);
+              const bike = await Bike.findByPk(parkingOrder.bikeId,
+                {
+                    include: [
+                        {
+                            model: Registration,
+                            attributes: ["userId"],
+                        },
+                    ],
+                });
+            const user = await User.findByPk(bike.Registration.userId);
 
             const expiredDate = new Date(parkingOrder.expiredDate).setHours(0, 0, 0, 0);
             const diffInMs = expiredDate - currentDate;
@@ -103,7 +120,21 @@ const sendExpirationNotification = async () => {
     }
 }
 
+const triggerSendExpirationNotification = async (req, res) => {
+
+    try {
+        await sendExpirationNotification();
+        return successResponse(req, res, "Expiration notification Schedule triggered!", 200);
+
+    } catch (error) {
+        console.error(error);
+        return errorResponse(req, res, "Internal Server Error", 500, error);
+    }
+};
+
 
 module.exports = {
-    sendExpirationNotificationSchedule
+    sendExpirationNotificationSchedule,
+    sendExpirationNotification,
+    triggerSendExpirationNotification
 }

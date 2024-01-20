@@ -25,12 +25,14 @@ const {sendExpirationNotification, sendExpirationNotificationSchedule} = require
 // const serviceAccountCredentials = process.env.FIREBASE_ADMIN_CREDENTIALS
 // const serviceAccount = JSON.parse(serviceAccountCredentials);
 const serviceAccount = require('./firebase-admin-credentials.json');
-const {createRenewalParkingOrderSchedule} = require("./src/scheduler/CreateRenewalParkingOrderSchedule");
+const {createRenewalParkingOrderSchedule, autoCreateRenewalParkingOrder} = require("./src/scheduler/CreateRenewalParkingOrderSchedule");
+const {cancelOverdueParkingOrderSchedule} = require("./src/scheduler/CancelOverdueParkingOrderSchedule");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 sendExpirationNotificationSchedule.start();
 createRenewalParkingOrderSchedule.start();
+cancelOverdueParkingOrderSchedule.start();
 
 const app = express();
 app.use(
@@ -48,5 +50,6 @@ app.use("/api", apiMiddleware, apiRoutes);
 app.use("/api/admin", apiMiddleware, adminMiddleware, adminRoutes);
 app.use("/api/security", apiMiddleware, securityMiddleware, securityRoutes);
 app.use(errorHandler);
+
 
 module.exports = app;

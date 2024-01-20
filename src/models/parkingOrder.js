@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        parkingOrderType: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         parkingOrderAmount: {
             type: DataTypes.FLOAT,
             allowNull: false,

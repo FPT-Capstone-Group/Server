@@ -7,7 +7,7 @@ const {
 } = require("../../helpers");
 const {Op} = require("sequelize");
 // Sub function
-const formattedParkingOption = (parkingOption) => {
+const formatParkingOption = (parkingOption) => {
     return {
         ...parkingOption.toJSON(),
         createdAt: formatToMoment(parkingOption.createdAt),
@@ -20,6 +20,8 @@ const mandatoryOptions = ['maximumOwnerLimit', 'daysBeforeExpired'];
 const getAllParkingOptions = async (req, res) => {
     try {
         const parkingOptions = await ParkingOption.findAll();
+        // const formattedParkingOptions = parkingOptions.map((parkingOption) => formatParkingOption(parkingOption));
+
         return successResponse(req, res, parkingOptions, 200);
     } catch (error) {
         console.error(error);
@@ -45,7 +47,7 @@ const createParkingOption = async (req, res) => {
         return successResponse(
             req,
             res,
-            formattedParkingOption(newParkingOption),
+            newParkingOption,
             201
         );
     } catch (error) {
@@ -72,12 +74,14 @@ const updateParkingOption = async (req, res) => {
             }
         });
 
+        // const formattedParkingOption = formatParkingOption(updatedParkingOption);
         return successResponse(
             req,
             res,
-            formattedParkingOption(updatedParkingOption),
+            updatedParkingOption,
             201
         );
+
     } catch (error) {
         console.error(error);
         return errorResponse(req, res, "Internal Server Error", 500, error);
@@ -85,10 +89,8 @@ const updateParkingOption = async (req, res) => {
 }
 
 
-
 module.exports = {
     getAllParkingOptions,
     createParkingOption,
     updateParkingOption,
-
 };

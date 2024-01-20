@@ -12,13 +12,11 @@ const {Op} = require("sequelize");
 
 const getTotalCheckin = async (req, res) => {
     try {
-        const {parkingTypeName, dateStart, dateEnd} = req.query
-
-        const parkingType = await ParkingType.findOne({where: {name: parkingTypeName}});
+        const {parkingTypeGroup, dateStart, dateEnd} = req.query
 
         const parkingSessionCount = await ParkingSession.count({
             where: {
-                parkingTypeId: parkingType.parkingTypeId,
+                parkingTypeGroup: parkingTypeGroup,
                 checkinTime: {[Op.between]: [dateStart, dateEnd]}
             },
         });
@@ -32,13 +30,11 @@ const getTotalCheckin = async (req, res) => {
 
 const getTotalCheckout = async (req, res) => {
     try {
-        const {parkingTypeName, dateStart, dateEnd} = req.query
-
-        const parkingType = await ParkingType.findOne({where: {name: parkingTypeName}});
+        const {parkingTypeGroup, dateStart, dateEnd} = req.query
 
         const parkingSessionCount = await ParkingSession.count({
             where: {
-                parkingTypeId: parkingType.parkingTypeId,
+                parkingTypeGroup: parkingTypeGroup,
                 checkoutTime: {[Op.between]: [dateStart, dateEnd]}
             },
         });
@@ -53,10 +49,9 @@ const getTotalGuestIncome = async (req, res) => {
     try {
         const {dateStart, dateEnd} = req.query
 
-        const parkingType = await ParkingType.findOne({where: {name: 'guest'}});
         const guestIncome = await ParkingSession.sum('parkingFee', {
             where: {
-                parkingTypeId: parkingType.parkingTypeId,
+                parkingTypeGroup: "guest",
                 checkoutTime: {[Op.between]: [dateStart, dateEnd]}
             },
         });
@@ -74,14 +69,13 @@ const getGuestIncomeGroupByDate = async (req, res) => {
     try {
         const {dateStart, dateEnd} = req.query
 
-        const parkingType = await ParkingType.findOne({where: {name: 'guest'}});
         const result = await ParkingSession.findAll({
             attributes: [
                 [sequelize.fn('SUM', sequelize.col('parkingFee')), 'totalParkingFee'],
                 [sequelize.literal(`DATE("checkoutTime")`), 'date'],
             ],
             where: {
-                parkingTypeId: parkingType.parkingTypeId,
+                parkingTypeGroup: "guest",
                 checkoutTime: {
                     [Op.between]: [dateStart, dateEnd],
                 },
